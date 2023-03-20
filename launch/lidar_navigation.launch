@@ -1,0 +1,31 @@
+<launch>
+<!-- Run one lidar_front_data node -->
+<node pkg="SIMU_webots" name="get_front_data" type="lidar_data.py" output="screen" required="true">
+    <param name="front_topic" value="/front_data"/>
+    <param name="side_topic" value="/side_data"/>
+    <param name="lidar_topic" value="/LidarScan"/>
+</node>
+
+<!-- Run one lidar_data_process -->
+<node pkg="SIMU_webots" name="data_process" type="lidar_data_process.py" output="screen" required="true">
+    <param name="front_data_topic" value="/front_data"/>
+    <param name="side_data_topic" value="/side_data"/>
+</node>
+
+<!-- Run one lidar_nav_controller -->
+<node pkg="SIMU_webots" name="nav_controller" type="lidar_nav_controller.py" output="screen" required="true">
+    
+</node>
+
+<param name="lidar_nav_only" value="False"/>
+
+<param name="kc" value="-0.3"/>
+<param name="kd" value="3."/>
+<param name="ks" value="1"/>
+
+<param name="step_size" value="10"/>
+
+<param name="angle0" value="120"/> <!--angles en degres, convertis en radians par la suite-->
+<param name="angle1" value="240"/> <!--angles en degres, convertis en radians par la suite-->
+
+</launch>

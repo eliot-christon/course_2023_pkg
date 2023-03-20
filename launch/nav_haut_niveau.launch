@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+
+    <include file="$(find SIMU_webots)/launch/lidar_navigation.launch"/>
+    
+    <include file="$(find SIMU_webots)/launch/nav_tofs.launch" />
+
+
+    <node pkg="SIMU_webots" type="nav_haut_niveau.py" name="nav_haut_niveau" output="screen"/>
+
+</launch>
+
