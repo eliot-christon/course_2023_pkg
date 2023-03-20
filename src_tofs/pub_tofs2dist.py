@@ -49,4 +49,5 @@ if __name__ == "__main__" :
     max_ds = rospy.get_param(topic_folder+"tofs_default_max_dist",  default=10.0)
 
     Distance(MAX_DIST=max_ds)
+    # now we can use rospy.spin() to keep the node alive
     rospy.spin()
