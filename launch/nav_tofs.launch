@@ -8,12 +8,12 @@
 	<param name="min_dist"  value="0.4"/>
 
 	<!-- Run nodes -->
-	<node pkg="SIMU_webots" type="pub_tofs2dist.py" name="pub_tofs2dist"/>
+	<node pkg="course_2023_pkg" type="pub_tofs2dist.py" name="pub_tofs2dist"/>
 
-	<node pkg="SIMU_webots" type="nav_tofs.py" name="nav_tofs" output="screen">
+	<node pkg="course_2023_pkg" type="nav_tofs.py" name="nav_tofs" output="screen">
 
 	</node>
 
-    <!--<node pkg="SIMU_webots" type="plot_sensors.py" name="plot_sensors"/>-->
+    <!--<node pkg="course_2023_pkg" type="plot_sensors.py" name="plot_sensors"/>-->
 
 </launch>
