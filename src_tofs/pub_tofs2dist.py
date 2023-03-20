@@ -28,6 +28,7 @@ class Distance() :
         self.sub_tofs = rospy.Subscriber("/SensorsScan", Float32MultiArray, self.callback_tofs)
 
     def callback_tofs(self, msg) :
+        """ Callback of the tofs subscriber """
         # [front_left, front_right, back, left]
         # ??? why not [front_left, front_right, back_left, back_right, left, right] ???
         self.dist = [d if d > 0.001 else self.MAX_DIST for d in msg.data]
