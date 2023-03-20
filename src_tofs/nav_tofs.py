@@ -12,11 +12,12 @@ from std_msgs.msg import Float32MultiArray, Float32, String
 
 class Navigation() : 
 
-    def __init__(self, MAX_SPEED=1.0, MAX_ANGLE=1.0, MAX_DIST=10.0, MIN_DIST=0.4, MIN_SPEED=0.2, BACKWARD_SPEED=0.5) : 
+    def __init__(self, MAX_SPEED=1.0, MAX_ANGLE=1.0, MAX_DIST=10.0, MIN_DIST=0.4, MIN_SPEED=0.2, BACKWARD_SPEED=0.5, LEFT_IS_GREEN=True) : 
         # variables
         self.speed = 0
         self.angle = 0
         self.dist = [10.0, 10.0, 10.0, 10.0]
+        self.wall_color = ""
 
         # constants
         self.MAX_SPEED = MAX_SPEED # default max speed of the car
@@ -25,6 +26,7 @@ class Navigation() :
         self.MIN_DIST  = MIN_DIST  # minimum distance = too close
         self.MIN_SPEED = MIN_SPEED # minimum speed = too slow
         self.BACKWARD_SPEED = BACKWARD_SPEED # speed command when the car is going backward
+        self.LEFT_IS_GREEN = LEFT_IS_GREEN # True if the left wall is green, False if the right wall is green
 
         # print the parameters
         print("PARAMETERS : ")
@@ -34,6 +36,7 @@ class Navigation() :
         print("MIN_DIST  = %.2f" % self.MIN_DIST)
         print("MIN_SPEED = %.2f" % self.MIN_SPEED)
         print("BACKWARD_SPEED = %.2f" % self.BACKWARD_SPEED)
+        print("LEFT_IS_GREEN = %s" % self.LEFT_IS_GREEN)
 
         # Init ROS node
         rospy.init_node('nav_tofs', anonymous=True)
@@ -44,6 +47,11 @@ class Navigation() :
 
         # Init ROS SUBSCRIBERS
         self.sub_dist = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_dist)
+        self.sub_wall = rospy.Subscriber("/WallColor", String, self.callback_wall)
+    
+    def callback_wall(self, msg) :
+        """ Callback function for the wall color topic """
+        self.wall_color = msg.data
 
     def callback_dist(self, msg) :
         """ Callback function for the distance topic """

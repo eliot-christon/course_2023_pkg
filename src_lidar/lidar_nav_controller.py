@@ -25,7 +25,8 @@ def angle_regulator_callback(msg_dir,msg_center,c):
     u= k_d*d_dir +k_c*d_center 
 
     #saturator
-    c.ang=np.tanh(u)
+    c.ang=np.tanh(u)*rospy.get_param("MAX_ANGLE",default=1)
+
 
 def speed_regulator_callback(msg_front_dist,c):
     front_dist=msg_front_dist.data
@@ -34,7 +35,7 @@ def speed_regulator_callback(msg_front_dist,c):
 
     u=k_s*front_dist
 
-    c.speed=np.tanh(u)
+    c.speed=np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
 
 
 if __name__=='__main__':
@@ -68,21 +69,20 @@ if __name__=='__main__':
         rate=rospy.Rate(10)
 
         #publish on angular and speed command topic
-        if rospy.get_param("lidar_nav_only",default=False):
-            angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
-            speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
-        else:
-            command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
+        
+        angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
+        speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
+
+        command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
 
 
         while not rospy.is_shutdown():
+            
+            angle_pub.publish(c.ang)
+            speed_pub.publish(c.speed)
+            c.command.data=[c.speed, c.ang]
 
-            if rospy.get_param("lidar_nav_only",default=False):
-                angle_pub.publish(c.ang)
-                speed_pub.publish(c.speed)
-            else:
-                c.command.data=[c.speed, c.ang]
-                command_pub.publish(c.command)
+            command_pub.publish(c.command)
 
             rate.sleep()
 

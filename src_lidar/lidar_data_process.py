@@ -27,7 +27,6 @@ def data_process_callback(msg_f,msg_s,c):
     #-> parcourt le tableau des angles et on le multiplie par la distance, on fait la moyenne puis sur le nombre total
     #de distances et ca devrait nous donner la direction a prendre
     #
-    only_lidar=rospy.get_param("lidar_nav_only",default=False)
     front_data=msg_f.data #tableau contient dist autour du robot entre [a0,a1]
     
     a0,a1=rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)
@@ -57,15 +56,7 @@ def data_process_callback(msg_f,msg_s,c):
     
     c.front_dist.data=front_dist #influence la vitesse
 
-    if only_lidar:
-        if front_dist<0.9 and c.offset==0:
-            if front_data[n//4]<front_data[3*n//4]:
-                c.offset=-0.1
-            else:
-                c.offset=0.1
-
-        if front_dist>1.5 and c.offset!=0:
-            c.offset=0
+    
 
     #equivalent to orientation error
     direction=avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
