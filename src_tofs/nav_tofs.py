@@ -149,8 +149,13 @@ class Navigation() :
                 if new_angle > self.MAX_ANGLE :
                     new_angle = self.MAX_ANGLE
                 
-                # if the right distance is smaller than the left distance => turn right
-                if sensor["fr"] < sensor["fl"] :
+                # if the difference between the front sensors is too small => turn in the right direction
+                if (abs(sensor["fr"] - sensor["fl"]) < 3.) and (self.wall_color in ["green", "red"]) :
+                    mess = "Turning with wall color information"
+                    if (self.LEFT_IS_GREEN and self.wall_color == "red") or ((not self.LEFT_IS_GREEN) and self.wall_color == "green") :
+                        new_angle = -new_angle
+                # if the right sensor is closer => turn right
+                elif sensor["fr"] < sensor["fl"] :
                     new_angle = -new_angle
 
                 if min(sensor["fl"], sensor["fr"]) < self.MIN_DIST :

@@ -53,7 +53,7 @@ Ce noeud publie sur deux topics:
 
         #publisher
         pubdir_topic = "/Direction"
-        pubwcolor_topic = "/Wallcolor"
+        pubwcolor_topic = "/WallColor"
         self.pubdir=rospy.Publisher(pubdir_topic, String, queue_size=10)
         self.pubwcolor=rospy.Publisher(pubwcolor_topic, String, queue_size=10)
         self.dir=String()
