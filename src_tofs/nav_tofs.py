@@ -199,9 +199,10 @@ if __name__ == "__main__" :
         min_ds = rospy.get_param(topic_folder+"min_dist",  default=0.4)
         max_ag = rospy.get_param(topic_folder+"max_angle", default=1.0)
         back_sp = rospy.get_param(topic_folder+"backward_speed", default=0.5)
+        left_is_green = rospy.get_param(topic_folder+"left_is_green", default=True)
 
         
-        nav = Navigation(MAX_SPEED=max_sp, MAX_ANGLE=max_ag, MAX_DIST=max_ds, MIN_DIST=min_ds, MIN_SPEED=min_sp, BACKWARD_SPEED=back_sp)
+        nav = Navigation(MAX_SPEED=max_sp, MAX_ANGLE=max_ag, MAX_DIST=max_ds, MIN_DIST=min_ds, MIN_SPEED=min_sp, BACKWARD_SPEED=back_sp, LEFT_IS_GREEN=left_is_green)
         nav.run()
 
         rospy.spin()
