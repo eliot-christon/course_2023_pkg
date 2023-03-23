@@ -50,7 +50,7 @@ def interpolate(data, ind):
 
 def lidar_preprocess_callback(msg,c):
      
-    scan=np.array(msg.data['ranges'])
+    scan=np.array(msg.ranges)
     n=len(scan)
     
     intv=[int(rospy.get_param("angle0",default=120)/90 * n/4),
@@ -105,7 +105,7 @@ if __name__=='__main__':
         c=Control()
 
         #subscriber sur lidar topic qui range dans control la valeur du front data
-        rospy.Subscriber(lidar_topic, Float32MultiArray, lidar_preprocess_callback,c)
+        rospy.Subscriber(lidar_topic, LaserScan, lidar_preprocess_callback,c)
 
 
         #publisher de front data

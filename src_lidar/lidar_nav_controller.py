@@ -69,17 +69,24 @@ if __name__=='__main__':
         rate=rospy.Rate(10)
 
         #publish on angular and speed command topic
+        
+        angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
+        speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
 
         command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
 
 
         while not rospy.is_shutdown():
             
+            angle_pub.publish(c.ang)
+            speed_pub.publish(c.speed)
             c.command.data=[c.speed, c.ang]
 
             command_pub.publish(c.command)
 
             rate.sleep()
+        
+        
 
 
         
@@ -87,3 +94,9 @@ if __name__=='__main__':
 
     except rospy.ROSInterruptException:
         pass
+
+    finally:
+        print("exitting lidar navigation. All commands set to 0")
+        #comment fair epour envoyer dernier msg de shutdown??????
+        rospy.Publisher("/AngleCommand",Float32,queue_size=1).publish(0)
+        rospy.Publisher("/SpeedCommand",Float32,queue_size=1).publish(0)
