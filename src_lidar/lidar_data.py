@@ -36,7 +36,7 @@ def interpolate(data, ind):
     #PAS CRITIQUE MAIS FAUT FAIRE ATTENTION-> CONDITION DE SECURITE 
     # -> P.EX. SI LA PENTE DY/DX EST TROP GRANDE => PROBABLEMENT VRAI TROU
 
-
+    print(s,e,data[s],data[e])
     #construction droite lineaire
     dx=e-s
     dy=data[e]-data[s]
@@ -83,9 +83,11 @@ def lidar_preprocess_callback(msg,c):
     for i in [n//4,3*n//4]:
         if scan[i]!=float('inf'):
             c.side_dist.data.append(np.clip(scan[i],0,3)) 
+            
         else:
             scan=interpolate(scan,i)
             c.side_dist.data.append(np.clip(scan[i],0,3))
+          
 
 
     #print(len(c.front_dist.data))       

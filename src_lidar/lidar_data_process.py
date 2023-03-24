@@ -90,7 +90,7 @@ def analyze_front(front_data,c):
     
     ind0=np.where(angles>=i0)[0][0]
     ind1=np.where(angles>=i1)[0][0]
-    
+
     front_dist=0
     r=range(ind0,ind1,3)
     for i in r:
@@ -102,7 +102,7 @@ def analyze_front(front_data,c):
     if np.all(np.array(front_data[ind0:ind1])>SAFETY_DIST) and c.obstacle_ahead==True:
         c.obstacle_ahead=False
     
-    print(front_dist,c.obstacle_ahead)
+    #print(front_dist,c.obstacle_ahead)
 
     """ n=len(front_data)
     front_dist=front_data[n//2] #if front_data[n//2]>MIN_DIST else 0#-front_data[n//2]/2
@@ -156,7 +156,7 @@ def data_process_callback(msg_f,msg_s,c):
     side_data=msg_s.data
     #equivalent to centering error
     c.center=side_data[0]-side_data[1] +c.offset #left-right + offset
-
+    
     
 
 if __name__=='__main__':
