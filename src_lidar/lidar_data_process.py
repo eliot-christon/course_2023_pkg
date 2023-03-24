@@ -8,7 +8,7 @@ import message_filters
 from std_msgs.msg import Float32MultiArray, Float32
 
 MIN_DIST=0.7
-SAFETY_DIST=1.
+SAFETY_DIST=0.7
 
 class Control:
     def __init__(self):
@@ -41,6 +41,11 @@ def default_nav(front_data):
 
     return direction
 
+#SI IL Y A EVITEENT REFERMER LANGLE DE VISION POUR NE PAS REVENIR DIRECT
+#SUR LE CHEMIN DE L'OBSTACLE 
+#-> UN MOYEN D'EVITER CA SE SERAIT DE SMOOTH LES COMMANDES QUI PASSENT DE +1 A -1 ETC
+#COMME CA SI IL EVITE OBSTACLE EN PARTANT A GAUCHE ET ENSUITE IL VEUT ALLER 
+#A DROITE LA COMMANDE SERA PAS AUSSI BRUSQUE 
 def quadran_nav(front_data,N):
 
     step_size=rospy.get_param("step_size",default=10)#step interval for front_data
@@ -78,8 +83,28 @@ def analyze_front(front_data,c):
     
     step_size=rospy.get_param("step_size",default=10)
 
-    #UTILISER i0,i1 POUR CALCULER FRONT DIST !!!!!
-    n=len(front_data)
+    a0,a1=rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
+    i0,i1=rospy.get_param("i0",default=165),rospy.get_param("i1",default=195) 
+
+    angles=np.linspace(a0,a1,len(front_data))
+    
+    ind0=np.where(angles>=i0)[0][0]
+    ind1=np.where(angles>=i1)[0][0]
+    
+    front_dist=0
+    r=range(ind0,ind1,3)
+    for i in r:
+        if front_data[i]<SAFETY_DIST : c.obstacle_ahead=True
+        front_dist+=front_data[i]
+    
+    front_dist/=len(r) #on moyenne sur le nomnre de points utilises
+
+    if np.all(np.array(front_data[ind0:ind1])>SAFETY_DIST) and c.obstacle_ahead==True:
+        c.obstacle_ahead=False
+    
+    print(front_dist,c.obstacle_ahead)
+
+    """ n=len(front_data)
     front_dist=front_data[n//2] #if front_data[n//2]>MIN_DIST else 0#-front_data[n//2]/2
     if front_data[n//2]<SAFETY_DIST : c.obstacle_ahead=True
     for i in range(1,step_size//2):
@@ -90,7 +115,7 @@ def analyze_front(front_data,c):
 
     
     front_dist/=step_size
-
+ """
     return front_dist
 
 
@@ -117,7 +142,7 @@ def data_process_callback(msg_f,msg_s,c):
     front_dist=analyze_front(front_data,c)
     
     
-    if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
+    #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
     
     c.front_dist=front_dist
 

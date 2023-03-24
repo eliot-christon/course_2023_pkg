@@ -32,4 +32,9 @@
 <param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
 <param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
 
+<!--angles utilises pour calcul de front_dist-->
+<param name="i0" value="165"/> 
+<param name="i1" value="195"/> 
+
+<param name="N_cadrans" value='3'/>
 </launch>
