@@ -47,6 +47,9 @@ Ce noeud publie sur deux topics:
     """
 
     def __init__(self, w, h) : 
+
+        rospy.init_node('dir_indicator', anonymous = True)
+
         #subscriber
         sub_topic = rospy.get_param("image_datas", default="/ImageScan")
         self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
@@ -61,8 +64,10 @@ Ce noeud publie sur deux topics:
 
         #valeurs pour redimensionner l'image récupéré
         self.w, self.h = w, h
-        self.left = np.zeros((self.h))
-        self.right = np.zeros((self.h))
+        self.lefthsv = np.zeros((self.h,3))
+        self.righthsv = np.zeros((self.h,3))
+        self.middlehsv = np.zeros((self.h,3))
+
         
         
     def callback(self, msg) : 
@@ -73,75 +78,88 @@ Ce noeud publie sur deux topics:
         middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,320,0:3]
 
         #On convertie leurs valeur bgr en valeur hsv
-        lefthsv = bgr2hsv(leftscan)
-        righthsv = bgr2hsv(rightscan)
-        middlehsv = bgr2hsv(middlescan)
+        self.lefthsv = bgr2hsv(leftscan)
+        self.righthsv = bgr2hsv(rightscan)
+        self.middlehsv = bgr2hsv(middlescan)
 
+    def run(self):
+        rate = rospy.Rate(2)
 
-        #On compte le nombre de pixel rouge selon leur valeur hsv
-        count_red_left=0
-        for p in lefthsv:
-            if p[0]<14 or p[0]>280:
-                if p[1]>90 and p[2]>50:
-                    count_red_left+=1
+        while not rospy.is_shutdown() :
+            #On compte le nombre de pixel rouge selon leur valeur hsv
+            count_red_left=0
+            for p in self.lefthsv:
+                if p[0]<14 or p[0]>280:
+                    if p[1]>90 and p[2]>50:
+                        count_red_left+=1
         
-        count_red_right=0
-        for p in righthsv:
-            if p[0]<14 or p[0]>330:
-                if p[1]>90 and p[2]>50:
-                    count_red_right+=1
+            count_red_right=0
+            for p in self.righthsv:
+                if p[0]<14 or p[0]>330:
+                    if p[1]>90 and p[2]>50:
+                        count_red_right+=1
 
-        count_red_middle=0
-        for p in middlehsv:
-            if p[0]<14 or p[0]>330:
-                if p[1]>90 and p[2]>50:
-                    count_red_middle+=1
+            count_red_middle=0
+            for p in self.middlehsv:
+                if p[0]<14 or p[0]>330:
+                    if p[1]>90 and p[2]>50:
+                        count_red_middle+=1
 
         
         
-        #On compte le nombre de pixel vert à l'aide de leur valeur hsv
-        count_green_left=0
-        for p in lefthsv:
-            if p[0]>90 and p[0]<160:
-                if p[1]>50 and p[2]>50:
-                    count_green_left+=1
+            #On compte le nombre de pixel vert à l'aide de leur valeur hsv
+            count_green_left=0
+            for p in self.lefthsv:
+                if p[0]>90 and p[0]<160:
+                    if p[1]>50 and p[2]>50:
+                        count_green_left+=1
         
-        count_green_right=0
-        for p in righthsv:
-            if p[0]>90 and p[0]<160:
-                if p[1]>50 and p[2]>50:
-                    count_green_right+=1
+            count_green_right=0
+            for p in self.righthsv:
+                if p[0]>90 and p[0]<160:
+                    if p[1]>50 and p[2]>50:
+                        count_green_right+=1
 
-        count_green_middle=0
-        for p in middlehsv:
-            if p[0]>90 and p[0]<160:
-                if p[1]>50 and p[2]>50:
-                    count_green_middle+=1
+            count_green_middle=0
+            for p in self.middlehsv:
+                if p[0]>90 and p[0]<160:
+                    if p[1]>50 and p[2]>50:
+                        count_green_middle+=1
+    
+            #Publication par default
+            self.wcolor.data="???"
+            self.dir.data="???"
 
+            #On verifie que les données sont exploitables
+            if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
+                rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+                #On détermine la direction prise par le véhicule
+                if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
+                #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
+                    self.dir.data="wrong"
+                
+                elif (count_green_right > count_green_left) or (count_red_left > count_red_right):
+                #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
+                    self.dir.data="right"
 
-        #On détermine la direction prise par le véhicule
+            else:
+                self.dir.data="???"
 
-        if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
-            #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
-            if count_green_left > 20 or count_red_right > 20:
-                self.dir.data="wrong"
+            #On indique la couleur en face du véhicule
+
+            if (count_green_middle > count_red_middle) and count_green_middle > 30:
+                self.wcolor.data="green"
             
-        elif (count_green_right > count_green_left) or (count_red_left > count_red_right):
-            #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
-            if count_green_right >20 or count_red_left > 20:
-                self.dir.data="right"
+            elif (count_red_middle > count_green_middle) and count_red_middle > 30:
+                self.wcolor.data="red"
 
-        #On indique la couleur en face du véhicule
+            else:
+                self.wcolor.data="???"
 
-        if (count_green_middle > count_red_middle) and count_green_middle > 20:
-             self.wcolor.data="green"
-        
-        elif (count_red_middle > count_green_middle) and count_red_middle > 20:
-             self.wcolor.data="red"
+            self.pubdir.publish(self.dir)
+            self.pubwcolor.publish(self.wcolor)
 
-        rospy.loginfo(f"red_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
-        self.pubdir.publish(self.dir)
-        self.pubwcolor.publish(self.wcolor)
+            rate.sleep()
 
 
 
@@ -149,8 +167,8 @@ Ce noeud publie sur deux topics:
 if __name__ == '__main__':
     w, h = 640, 480
     try:
-        rospy.init_node('dir_indicator', anonymous = True)
         d = Dir_indicator(w, h) 
+        d.run()
         rospy.spin()
 
     except rospy.ROSInterruptException:
