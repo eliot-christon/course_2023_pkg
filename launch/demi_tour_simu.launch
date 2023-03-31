@@ -1,7 +1,7 @@
 <launch>
 
 <!-- Run lidar_data_reel node -->
-<node pkg="course_2023_pkg" name="lidar_data" type="lidar_data_reel.py" output="screen" required="true">
+<node pkg="course_2023_pkg" name="lidar_data" type="lidar_data.py" output="screen" required="true">
 
 </node>
 
@@ -18,7 +18,6 @@
 
 <param name="angle0" value="45"/> <!--angles en degres, convertis en radians par la suite-->
 <param name="angle1" value="315"/> <!--angles en degres, convertis en radians par la suite-->
-
 
 
 </launch>

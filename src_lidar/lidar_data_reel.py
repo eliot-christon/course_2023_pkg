@@ -63,6 +63,7 @@ def lidar_preprocess_callback(msg,c):
      
     scan=np.array(msg.ranges) #scan reel a devant a 0 donc on shift tous l'array de n/2 pour garder les autres noeuds focntionnels
     n=len(scan)
+    #si /scan
     scan=np.roll(scan,-n//2)#on shift l'array pour avoir devant a n//2
     scan=np.flip(scan)#on inverse l'ordre -> gauche droite
 

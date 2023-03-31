@@ -12,8 +12,13 @@ def callback_lidar(lidar):
     # On calcul la moyenne des valeurs du lidar à gauche entre 22.5° et 157.5°  et à droite entre 202.5° et 337.5° pour la simulation
     # On prend évidemment pas en compte les "inf" qui signifient que le lidar est trop proche ou trop loin
     # pour la simu il faut prendre lidar.data[50:351] pour la gauche et lidar.data[450:751] pour la droite
-    left_lidar = np.ma.masked_invalid(lidar.data[50:351]).mean()
-    right_lidar = np.ma.masked_invalid(lidar.data[450:751]).mean()
+    a0,a1=rospy.get_param("angle0",default=45),rospy.get_param("angle1",default=315)
+    angles=np.linspace(a0,a1,len(lidar.data))
+    a135=np.where(angles>=135)[0][0]
+    a225=np.where(angles>=225)[0][0]
+
+    left_lidar = np.array(lidar.data[:a135]).mean()
+    right_lidar = np.array(lidar.data[a225:]).mean()
     
     # On effectue le demi-tour dans la direction où il y a le plus d'espace
     if right_lidar < left_lidar:
@@ -27,8 +32,12 @@ def callback_tofs(tofs):
     # simu publie à 10Hz donc sensi relativement haute
     # à modifier avec le robot réel !
     print(tofs.data)
+    #sensi simu
     front_sensi = 0.7
     rear_sensi = 0.5
+    #sensi reel
+    front_sensi = 40
+    rear_sensi = 40
     if(0<tofs.data[0]<front_sensi or 0<tofs.data[1]<front_sensi):
         rear_obstacle = False
         front_obstacle = True
@@ -56,7 +65,8 @@ if __name__ == '__main__':
 
     pub = rospy.Publisher("/SpeedCommand", Float32, queue_size=10)
     pub2 = rospy.Publisher("/AngleCommand", Float32, queue_size=10)
-    rospy.Subscriber("/LidarScan", Float32MultiArray, callback_lidar)
+    #rospy.Subscriber("/LidarScan", Float32MultiArray, callback_lidar)
+    rospy.Subscriber("/front_data",Float32MultiArray,callback_lidar)
     rospy.Subscriber("/SensorsScan", Float32MultiArray, callback_tofs)
     rospy.Subscriber("/Direction", String, callback_dir)
     rate = rospy.Rate(5)
