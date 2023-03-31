@@ -31,13 +31,12 @@ def callback_tofs(tofs):
     global front_obstacle, rear_obstacle
     # simu publie à 10Hz donc sensi relativement haute
     # à modifier avec le robot réel !
-    print(tofs.data)
     #sensi simu
     front_sensi = 0.7
     rear_sensi = 0.5
     #sensi reel
-    front_sensi = 40
-    rear_sensi = 40
+    #front_sensi = 40
+    #rear_sensi = 40
     if(0<tofs.data[0]<front_sensi or 0<tofs.data[1]<front_sensi):
         rear_obstacle = False
         front_obstacle = True
@@ -63,8 +62,8 @@ if __name__ == '__main__':
 
     rospy.init_node("vroum")
 
-    pub = rospy.Publisher("/SpeedCommand", Float32, queue_size=10)
-    pub2 = rospy.Publisher("/AngleCommand", Float32, queue_size=10)
+    speed_pub = rospy.Publisher("/SpeedCommand", Float32, queue_size=10)
+    angle_pub = rospy.Publisher("/AngleCommand", Float32, queue_size=10)
     #rospy.Subscriber("/LidarScan", Float32MultiArray, callback_lidar)
     rospy.Subscriber("/front_data",Float32MultiArray,callback_lidar)
     rospy.Subscriber("/SensorsScan", Float32MultiArray, callback_tofs)
@@ -89,9 +88,9 @@ if __name__ == '__main__':
                 velocity_msg = Float32()
                 angular_msg = Float32()
 
-                pub.publish(velocity_msg)
-                pub2.publish(angular_msg)
-
+                speed_pub.publish(velocity_msg)
+                angle_pub.publish(angular_msg)
+            
             while run and not rospy.is_shutdown():
                 velocity_msg = Float32()
                 angular_msg = Float32()
@@ -105,10 +104,10 @@ if __name__ == '__main__':
                     velocity_msg.data = -1
                     angular_msg.data = starting_direction
 
-                pub.publish(velocity_msg)
-                pub2.publish(angular_msg)
+                speed_pub.publish(velocity_msg)
+                angle_pub.publish(angular_msg)
+                rate.sleep()
 
-            rate.sleep()
         except rospy.ROSInterruptException:
             break
         except KeyboardInterrupt:
