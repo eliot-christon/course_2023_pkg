@@ -48,35 +48,13 @@ def interpolate(data, ind):
             
             i=e
 
-    """  s,e=ind,ind
-        #rospy.loginfo(f"ind={i}")
-        #on cherche debut
-    while data[s]==float('inf'):
-        s-=1
-
-    #if s==-1:s=0
-    #chercher fin du trou   
-    while e<=len(data)-1 and data[e]==float('inf'):
-        e+=1
-
-    if e==len(data):e=len(data)-1 """
+    
     #FAIRE ATTENTIO DES FOIS INTERPOLATION COMPLETE DES TROUS QUI SONT VRM PRESENTS DANS LE CIRCUIT
     #PAS CRITIQUE MAIS FAUT FAIRE ATTENTION-> CONDITION DE SECURITE 
     # -> P.EX. SI LA PENTE DY/DX EST TROP GRANDE => PROBABLEMENT VRAI TROU
 
 
-    #construction droite lineaire
-    #print(s,e,data[s],data[e])
-    """ dx=e-s
-    dy=data[e]-data[s]
-    x0,y0=s,data[s]
-
-    #print(s,e,dx,dy)
-    #interpolation du trou
-    if dx!=0: #safety
-        for j in range(s+1,e):
-            
-            data[j]=data[s] + dy/dx * (j-s) """
+   
     
     return data #interpolated data with no holes
 
@@ -94,16 +72,13 @@ def lidar_preprocess_callback(msg,c):
     
     angles=np.linspace(0,2*np.pi,n)
     c.front_angles=angles[intv[0]:intv[1]] #on va pas regarder tout le cadran avant mais, a nouveau, un sous ensmeble
-    #c.front_dist.data=[] #remise a zero du batch
-    #utiliser que cadran avant du lidar -> [pi/2, 3*pi/2] = [len(scan)//4, 3*len(scan)//4]
-
-    #PAS BESOIN DE X ET Y -> COORDONNEES POLAIRES SONT PLUS ADAPTEES
-    #GARDER QUE UN SOUS ENSMEBLE POUR ACCELERER LE PROCESSUS
+    
     c.front_dist.data=np.zeros(len(c.front_angles))
     iter=0
-    scan=interpolate(scan,0)
-    #now=rospy.get_rostime().nsecs
+    scan=interpolate(scan,0) #on interpole une fois
+    
     for i in range(n)[intv[0]:intv[1]]:
+        #PLUS BESOIN DU IF-ELSE CAR ON INTERPOLE TOUTE LA DATA UNE SEULE FOIS
         if scan[i]!=float('inf'):
             c.front_dist.data[i-intv[0]]=np.clip(scan[i],0,3) #on clip pour s'orienter par rapport a l'env "local"
         
@@ -115,7 +90,9 @@ def lidar_preprocess_callback(msg,c):
             iter+=1
             print(iter)
             c.front_dist.data[i-intv[0]]=(np.clip(scan[i],0,3))
-    #print(rospy.get_rostime().nsecs-now)
+
+    
+    
     #side data pour rester au milieu
     c.side_dist.data=[0,0]
     for ind,i in enumerate([n//4,3*n//4]):

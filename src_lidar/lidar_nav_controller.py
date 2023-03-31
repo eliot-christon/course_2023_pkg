@@ -33,7 +33,7 @@ def speed_regulator_callback(msg_front_dist,c):
     
     k_s=rospy.get_param("ks",default=1)
 
-    u=k_s*front_dist
+    u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
     c.speed=np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
 
@@ -66,7 +66,8 @@ if __name__=='__main__':
         front_dist_sub=rospy.Subscriber(front_dist_topic,Float32,speed_regulator_callback,c)
 
         #define rate
-        rate=rospy.Rate(10)
+        HZ=10
+        rate=rospy.Rate(HZ)
 
         #publish on angular and speed command topic
         
