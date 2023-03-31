@@ -1,6 +1,6 @@
 <launch>
 <!-- Run one lidar_front_data node -->
-<node pkg="course_2023_pkg" name="get_front_data" type="lidar_data.py" output="screen" required="true">
+<node pkg="course_2023_pkg" name="get_front_data" type="lidar_data_reel.py" output="screen" required="true">
     <param name="front_topic" value="/front_data"/>
     <param name="side_topic" value="/side_data"/>
     <param name="lidar_topic" value="/LidarScan"/>

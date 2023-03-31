@@ -86,8 +86,9 @@ def analyze_front(front_data,c):
     a0,a1=rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
     i0,i1=rospy.get_param("i0",default=165),rospy.get_param("i1",default=195) 
 
-    angles=np.linspace(a0,a1,len(front_data))
     
+    angles=np.linspace(a0,a1,len(front_data))
+
     ind0=np.where(angles>=i0)[0][0]
     ind1=np.where(angles>=i1)[0][0]
 
