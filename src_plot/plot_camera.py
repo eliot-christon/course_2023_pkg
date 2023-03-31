@@ -26,6 +26,7 @@ class ImagePlot :
 	def callback(self, msg) : 
 		scan = msg.data			
 		self.image = np.array(scan).reshape((self.h, self.w, 4))
+		rospy.loginfo(self.image)
 		
 	def updatePlot(self, frame) :
 		self.ln.set_data(self.image)
@@ -42,7 +43,7 @@ if __name__ == '__main__' :
 
 	rospy.init_node('plot_image', anonymous = True)
 	
-	w, h = 640, 480
+	w, h = 160, 128
 	p = ImagePlot(w, h) 
 	
 	ani = FuncAnimation(p.fig, p.updatePlot, init_func = p.initPlot)
