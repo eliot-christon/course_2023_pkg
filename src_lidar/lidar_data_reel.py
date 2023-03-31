@@ -14,6 +14,7 @@ class Control():
         self.front_dist=Float32MultiArray()
         self.front_angle=[]
         self.side_dist=Float32MultiArray()
+        self.topic=None
 
 #We're listenning to the /LidarScan topic, processing the data and publishing to /front_data and /side_data
 
@@ -60,12 +61,20 @@ def interpolate(data, ind):
 
 
 def lidar_preprocess_callback(msg,c):
-     
-    scan=np.array(msg.ranges) #scan reel a devant a 0 donc on shift tous l'array de n/2 pour garder les autres noeuds focntionnels
+
+    scan=[]
+    #on recupere bonne data 
+    if c.topic=="/scan":
+        scan=np.array(msg.ranges) 
+    elif c.topic=="/LidarScan":
+        scan=np.array(msg.data)
+    #scan reel a devant a 0 donc on shift tous l'array de n/2 pour garder les autres noeuds focntionnels
     n=len(scan)
+
     #si /scan
-    scan=np.roll(scan,-n//2)#on shift l'array pour avoir devant a n//2
-    scan=np.flip(scan)#on inverse l'ordre -> gauche droite
+    if c.topic=="/scan":
+        scan=np.roll(scan,-n//2)#on shift l'array pour avoir devant a n//2
+        scan=np.flip(scan)#on inverse l'ordre -> gauche droite
 
     intv=[int((rospy.get_param("angle0",default=120))/90 * n/4),
          int(rospy.get_param("angle1",default=240)/270 * 3*n/4)] #angles interval
@@ -92,8 +101,6 @@ def lidar_preprocess_callback(msg,c):
             print(iter)
             c.front_dist.data[i-intv[0]]=(np.clip(scan[i],0,3))
 
-    
-    
     #side data pour rester au milieu
     c.side_dist.data=[0,0]
     for ind,i in enumerate([n//4,3*n//4]):
@@ -118,13 +125,22 @@ if __name__=='__main__':
         rospy.init_node("LidarData_node")
 
         #topic d'ecoute
-        lidar_topic = rospy.get_param("~lidar_topic",default="/scan")    #en faire un parametre de launchfile
+        lidar_topic = rospy.get_param("~lidar_topic",default="/LidarScan")    #en faire un parametre de launchfile
 
         #classe de controle, stock data etc
         c=Control()
-
+        c.topic=lidar_topic
+        
         #subscriber sur lidar topic qui range dans control la valeur du front data
-        rospy.Subscriber(lidar_topic, LaserScan, lidar_preprocess_callback,c)
+        #si reel
+        if lidar_topic=="/scan":
+            rospy.Subscriber(lidar_topic, LaserScan, lidar_preprocess_callback,c)
+        
+        #si simu
+        elif lidar_topic=="/LidarScan":
+            rospy.Subscriber(lidar_topic, Float32MultiArray, lidar_preprocess_callback,c)
+
+
 
 
         #publisher de front data
