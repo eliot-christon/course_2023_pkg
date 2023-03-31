@@ -7,7 +7,7 @@ Projet PFE : Voiture autonome
 """
 
 import rospy
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, Int16MultiArray
 
 class Distance() : 
 
@@ -25,12 +25,27 @@ class Distance() :
         self.pub_dist = rospy.Publisher("/TofsDistance", Float32MultiArray, queue_size = 1)
 
         # Init ROS subscribers
-        self.sub_tofs = rospy.Subscriber("/SensorsScan", Float32MultiArray, self.callback_tofs)
+        # By default we're using the simulation topics
+        self.tof_topic = rospy.get_param("tof_topic", default="/SensorsScan")
+
+        if(self.tof_topic == "/SensorsScan"):
+            self.sub_tofs = rospy.Subscriber(self.tof_topic, Float32MultiArray, self.callback_tofs_simu)
+        elif(self.tof_topic == "/TofsScan"):
+            self.sub_tofs = rospy.Subscriber(self.tof_topic, Int16MultiArray, self.callback_tofs)
+        else:
+            print("Error tof topic name")
+            exit(1)
+
+    def callback_tofs_simu(self, msg) :
+        """ Callback of the simulated tofs subscriber """
+        # [front_left, front_right, back, left]
+        # ??? why not [front_left, front_right, back_left, back_right, left, right] ???
+        self.dist = [d if d > 0.001 else self.MAX_DIST for d in msg.data]
+        self.movingAverage_filter()
+        self.pub_dist.publish(Float32MultiArray(data=self.dist))
 
     def callback_tofs(self, msg) :
         """ Callback of the tofs subscriber """
-        # [front_left, front_right, back, left]
-        # ??? why not [front_left, front_right, back_left, back_right, left, right] ???
         self.dist = [d if d > 0.001 else self.MAX_DIST for d in msg.data]
         self.movingAverage_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
