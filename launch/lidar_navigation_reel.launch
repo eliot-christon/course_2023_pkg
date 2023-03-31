@@ -17,14 +17,15 @@
     
 </node>
 
+<node pkg="course_2023_pkg" name="plot_lidar" type="plot_lidar_balt" output="screen" required="true"/>
 
-<param name="MAX_SPEED" value="1"/>
+<param name="MAX_SPEED" value="0.8"/>
 <param name="MAX_ANGLE" value="1"/>
 
 <param name="lidar_nav_only" value="False"/>
 
 <param name="kc" value="-1"/>
-<param name="kd" value="1.5"/>
+<param name="kd" value="10"/>
 <param name="ks" value="1"/>
 
 <param name="step_size" value="10"/>
