@@ -25,9 +25,12 @@ def interpolate(data, ind):
     while data[s]==float('inf'):
         s-=1
 
+    #if s==-1:s=0
     #chercher fin du trou   
-    while data[e]==float('inf'):
+    while e<=len(data)-1 and data[e]==float('inf'):
         e+=1
+
+    if e==len(data):e=len(data)-1
 
     #FAIRE ATTENTIO DES FOIS INTERPOLATION COMPLETE DES TROUS QUI SONT VRM PRESENTS DANS LE CIRCUIT
     #PAS CRITIQUE MAIS FAUT FAIRE ATTENTION-> CONDITION DE SECURITE 
@@ -35,6 +38,7 @@ def interpolate(data, ind):
 
 
     #construction droite lineaire
+    #print(s,e,data[s],data[e])
     dx=e-s
     dy=data[e]-data[s]
     x0,y0=s,data[s]
@@ -43,6 +47,7 @@ def interpolate(data, ind):
     #interpolation du trou
     if dx!=0: #safety
         for j in range(s+1,e):
+            
             data[j]=data[s] + dy/dx * (j-s)
     
     return data #interpolated data with no holes
@@ -76,13 +81,13 @@ def lidar_preprocess_callback(msg,c):
             c.front_dist.data.append(np.clip(scan[i],0,3))
     
     #side data pour rester au milieu
-    c.side_dist.data=[]
-    for i in [n//4,3*n//4]:
+    c.side_dist.data=[0,0]
+    for ind,i in enumerate([n//4,3*n//4]):
         if scan[i]!=float('inf'):
-            c.side_dist.data.append(np.clip(scan[i],0,3)) 
+            c.side_dist.data[ind]=(np.clip(scan[i],0,3)) 
         else:
             scan=interpolate(scan,i)
-            c.side_dist.data.append(np.clip(scan[i],0,3))
+            c.side_dist.data[ind]=(np.clip(scan[i],0,3))
 
 
     #print(len(c.front_dist.data))       

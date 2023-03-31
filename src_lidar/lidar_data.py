@@ -21,18 +21,22 @@ def interpolate(data, ind):
     s,e=ind,ind
     #rospy.loginfo(f"ind={i}")
     #on cherche debut
-    while data[s]==float('inf'):
+    while s>=0 and data[s]==float('inf'):
         s-=1
 
+    if s==-1:s=0
     #chercher fin du trou   
-    while data[e]==float('inf'):
+    while e<=len(data)-1 and data[e]==float('inf'):
         e+=1
 
+    if e==len(data):e=len(data)-1
+
+    
     #FAIRE ATTENTIO DES FOIS INTERPOLATION COMPLETE DES TROUS QUI SONT VRM PRESENTS DANS LE CIRCUIT
     #PAS CRITIQUE MAIS FAUT FAIRE ATTENTION-> CONDITION DE SECURITE 
     # -> P.EX. SI LA PENTE DY/DX EST TROP GRANDE => PROBABLEMENT VRAI TROU
 
-
+    print(s,e,data[s],data[e])
     #construction droite lineaire
     dx=e-s
     dy=data[e]-data[s]
@@ -79,9 +83,11 @@ def lidar_preprocess_callback(msg,c):
     for i in [n//4,3*n//4]:
         if scan[i]!=float('inf'):
             c.side_dist.data.append(np.clip(scan[i],0,3)) 
+            
         else:
             scan=interpolate(scan,i)
             c.side_dist.data.append(np.clip(scan[i],0,3))
+          
 
 
     #print(len(c.front_dist.data))       

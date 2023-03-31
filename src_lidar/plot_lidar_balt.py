@@ -33,7 +33,7 @@ class Plot :
 	def callback(self, msg) :
 
 		scan = msg.data #le lidar envoit un scan 360° autour de la voiture sur un array de longueur len(scan)
-		a0,a1=rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)
+		a0,a1=rospy.get_param("i0",default=120),rospy.get_param("i1",default=240)#rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)
 		if self.angles is None : self.angles = np.linspace(np.deg2rad(a0), np.deg2rad(a1),len(scan))#(np.deg2rad(120), np.deg2rad(240), len(scan)) #pour front data
 		
 		self.x_data = [] ; self.y_data = []
