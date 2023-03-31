@@ -6,13 +6,19 @@ import rospy
 import numpy as np
 
 from std_msgs.msg import Int16MultiArray, String
+from sensor_msgs.msg import Image as SensorImage
+from cv_bridge import CvBridge, CvBridgeError
+import cv2
 
-def bgr2hsv (colonne):
+def bgr2hsv (colonne, rgb=0):
     """fonction qui convertit les valeurs d'une colonne de pixel bgr en leur valeur hsv"""
     colonne=colonne/255
     hsv=np.zeros(colonne.shape)
     for i,p in enumerate(colonne):
-        b,g,r=p[0],p[1],p[2]
+        if rgb == 1 :
+            r,g,b=p[0],p[1],p[2]
+        else:
+            b,g,r=p[0],p[1],p[2]
         v=np.max(p)
         if v != 0:
             s=(v-np.min(p))/v
@@ -52,7 +58,8 @@ Ce noeud publie sur deux topics:
 
         #subscriber
         sub_topic = rospy.get_param("image_datas", default="/ImageScan")
-        self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
+        #self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
+        self.sub=rospy.Subscriber(sub_topic, SensorImage, self.callback)
 
         #publisher
         pubdir_topic = "/Direction"
@@ -68,19 +75,29 @@ Ce noeud publie sur deux topics:
         self.righthsv = np.zeros((self.h,3))
         self.middlehsv = np.zeros((self.h,3))
 
+        self.cv_bridge = CvBridge()
+
         
         
     def callback(self, msg) : 
+        scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
+        print("yes")
         #On récupère deux lignes verticales à gauche et à droite
-        scan = msg.data		
-        leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
-        rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,630,0:3]
-        middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,320,0:3]
+        #scan = msg.data		
+        # leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
+        # rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
+        # middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
+
+        leftscan=np.array(scan)[:,10,0:3]
+        rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
+        middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
 
         #On convertie leurs valeur bgr en valeur hsv
-        self.lefthsv = bgr2hsv(leftscan)
-        self.righthsv = bgr2hsv(rightscan)
-        self.middlehsv = bgr2hsv(middlescan)
+        rgb=rospy.get_param('rgb',default=0)
+        self.lefthsv = bgr2hsv(leftscan,rgb)
+        self.righthsv = bgr2hsv(rightscan,rgb)
+        self.middlehsv = bgr2hsv(middlescan,rgb)
+        rospy.loginfo(self.middlehsv)
 
     def run(self):
         rate = rospy.Rate(2)
@@ -165,6 +182,7 @@ Ce noeud publie sur deux topics:
 
 
 if __name__ == '__main__':
+    
     w, h = 640, 480
     try:
         d = Dir_indicator(w, h) 
