@@ -60,13 +60,13 @@ if __name__ == '__main__':
     wall_close = False
     front_obstacle, rear_obstacle = False, False
 
-    rospy.init_node("vroum")
+    rospy.init_node("demi_tour")
 
     speed_pub = rospy.Publisher("/SpeedCommand", Float32, queue_size=10)
     angle_pub = rospy.Publisher("/AngleCommand", Float32, queue_size=10)
     #rospy.Subscriber("/LidarScan", Float32MultiArray, callback_lidar)
     rospy.Subscriber("/front_data",Float32MultiArray,callback_lidar)
-    rospy.Subscriber("/SensorsScan", Float32MultiArray, callback_tofs)
+    rospy.Subscriber("/TofsDistance", Float32MultiArray, callback_tofs)
     rospy.Subscriber("/Direction", String, callback_dir)
     rate = rospy.Rate(5)
     #time.sleep(5)

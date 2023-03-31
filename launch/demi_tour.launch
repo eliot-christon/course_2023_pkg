@@ -1,24 +1,21 @@
 <launch>
 
 <!-- Run lidar_data_reel node -->
-<node pkg="course_2023_pkg" name="lidar_data" type="lidar_data_reel.py" output="screen" required="true">
+<node pkg="course_2023_pkg" name="lidar_data" type="lidar_data_reel.py" output="screen" required="true"/>
 
-</node>
-
-<!-- Run demiTour.py node -->
-<node pkg="course_2023_pkg" name="demiTour" type="demiTour_reel.py" output="screen" required="true">
-
-</node>
+<!-- Run pub_tofs2dist.py node to change the param for the tof topic of the simulation-->
+<node pkg="course_2023_pkg" name="pub_tofs2dist" type="pub_tofs2dist.py" output="screen" required="true"/>
 
 <!-- Run dir_indicator.py node to indicate direction-->
-<node pkg="course_2023_pkg" name="dir_indicator" type="dir_indicator.py" output="screen" required="true">
-    
-</node>
+<node pkg="course_2023_pkg" name="dir_indicator" type="dir_indicator.py" output="screen" required="true"/>
+
+<!-- Run demiTour.py node -->
+<node pkg="course_2023_pkg" name="demiTour" type="demiTour_reel.py" output="screen" required="true"/>
 
 
+<param name="tof_topic" value="/TofsScan"/> <!-- tofs topic of the simulation -->
 <param name="angle0" value="45"/> <!--angles en degres, convertis en radians par la suite-->
 <param name="angle1" value="315"/> <!--angles en degres, convertis en radians par la suite-->
-
 
 
 </launch>
