@@ -1,0 +1,12 @@
+<launch>
+<!-- Run demiTour.py node -->
+<node pkg="course_2023_pkg" name="demiTour" type="demiTour.py" output="screen" required="true">
+
+</node>
+
+<!-- Run dir_indicator.py node to indicate direction-->
+<node pkg="course_2023_pkg" name="dir_indicator" type="dir_indicator.py" output="screen" required="true">
+    
+</node>
+
+</launch>
