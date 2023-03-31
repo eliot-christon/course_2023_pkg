@@ -8,7 +8,7 @@ import message_filters
 from std_msgs.msg import Float32MultiArray, Float32
 
 MIN_DIST=0.7
-SAFETY_DIST=0.7
+SAFETY_DIST=rospy.get_param("SAETY_DIST",default=0.5)
 
 class Control:
     def __init__(self):

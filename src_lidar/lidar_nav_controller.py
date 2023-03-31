@@ -22,7 +22,7 @@ def angle_regulator_callback(msg_dir,msg_center,c):
     k_d=rospy.get_param("kd",default=3.0)
 
     #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
-    u= k_d*d_dir #+k_c*d_center 
+    u= k_d*d_dir +k_c*d_center 
 
     #saturator
     c.ang=np.tanh(u)*rospy.get_param("MAX_ANGLE",default=1)
