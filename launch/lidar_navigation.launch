@@ -25,7 +25,7 @@
 <param name="lidar_nav_only" value="False"/>
 
 <param name="kc" value="-0.5"/>
-<param name="kd" value="5"/>
+<param name="kd" value="8"/>
 <param name="ks" value="1"/>
 <param name="tau" value="1.0e-6"/>
 <param name="a" value="20"/>
@@ -40,7 +40,7 @@
 <param name="i0" value="165"/> 
 <param name="i1" value="195"/> 
 
-<param name="N_cadrans" value='3'/>
+<param name="N_cadrans" value='5'/>
 
 
 </launch>
