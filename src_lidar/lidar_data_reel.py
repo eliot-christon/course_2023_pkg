@@ -110,7 +110,7 @@ def lidar_preprocess_callback(msg,c):
             scan=interpolate(scan,i)
             c.side_dist.data[ind]=(np.clip(scan[i],0,3))
 
-
+    
     #print(len(c.front_dist.data))       
             
 

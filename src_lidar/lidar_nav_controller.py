@@ -12,6 +12,9 @@ class Controller:
         self.speed=Float32()
         self.ang=Float32()
         self.command=Float32MultiArray()
+        self.last_err=0
+        self.last_command=0
+        self.F=10 #valeur par defaut, mise a jour dans main p.rapp a freq de pub
 
 def angle_regulator_callback(msg_dir,msg_center,c):
     d_center=msg_center.data #centering err : left-right -> d_c>0 : go left, d_c<0 : go right
@@ -20,12 +23,20 @@ def angle_regulator_callback(msg_dir,msg_center,c):
     #controler gains
     k_c=rospy.get_param("kc",default=-0.5)
     k_d=rospy.get_param("kd",default=3.0)
+    tau=rospy.get_param("tau",default=0.01) #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
+    a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
 
     #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
-    u= k_d*d_dir +k_c*d_center 
+    u= 1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F))   #k_d*d_dir +k_c*d_center 
+    c.last_command=u
+    c.last_err=d_dir
 
     #saturator
-    c.ang=np.tanh(u)*rospy.get_param("MAX_ANGLE",default=1)
+    command=np.tanh(u)
+    
+
+    
+    c.ang=command*rospy.get_param("MAX_ANGLE",default=1)
 
 
 def speed_regulator_callback(msg_front_dist,c):
@@ -68,6 +79,9 @@ if __name__=='__main__':
         #define rate
         HZ=10
         rate=rospy.Rate(HZ)
+
+        #assign frequency to control
+        c.F=HZ
 
         #publish on angular and speed command topic
         

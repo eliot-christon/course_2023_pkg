@@ -14,17 +14,18 @@ def callback_lidar(lidar):
     # pour la simu il faut prendre lidar.data[50:351] pour la gauche et lidar.data[450:751] pour la droite
     a0,a1=rospy.get_param("angle0",default=45),rospy.get_param("angle1",default=315)
     angles=np.linspace(a0,a1,len(lidar.data))
-    a135=np.where(angles>=135)[0][0]
-    a225=np.where(angles>=225)[0][0]
+    if len(lidar.data)!=0:
+        a135=np.where(angles>=135)[0][0] 
+        a225=np.where(angles>=225)[0][0]
 
-    left_lidar = np.array(lidar.data[:a135]).mean()
-    right_lidar = np.array(lidar.data[a225:]).mean()
-    
-    # On effectue le demi-tour dans la direction où il y a le plus d'espace
-    if right_lidar < left_lidar:
-        left = True
-    elif right_lidar >= left_lidar:
-        right = True
+        left_lidar = np.array(lidar.data[:a135]).mean()
+        right_lidar = np.array(lidar.data[a225:]).mean()
+        
+        # On effectue le demi-tour dans la direction où il y a le plus d'espace
+        if right_lidar < left_lidar:
+            left = True
+        elif right_lidar >= left_lidar:
+            right = True
 
 # position des tofs [front left, front right, rear left, rear right]
 def callback_tofs(tofs):

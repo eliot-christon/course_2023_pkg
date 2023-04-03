@@ -19,15 +19,19 @@
 
 <param name="MAX_SPEED" value="1"/>
 <param name="MAX_ANGLE" value="1"/>
+<param name="SAFETY_DIST" value="0.85"/>
 
 
 <param name="lidar_nav_only" value="False"/>
 
 <param name="kc" value="-0.5"/>
-<param name="kd" value="2.5"/>
+<param name="kd" value="5"/>
 <param name="ks" value="1"/>
+<param name="tau" value="1.0e-6"/>
+<param name="a" value="20"/>
 
-<param name="step_size" value="10"/>
+
+<param name="step_size" value="5"/>
 
 <param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
 <param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
