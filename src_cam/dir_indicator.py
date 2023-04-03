@@ -86,17 +86,17 @@ Ce noeud publie sur deux topics:
         
         
     def callback(self, msg) : 
-        scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-        print("yes")
+        # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
+        # print("yes")
         #On récupère deux lignes verticales à gauche et à droite
-        #scan = msg.data		
-        # leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
-        # rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
-        # middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
+        scan = msg.data		
+        leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
+        rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
+        middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
 
-        leftscan=np.array(scan)[:,10,0:3]
-        rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
-        middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+        # leftscan=np.array(scan)[:,10,0:3]
+        # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
+        # middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
 
         #On convertie leurs valeur bgr en valeur hsv
         rgb=rospy.get_param('rgb',default=0)
