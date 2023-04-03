@@ -113,19 +113,19 @@ Ce noeud publie sur deux topics:
             count_red_left=0
             for p in self.lefthsv:
                 if p[0]<14 or p[0]>280:
-                    if p[1]>90 and p[2]>50:
+                    if p[1]>30 and p[2]>30:
                         count_red_left+=1
         
             count_red_right=0
             for p in self.righthsv:
                 if p[0]<14 or p[0]>330:
-                    if p[1]>90 and p[2]>50:
+                    if p[1]>30 and p[2]>30:
                         count_red_right+=1
 
             count_red_middle=0
             for p in self.middlehsv:
                 if p[0]<14 or p[0]>330:
-                    if p[1]>90 and p[2]>50:
+                    if p[1]>30 and p[2]>30:
                         count_red_middle+=1
 
         
@@ -134,19 +134,19 @@ Ce noeud publie sur deux topics:
             count_green_left=0
             for p in self.lefthsv:
                 if p[0]>90 and p[0]<160:
-                    if p[1]>50 and p[2]>50:
+                    if p[1]>30 and p[2]>30:
                         count_green_left+=1
         
             count_green_right=0
             for p in self.righthsv:
                 if p[0]>90 and p[0]<160:
-                    if p[1]>50 and p[2]>50:
+                    if p[1]>30 and p[2]>30:
                         count_green_right+=1
 
             count_green_middle=0
             for p in self.middlehsv:
                 if p[0]>90 and p[0]<160:
-                    if p[1]>50 and p[2]>50:
+                    if p[1]>30 and p[2]>30:
                         count_green_middle+=1
     
             #Publication par default
