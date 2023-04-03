@@ -15,7 +15,7 @@ def callback_lidar(lidar):
     a0,a1=rospy.get_param("angle0",default=45),rospy.get_param("angle1",default=315)
     angles=np.linspace(a0,a1,len(lidar.data))
     if len(lidar.data)!=0:
-        a135=np.where(angles>=135)[0][0] 
+        a135=np.where(angles>=135)[0][0]
         a225=np.where(angles>=225)[0][0]
 
         left_lidar = np.array(lidar.data[:a135]).mean()
@@ -33,11 +33,12 @@ def callback_tofs(tofs):
     # simu publie à 10Hz donc sensi relativement haute
     # à modifier avec le robot réel !
     #sensi simu
-    front_sensi = 0.7
+    front_sensi = 0.5
     rear_sensi = 0.5
+    print(tofs.data)
     #sensi reel
-    #front_sensi = 40
-    #rear_sensi = 40
+    #front_sensi = 90
+    #rear_sensi = 90
     if(0<tofs.data[0]<front_sensi or 0<tofs.data[1]<front_sensi):
         rear_obstacle = False
         front_obstacle = True
@@ -51,7 +52,7 @@ def callback_dir(direction):
 
     if direction.data == "wrong":
         run = True
-    else:
+    elif direction.data == "right":
         run = False
 
 if __name__ == '__main__':
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     rospy.Subscriber("/front_data",Float32MultiArray,callback_lidar)
     rospy.Subscriber("/TofsDistance", Float32MultiArray, callback_tofs)
     rospy.Subscriber("/Direction", String, callback_dir)
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(20)
     #time.sleep(5)
 
     while not (left or right or rospy.is_shutdown()):
@@ -78,6 +79,8 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         try:    
             
+            max_speed = rospy.get_param("max_speed", default=0.7)
+
             # On vérifie run à chaque fois car run peut changer à tout moment
             if left:
                 starting_direction = -1
@@ -96,18 +99,19 @@ if __name__ == '__main__':
                 velocity_msg = Float32()
                 angular_msg = Float32()
                 if not (rear_obstacle or front_obstacle):
-                    velocity_msg.data = -1
+                    velocity_msg.data = -max_speed
                     angular_msg.data = starting_direction
                 elif rear_obstacle:
-                    velocity_msg.data = 1
+                    velocity_msg.data = max_speed
                     angular_msg.data = -starting_direction
                 elif front_obstacle:
-                    velocity_msg.data = -1
+                    velocity_msg.data = -max_speed
                     angular_msg.data = starting_direction
 
                 speed_pub.publish(velocity_msg)
                 angle_pub.publish(angular_msg)
                 rate.sleep()
+            rate.sleep()
 
         except rospy.ROSInterruptException:
             break
