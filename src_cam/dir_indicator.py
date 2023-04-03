@@ -167,10 +167,10 @@ Ce noeud publie sur deux topics:
 
 
             #On détermine la direction prise par le véhicule
-            if (count_red_right > 30 and count_green_left > 30):
+            if (count_red_right > 1 and count_green_left > 1):
                 self.dir.data="wrong"
                 
-            elif (count_green_right > 30 and count_red_left > 30):
+            elif (count_green_right > 1 and count_red_left > 1):
                 self.dir.data="right"
 
             else:
