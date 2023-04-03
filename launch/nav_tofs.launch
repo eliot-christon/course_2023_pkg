@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-	<param name="max_speed" value="1.0"/>
-	<param name="min_speed" value="0.4"/>
+	<param name="max_speed" value="0.2"/>
+	<param name="backward_speed" value="0.1"/>
+	<param name="min_speed" value="0.0"/>
 	<param name="max_angle" value="1.0"/>
-	<param name="tofs_default_max_dist"  value="10.0"/>
-	<param name="min_dist"  value="0.4"/>
+	<param name="tofs_default_max_dist"  value="1.5"/>
+	<param name="min_dist"  value="0.15"/>
 	<param name="topic_folder"  value=""/>
 	<param name="left_is_green" value="False"/>
 	

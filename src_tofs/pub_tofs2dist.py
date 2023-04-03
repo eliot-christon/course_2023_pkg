@@ -26,11 +26,12 @@ class Distance() :
 
         # Init ROS subscribers
         # By default we're using the simulation topics
-        self.tof_topic = rospy.get_param("tof_topic", default="/SensorsScan")
+        self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
 
         if(self.tof_topic == "/SensorsScan"):
             self.sub_tofs = rospy.Subscriber(self.tof_topic, Float32MultiArray, self.callback_tofs_simu)
         elif(self.tof_topic == "/TofsScan"):
+            print("Real robot")
             self.sub_tofs = rospy.Subscriber(self.tof_topic, Int16MultiArray, self.callback_tofs)
         else:
             print("Error tof topic name")
@@ -45,7 +46,7 @@ class Distance() :
 
     def callback_tofs(self, msg) :
         """ Callback of the tofs subscriber """
-        self.dist = [float(d) for d in msg.data]
+        self.dist = [d/(1000) if d/(1000)<self.MAX_DIST else self.MAX_DIST for d in msg.data] # conversion to meters
         self.movingAverage_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
 
@@ -60,7 +61,7 @@ class Distance() :
 if __name__ == "__main__" :
 
     topic_folder = rospy.get_param("topic_folder", default="nav_tofs/")
-    max_ds = rospy.get_param(topic_folder+"tofs_default_max_dist",  default=10.0)
+    max_ds = rospy.get_param(topic_folder+"tofs_default_max_dist",  default=1.5)
 
     Distance(MAX_DIST=max_ds)
     # now we can use rospy.spin() to keep the node alive
