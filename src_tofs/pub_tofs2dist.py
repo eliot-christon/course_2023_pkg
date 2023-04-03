@@ -38,15 +38,14 @@ class Distance() :
 
     def callback_tofs_simu(self, msg) :
         """ Callback of the simulated tofs subscriber """
-        # [front_left, front_right, back, left]
-        # ??? why not [front_left, front_right, back_left, back_right, left, right] ???
+        # [front_left, front_right, rear_left, rear_right]
         self.dist = [d if d > 0.001 else self.MAX_DIST for d in msg.data]
         self.movingAverage_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
 
     def callback_tofs(self, msg) :
         """ Callback of the tofs subscriber """
-        self.dist = [d if d > 0.001 else self.MAX_DIST for d in msg.data]
+        self.dist = [float(d) for d in msg.data]
         self.movingAverage_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
 
