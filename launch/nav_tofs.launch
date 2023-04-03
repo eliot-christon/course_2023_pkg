@@ -9,7 +9,7 @@
 	<param name="min_dist"  value="0.15"/>
 	<param name="topic_folder"  value=""/>
 	<param name="left_is_green" value="False"/>
-	
+	<param name="recul_dist" value="0.5"/>
 
 	<!-- Run nodes -->
 	<node pkg="course_2023_pkg" type="pub_tofs2dist.py" name="pub_tofs2dist"/>

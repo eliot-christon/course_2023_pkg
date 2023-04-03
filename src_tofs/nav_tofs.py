@@ -79,7 +79,7 @@ class Navigation() :
         """ Main loop of the navigation running with front and back tofs"""
 
         # lateral distance to the obstacle
-        recul_dist = 0.5
+        recul_dist = rospy.get_param("recul_dist",default=0.5)
 
         # boleans
         going_backwards = False
