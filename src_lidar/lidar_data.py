@@ -52,7 +52,7 @@ def interpolate(data, ind):
 
 
 def lidar_preprocess_callback(msg,c):
-     
+    print("ici")
     scan=np.array(msg.data)
     n=len(scan)
     

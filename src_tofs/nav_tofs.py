@@ -72,6 +72,7 @@ class Navigation() :
         self.MIN_DIST  = rospy.get_param(topic_folder+"min_dist",   default=self.MIN_DIST)
         self.MIN_SPEED = rospy.get_param(topic_folder+"min_speed",  default=self.MIN_SPEED)
         self.BACKWARD_SPEED = rospy.get_param(topic_folder+"backward_speed", default=self.BACKWARD_SPEED)
+        self.LEFT_IS_GREEN = rospy.get_param(topic_folder+"left_is_green", default=self.LEFT_IS_GREEN)
 
 
     def run(self) :
@@ -102,10 +103,8 @@ class Navigation() :
             sensor = {
                 "fl" : self.dist[0], # front left
                 "fr" : self.dist[1], # front right
-                "bl" : self.dist[2], # back left
-                "br" : self.dist[3], # back right
-                "l" : 10.0, # left
-                "r" : 10.0  # right
+                "rl" : self.dist[2], # rear left
+                "rr" : self.dist[3], # rear right
             }
 
             # calculate the current shortest distance and normalize it between 0 and 1
@@ -123,7 +122,7 @@ class Navigation() :
                     new_angle = 0.0
 
                 # if the obstacle is too close and no obstacle behind => go backward
-                elif sensor["bl"] > self.MIN_DIST and sensor["br"] > self.MIN_DIST :
+                elif sensor["rl"] > self.MIN_DIST and sensor["rr"] > self.MIN_DIST :
                     new_speed = -self.BACKWARD_SPEED
                     # going backward, we need to turn the other way
                     if negative_angle :
