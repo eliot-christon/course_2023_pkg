@@ -2,6 +2,7 @@
 <launch>
 
 	<param name="rgb" value="1"/>
+	<param name="reel" value="1"/>
 
 	
 
