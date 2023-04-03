@@ -58,8 +58,14 @@ Ce noeud publie sur deux topics:
 
         #subscriber
         sub_topic = rospy.get_param("image_datas", default="/ImageScan")
-        #self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
-        self.sub=rospy.Subscriber(sub_topic, SensorImage, self.callback)
+        reelparam = rospy.get_param("reel", default="1")
+        if reelparam == 1:
+            self.sub=rospy.Subscriber(sub_topic, SensorImage, self.callback)
+        else:
+            self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
+        
+        
+        
 
         #publisher
         pubdir_topic = "/Direction"
@@ -80,17 +86,17 @@ Ce noeud publie sur deux topics:
         
         
     def callback(self, msg) : 
-        scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-        print("yes")
+        # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
+        # print("yes")
         #On récupère deux lignes verticales à gauche et à droite
-        #scan = msg.data		
-        # leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
-        # rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
-        # middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
+        scan = msg.data		
+        leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
+        rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
+        middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
 
-        leftscan=np.array(scan)[:,10,0:3]
-        rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
-        middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+        # leftscan=np.array(scan)[:,10,0:3]
+        # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
+        # middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
 
         #On convertie leurs valeur bgr en valeur hsv
         rgb=rospy.get_param('rgb',default=0)
@@ -147,17 +153,25 @@ Ce noeud publie sur deux topics:
             self.wcolor.data="???"
             self.dir.data="???"
 
-            #On verifie que les données sont exploitables
-            if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
-                rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
-                #On détermine la direction prise par le véhicule
-                if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
-                #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
-                    self.dir.data="wrong"
+            # #On verifie que les données sont exploitables
+            # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
+            #     rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+            #     #On détermine la direction prise par le véhicule
+            #     if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
+            #     #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
+            #         self.dir.data="wrong"
                 
-                elif (count_green_right > count_green_left) or (count_red_left > count_red_right):
-                #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
-                    self.dir.data="right"
+            #     elif (count_green_right > count_green_left) or (count_red_left > count_red_right):
+            #     #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
+            #         self.dir.data="right"
+
+
+            #On détermine la direction prise par le véhicule
+            if (count_red_right > 30 and count_green_left > 30):
+                self.dir.data="wrong"
+                
+            elif (count_green_right > 30 and count_red_left > 30):
+                self.dir.data="right"
 
             else:
                 self.dir.data="???"

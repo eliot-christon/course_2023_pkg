@@ -12,7 +12,7 @@ from std_msgs.msg import Float32MultiArray, Float32, String
 
 class Navigation() : 
 
-    def __init__(self, MAX_SPEED=1.0, MAX_ANGLE=1.0, MAX_DIST=10.0, MIN_DIST=0.4, MIN_SPEED=0.2, BACKWARD_SPEED=0.5, LEFT_IS_GREEN=True) : 
+    def __init__(self, MAX_SPEED=1.0, MAX_ANGLE=1.0, MAX_DIST=1.5, MIN_DIST=0.15, MIN_SPEED=0.2, BACKWARD_SPEED=0.5, LEFT_IS_GREEN=True) : 
         # variables
         self.speed = 0
         self.angle = 0
@@ -72,13 +72,14 @@ class Navigation() :
         self.MIN_DIST  = rospy.get_param(topic_folder+"min_dist",   default=self.MIN_DIST)
         self.MIN_SPEED = rospy.get_param(topic_folder+"min_speed",  default=self.MIN_SPEED)
         self.BACKWARD_SPEED = rospy.get_param(topic_folder+"backward_speed", default=self.BACKWARD_SPEED)
+        self.LEFT_IS_GREEN = rospy.get_param(topic_folder+"left_is_green", default=self.LEFT_IS_GREEN)
 
 
     def run(self) :
         """ Main loop of the navigation running with front and back tofs"""
 
         # lateral distance to the obstacle
-        recul_dist = 1.0
+        recul_dist = 0.5
 
         # boleans
         going_backwards = False
@@ -102,10 +103,8 @@ class Navigation() :
             sensor = {
                 "fl" : self.dist[0], # front left
                 "fr" : self.dist[1], # front right
-                "bl" : self.dist[2], # back left
-                "br" : self.dist[3], # back right
-                "l" : 10.0, # left
-                "r" : 10.0  # right
+                "rl" : self.dist[2], # rear left
+                "rr" : self.dist[3], # rear right
             }
 
             # calculate the current shortest distance and normalize it between 0 and 1
@@ -123,7 +122,7 @@ class Navigation() :
                     new_angle = 0.0
 
                 # if the obstacle is too close and no obstacle behind => go backward
-                elif sensor["bl"] > self.MIN_DIST and sensor["br"] > self.MIN_DIST :
+                elif sensor["rl"] > self.MIN_DIST and sensor["rr"] > self.MIN_DIST :
                     new_speed = -self.BACKWARD_SPEED
                     # going backward, we need to turn the other way
                     if negative_angle :
@@ -195,8 +194,8 @@ if __name__ == "__main__" :
         topic_folder = rospy.get_param("topic_folder", default="nav_tofs/")
         max_sp = rospy.get_param(topic_folder+"max_speed", default=1.0)
         min_sp = rospy.get_param(topic_folder+"min_speed", default=0.2)
-        max_ds = rospy.get_param(topic_folder+"tofs_default_max_dist",  default=10.0)
-        min_ds = rospy.get_param(topic_folder+"min_dist",  default=0.4)
+        max_ds = rospy.get_param(topic_folder+"tofs_default_max_dist",  default=1.5)
+        min_ds = rospy.get_param(topic_folder+"min_dist",  default=0.15)
         max_ag = rospy.get_param(topic_folder+"max_angle", default=1.0)
         back_sp = rospy.get_param(topic_folder+"backward_speed", default=0.5)
         left_is_green = rospy.get_param(topic_folder+"left_is_green", default=True)
