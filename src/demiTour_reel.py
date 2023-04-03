@@ -33,11 +33,12 @@ def callback_tofs(tofs):
     # simu publie à 10Hz donc sensi relativement haute
     # à modifier avec le robot réel !
     #sensi simu
-    #front_sensi = 0.7
-    #rear_sensi = 0.5
+    front_sensi = 0.5
+    rear_sensi = 0.5
+    print(tofs.data)
     #sensi reel
-    front_sensi = 90
-    rear_sensi = 90
+    #front_sensi = 90
+    #rear_sensi = 90
     if(0<tofs.data[0]<front_sensi or 0<tofs.data[1]<front_sensi):
         rear_obstacle = False
         front_obstacle = True
@@ -56,7 +57,7 @@ def callback_dir(direction):
 
 if __name__ == '__main__':
 
-    run = True
+    run = False
     right, left = False, False
     wall_close = False
     front_obstacle, rear_obstacle = False, False
