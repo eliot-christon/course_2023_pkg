@@ -3,9 +3,11 @@
 
 import rospy
 import numpy as np
+import matplotlib.pyplot as plt
 
 from std_msgs.msg import Float32, Float32MultiArray
 import message_filters 
+
 
 class Controller:
     def __init__(self):
@@ -27,13 +29,12 @@ def angle_regulator_callback(msg_dir,msg_center,c):
     a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
 
     #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
-    u= 1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F))   #k_d*d_dir +k_c*d_center 
+    u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F)) #+ k_c*d_center  #k_d*d_dir +k_c*d_center 
     c.last_command=u
     c.last_err=d_dir
 
     #saturator
     command=np.tanh(u)
-    
 
     
     c.ang=command*rospy.get_param("MAX_ANGLE",default=1)
@@ -46,7 +47,7 @@ def speed_regulator_callback(msg_front_dist,c):
 
     u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
-    c.speed=np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+    c.speed=np.clip(u,0,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
 
 
 if __name__=='__main__':
@@ -54,7 +55,6 @@ if __name__=='__main__':
         
         #init node
         rospy.init_node("lidar_nav_control")
-
 
         #init controller
         c = Controller()
@@ -112,6 +112,7 @@ if __name__=='__main__':
 
     finally:
         print("exitting lidar navigation. All commands set to 0")
+        
         #comment fair epour envoyer dernier msg de shutdown??????
         rospy.Publisher("/AngleCommand",Float32,queue_size=1).publish(0)
         rospy.Publisher("/SpeedCommand",Float32,queue_size=1).publish(0)
