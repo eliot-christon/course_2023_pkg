@@ -113,19 +113,19 @@ Ce noeud publie sur deux topics:
             count_red_left=0
             for p in self.lefthsv:
                 if p[0]<14 or p[0]>280:
-                    if p[1]>30 and p[2]>30:
+                    if p[1]>90 and p[2]>50:
                         count_red_left+=1
         
             count_red_right=0
             for p in self.righthsv:
                 if p[0]<14 or p[0]>330:
-                    if p[1]>30 and p[2]>30:
+                    if p[1]>90 and p[2]>50:
                         count_red_right+=1
 
             count_red_middle=0
             for p in self.middlehsv:
                 if p[0]<14 or p[0]>330:
-                    if p[1]>30 and p[2]>30:
+                    if p[1]>90 and p[2]>50:
                         count_red_middle+=1
 
         
@@ -134,28 +134,29 @@ Ce noeud publie sur deux topics:
             count_green_left=0
             for p in self.lefthsv:
                 if p[0]>90 and p[0]<160:
-                    if p[1]>30 and p[2]>30:
+                    if p[1]>50 and p[2]>50:
                         count_green_left+=1
         
             count_green_right=0
             for p in self.righthsv:
                 if p[0]>90 and p[0]<160:
-                    if p[1]>30 and p[2]>30:
+                    if p[1]>50 and p[2]>50:
                         count_green_right+=1
 
             count_green_middle=0
             for p in self.middlehsv:
                 if p[0]>90 and p[0]<160:
-                    if p[1]>30 and p[2]>30:
+                    if p[1]>50 and p[2]>50:
                         count_green_middle+=1
-    
+                
+
             #Publication par default
             self.wcolor.data="???"
             self.dir.data="???"
 
             # #On verifie que les données sont exploitables
             # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
-            #     rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+            rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
             #     #On détermine la direction prise par le véhicule
             #     if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
             #     #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
@@ -167,10 +168,10 @@ Ce noeud publie sur deux topics:
 
 
             #On détermine la direction prise par le véhicule
-            if (count_red_right > 1 and count_green_left > 1):
+            if (count_red_right > 30 and count_green_left > 30):
                 self.dir.data="wrong"
                 
-            elif (count_green_right > 1 and count_red_left > 1):
+            elif (count_green_right > 30 and count_red_left > 30):
                 self.dir.data="right"
 
             else:
