@@ -36,7 +36,7 @@ def angle_regulator_callback(msg_dir,msg_center,c):
     
 
     
-    c.ang=command*rospy.get_param("MAX_ANGLE",default=1)
+    c.ang.data=command*rospy.get_param("MAX_ANGLE",default=1)
 
 
 def speed_regulator_callback(msg_front_dist,c):
@@ -46,7 +46,7 @@ def speed_regulator_callback(msg_front_dist,c):
 
     u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
-    c.speed=np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+    c.speed.data=np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
 
 
 if __name__=='__main__':
@@ -85,17 +85,17 @@ if __name__=='__main__':
 
         #publish on angular and speed command topic
         
-        angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
-        speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
+        #angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
+        #speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
 
         command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
 
 
         while not rospy.is_shutdown():
             
-            angle_pub.publish(c.ang)
-            speed_pub.publish(c.speed)
-            c.command.data=[c.speed, c.ang]
+            #angle_pub.publish(c.ang)
+            #speed_pub.publish(c.speed)
+            c.command.data=[c.speed.data, c.ang.data]
 
             command_pub.publish(c.command)
 
@@ -113,5 +113,5 @@ if __name__=='__main__':
     finally:
         print("exitting lidar navigation. All commands set to 0")
         #comment fair epour envoyer dernier msg de shutdown??????
-        rospy.Publisher("/AngleCommand",Float32,queue_size=1).publish(0)
-        rospy.Publisher("/SpeedCommand",Float32,queue_size=1).publish(0)
+        #rospy.Publisher("/AngleCommand",Float32,queue_size=1).publish(0)
+        #rospy.Publisher("/SpeedCommand",Float32,queue_size=1).publish(0)

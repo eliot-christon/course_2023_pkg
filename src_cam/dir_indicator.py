@@ -5,7 +5,7 @@
 import rospy
 import numpy as np
 
-from std_msgs.msg import Int16MultiArray, String
+from std_msgs.msg import Int16MultiArray, String, Bool
 from sensor_msgs.msg import Image as SensorImage
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
@@ -70,10 +70,14 @@ Ce noeud publie sur deux topics:
         #publisher
         pubdir_topic = "/Direction"
         pubwcolor_topic = "/WallColor"
-        self.pubdir=rospy.Publisher(pubdir_topic, String, queue_size=10)
-        self.pubwcolor=rospy.Publisher(pubwcolor_topic, String, queue_size=10)
-        self.dir=String()
+        self.pubdirection=rospy.Publisher(pubdir_topic, String, queue_size=1)
+        self.pubwcolor=rospy.Publisher(pubwcolor_topic, String, queue_size=1)
+        self.direction=String()
         self.wcolor=String()
+
+        #Entrée de MAE
+        self.dir=Bool()
+        self.pubdir=rospy.Publisher("/Dir",Bool,queue_size=1)
 
         #valeurs pour redimensionner l'image récupéré
         self.w, self.h = w, h
@@ -152,7 +156,7 @@ Ce noeud publie sur deux topics:
 
             #Publication par default
             self.wcolor.data="???"
-            self.dir.data="???"
+            self.direction.data="???"
 
             # #On verifie que les données sont exploitables
             # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
@@ -160,22 +164,25 @@ Ce noeud publie sur deux topics:
             #     #On détermine la direction prise par le véhicule
             #     if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
             #     #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
-            #         self.dir.data="wrong"
+            #         self.direction.data="wrong"
                 
             #     elif (count_green_right > count_green_left) or (count_red_left > count_red_right):
             #     #Cette condition est pour éviter que la décision soit prise en fonction de seulement quelques pixels
-            #         self.dir.data="right"
+            #         self.direction.data="right"
 
 
             #On détermine la direction prise par le véhicule
             if (count_red_right > 30 and count_green_left > 30):
-                self.dir.data="wrong"
+                self.direction.data="wrong"
+                self.dir.data=False
                 
             elif (count_green_right > 30 and count_red_left > 30):
-                self.dir.data="right"
+                self.direction.data="right"
+                self.dir.data=True
 
             else:
-                self.dir.data="???"
+                self.direction.data="???"
+                self.dir.data=True
 
             #On indique la couleur en face du véhicule
 
@@ -188,6 +195,7 @@ Ce noeud publie sur deux topics:
             else:
                 self.wcolor.data="???"
 
+            self.pubdirection.publish(self.direction)
             self.pubdir.publish(self.dir)
             self.pubwcolor.publish(self.wcolor)
 

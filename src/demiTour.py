@@ -3,7 +3,7 @@
 
 import rospy
 import numpy as np
-from std_msgs.msg import Float32, Float32MultiArray, String
+from std_msgs.msg import Float32, Float32MultiArray, String, Bool
 
 # Permet de déterminer le sens de départ du demi-tour
 def callback_lidar(lidar):
@@ -26,7 +26,7 @@ def callback_tofs(tofs):
     global front_obstacle, rear_obstacle
     # simu publie à 10Hz donc sensi relativement haute
     # à modifier avec le robot réel !
-    print(tofs.data)
+    #print(tofs.data)
     front_sensi = 0.7
     rear_sensi = 0.5
     if(0<tofs.data[0]<front_sensi or 0<tofs.data[1]<front_sensi):
@@ -40,7 +40,7 @@ def callback_tofs(tofs):
 def callback_dir(direction):
     global run
 
-    if direction.data == "wrong":
+    if direction.data:
         run = True
     else:
         run = False
@@ -54,11 +54,10 @@ if __name__ == '__main__':
 
     rospy.init_node("vroum")
 
-    pub = rospy.Publisher("/SpeedCommand", Float32, queue_size=10)
-    pub2 = rospy.Publisher("/AngleCommand", Float32, queue_size=10)
+    pub = rospy.Publisher("/d_tourSpeedAngleCommand", Float32MultiArray, queue_size=10)
     rospy.Subscriber("/LidarScan", Float32MultiArray, callback_lidar)
     rospy.Subscriber("/SensorsScan", Float32MultiArray, callback_tofs)
-    rospy.Subscriber("/Direction", String, callback_dir)
+    rospy.Subscriber("/Dir", Bool, callback_dir)
     rate = rospy.Rate(5)
     #time.sleep(5)
 
@@ -75,28 +74,26 @@ if __name__ == '__main__':
                 starting_direction = 1
 
             ### Temporaire car normalement système de navigation prend le relais mais pour les test non
-            if not run:
-                velocity_msg = Float32()
-                angular_msg = Float32()
+            # if not run:
+            #     command=Float32MultiArray()
 
-                pub.publish(velocity_msg)
-                pub2.publish(angular_msg)
+            #     pub.publish(command)
 
             while run and not rospy.is_shutdown():
-                velocity_msg = Float32()
-                angular_msg = Float32()
-                if not (rear_obstacle or front_obstacle):
-                    velocity_msg.data = -1
-                    angular_msg.data = starting_direction
-                elif rear_obstacle:
-                    velocity_msg.data = 1
-                    angular_msg.data = -starting_direction
-                elif front_obstacle:
-                    velocity_msg.data = -1
-                    angular_msg.data = starting_direction
+                command=Float32MultiArray()
 
-                pub.publish(velocity_msg)
-                pub2.publish(angular_msg)
+                if not (rear_obstacle or front_obstacle):
+                    velocity= -1
+                    angular= starting_direction
+                elif rear_obstacle:
+                    velocity = 1
+                    angular = -starting_direction
+                elif front_obstacle:
+                    velocity= -1
+                    angular = starting_direction
+
+                command.data=[velocity,angular]
+                pub.publish(command)
 
             rate.sleep()
         except rospy.ROSInterruptException:

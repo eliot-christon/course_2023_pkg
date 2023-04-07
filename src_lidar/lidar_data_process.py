@@ -90,7 +90,7 @@ def quadran_nav(front_data,N):
     #if steps//(N-1)<N : avgs[N-1],sums[N-1]= angles[(N-1)*step_size]*front_data[(N-1)*step_size],front_data[(N-1)*step_size]
     #ca marche mieux en simu sans la 3eme composante
     
-    print(sums,"\n")
+    #print(sums,"\n")
     best_ind=np.argmax(sums)
 
     if best_ind==0:
@@ -111,7 +111,7 @@ def quadran_nav(front_data,N):
             avg=avgs[i]
             best_ind=i
     avg/=sum """
-    print(angles)
+    #print(angles)
     direction=default_nav(best_quadran,angles)#avg-np.pi
     return direction
 

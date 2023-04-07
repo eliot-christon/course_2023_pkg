@@ -35,7 +35,7 @@ def callback_tofs(tofs):
     #sensi simu
     front_sensi = 0.5
     rear_sensi = 0.5
-    print(tofs.data)
+    #print(tofs.data)
     #sensi reel
     #front_sensi = 90
     #rear_sensi = 90

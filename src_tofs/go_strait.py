@@ -38,7 +38,7 @@ class Controller() :
         while not rospy.is_shutdown() :
             self.set_speed(self.max_speed)
             self.set_angle(0.0)
-            print("Speed : ", self.speed)
+            #print("Speed : ", self.speed)
             rate.sleep()
         
 
