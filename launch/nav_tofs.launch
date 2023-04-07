@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-	<param name="max_speed" value="0.2"/>
+	<param name="max_speed" value="1"/>
 	<param name="backward_speed" value="0.1"/>
 	<param name="min_speed" value="0.0"/>
 	<param name="max_angle" value="1.0"/>
@@ -10,6 +10,7 @@
 	<param name="topic_folder"  value=""/>
 	<param name="left_is_green" value="False"/>
 	<param name="recul_dist" value="0.5"/>
+	<param name="tof_topic" value="/SensorsScan"/>
 
 	<!-- Run nodes -->
 	<node pkg="course_2023_pkg" type="pub_tofs2dist.py" name="pub_tofs2dist"/>

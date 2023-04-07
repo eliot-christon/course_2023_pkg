@@ -5,7 +5,7 @@
     
 
     <!-- Including launch files -->
-    <!--include file="$(find course_2023_pkg)/launch/lidar_navigation.launch"/-->
+    <include file="$(find course_2023_pkg)/launch/lidar_navigation.launch"/>
     
     <include file="$(find course_2023_pkg)/launch/nav_tofs.launch" />
 
@@ -13,6 +13,8 @@
     <node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator"/>
         
     <node pkg="course_2023_pkg" type="nav_haut_niveau.py" name="nav_haut_niveau" output="screen"/>
+
+    <param name="haut_niv" value="True"/>
 
 </launch>
 

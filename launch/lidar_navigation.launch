@@ -43,5 +43,7 @@
 
 <param name="N_cadrans" value='5'/>
 
+<param name="haut_niv" value="False"/>
+
 
 </launch>

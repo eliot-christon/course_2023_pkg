@@ -23,9 +23,9 @@ def angle_regulator_callback(msg_dir,msg_center,c):
     d_dir=msg_dir.data #orientation err : desired_orientation-current_orientation -> d_dir>0 : go right, d_dir<0 : go left 
 
     #controler gains
-    k_c=rospy.get_param("kc",default=-0.5)
-    k_d=rospy.get_param("kd",default=3.0)
-    tau=rospy.get_param("tau",default=0.01) #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
+    k_c=rospy.get_param("kc",default=-0.85)
+    k_d=rospy.get_param("kd",default=8)
+    tau=rospy.get_param("tau",default=1e-6) #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
     a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
 
     #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
@@ -90,11 +90,15 @@ if __name__=='__main__':
 
         command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
 
+        #check haut niveau navigation
+        haut_niv=rospy.get_param("haut_niv",default=False)
+
 
         while not rospy.is_shutdown():
+            if haut_niv==False:
+                angle_pub.publish(c.ang)
+                speed_pub.publish(c.speed)
             
-            angle_pub.publish(c.ang)
-            speed_pub.publish(c.speed)
             c.command.data=[c.speed, c.ang]
 
             command_pub.publish(c.command)
