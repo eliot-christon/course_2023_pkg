@@ -1,0 +1,15 @@
+<launch>
+
+<!-- Run lidar_data_reel node -->
+
+<!-- Run demiTour.py node -->
+<node pkg="course_2023_pkg" name="demiTour" type="demiTour_reel.py" output="screen" required="true">
+    <param name="angle0" value="45"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="315"/> <!--angles en degres, convertis en radians par la suite-->
+</node>
+
+<param name="max_speed" value="0.7"/> <!-- max speed of the robot -->
+<param name="tof_topic" value="/SensorsScan"/> <!-- tofs topic of the simulation -->
+
+
+</launch>

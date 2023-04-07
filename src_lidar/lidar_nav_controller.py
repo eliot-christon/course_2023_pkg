@@ -83,14 +83,16 @@ if __name__=='__main__':
         #assign frequency to control
         c.F=HZ
 
+        haut_niv=rospy.get_param("haut_niv",default=False)
         #publish on angular and speed command topic
-        
-        angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
-        speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
+        if haut_niv==False:
+            angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
+            speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
 
         command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
 
         #check haut niveau navigation
+
         haut_niv=rospy.get_param("haut_niv",default=False)
 
 
@@ -98,7 +100,7 @@ if __name__=='__main__':
             if haut_niv==False:
                 angle_pub.publish(c.ang)
                 speed_pub.publish(c.speed)
-            
+
             c.command.data=[c.speed, c.ang]
 
             command_pub.publish(c.command)

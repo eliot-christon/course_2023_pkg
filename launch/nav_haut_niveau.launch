@@ -10,11 +10,15 @@
     <include file="$(find course_2023_pkg)/launch/nav_tofs.launch" />
 
     <!-- Run nodes-->
-    <node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator"/>
+    <node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True"/>
         
     <node pkg="course_2023_pkg" type="nav_haut_niveau.py" name="nav_haut_niveau" output="screen"/>
 
     <param name="haut_niv" value="True"/>
+
+
+    <param name="ONLY_LIDAR" value="False"/>
+    <param name="ONLY_TOFS" value="False"/>
 
 </launch>
 
