@@ -5,7 +5,7 @@ import rospy
 import numpy as np
 import matplotlib.pyplot as plt
 
-from std_msgs.msg import Float32, Float32MultiArray
+from std_msgs.msg import Float32, Float32MultiArray, Bool
 import message_filters 
 
 
@@ -17,38 +17,44 @@ class Controller:
         self.last_err=0
         self.last_command=0
         self.F=10 #valeur par defaut, mise a jour dans main p.rapp a freq de pub
+        self.run=True
 
 def angle_regulator_callback(msg_dir,msg_center,c):
-    d_center=msg_center.data #centering err : left-right -> d_c>0 : go left, d_c<0 : go right
-    d_dir=msg_dir.data #orientation err : desired_orientation-current_orientation -> d_dir>0 : go right, d_dir<0 : go left 
+    if c.run:
+        d_center=msg_center.data #centering err : left-right -> d_c>0 : go left, d_c<0 : go right
+        d_dir=msg_dir.data #orientation err : desired_orientation-current_orientation -> d_dir>0 : go right, d_dir<0 : go left 
 
-    #controler gains
-    k_c=rospy.get_param("kc",default=-0.85)
-    k_d=rospy.get_param("kd",default=8)
-    tau=rospy.get_param("tau",default=1e-6) #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
-    a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
+        #controler gains
+        k_c=rospy.get_param("kc",default=-0.85)
+        k_d=rospy.get_param("kd",default=8)
+        tau=rospy.get_param("tau",default=1e-6) #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
+        a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
 
-    #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
-    u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F)) #+ k_c*d_center  #k_d*d_dir +k_c*d_center 
-    c.last_command=u
-    c.last_err=d_dir
+        #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
+        u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F)) #+ k_c*d_center  #k_d*d_dir +k_c*d_center 
+        c.last_command=u
+        c.last_err=d_dir
 
-    #saturator
-    command=np.tanh(u)
+        #saturator
+        command=np.tanh(u)
 
-    
-    c.ang=command*rospy.get_param("MAX_ANGLE",default=1)
+        
+        c.ang=command*rospy.get_param("MAX_ANGLE",default=1)
 
 
 def speed_regulator_callback(msg_front_dist,c):
-    front_dist=msg_front_dist.data
-    
-    k_s=rospy.get_param("ks",default=1)
+    if c.run:
+        front_dist=msg_front_dist.data
+        
+        k_s=rospy.get_param("ks",default=1)
 
-    u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
+        u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
-    c.speed=np.clip(u,0,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+        c.speed=np.clip(u,0,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
 
+
+def onrun_callback(msg,c):
+    c.run=msg.data 
 
 if __name__=='__main__':
     try:
@@ -89,6 +95,9 @@ if __name__=='__main__':
         speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
 
         command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
+
+        #subscribe MAE state
+        rospy.Subscriber("/Nav_lid",Bool,onrun_callback,c)
 
         #check haut niveau navigation
         haut_niv=rospy.get_param("haut_niv",default=False)
