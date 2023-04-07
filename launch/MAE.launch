@@ -12,12 +12,12 @@
     <include file="$(find course_2023_pkg)/launch/demi_tour_simu_mae.launch" />
 
     <!-- Run nodes-->
-    <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen"/>
+    <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
 
 
-    <node pkg="course_2023_pkg" type="MAE.py" name="MAE" output="screen"/>
+    <node pkg="course_2023_pkg" type="MAE.py" name="MAE" output="screen" required="True"/>
         
-    <node pkg="course_2023_pkg" type="interface.py" name="interface" output="screen"/>
+    <node pkg="course_2023_pkg" type="interface.py" name="interface" output="screen" required="True"/>
     <param name="haut_niv" value="True"/>
 
 </launch>
