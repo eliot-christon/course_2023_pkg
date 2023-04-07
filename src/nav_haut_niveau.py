@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -- coding: utf-8 --
+# -*- coding: utf-8 -*-
 
 """
 Projet PFE : Voiture autonome
@@ -12,7 +12,7 @@ from std_msgs.msg import Float32MultiArray, Float32, Bool
 
 class Navigation() : 
 
-    def _init_(self, ONLY_LIDAR=False, ONLY_TOFS=False) :
+    def __init__(self, ONLY_LIDAR=False, ONLY_TOFS=False) :
 
         # constants
         self.ONLY_LIDAR = ONLY_LIDAR
@@ -93,16 +93,11 @@ class Navigation() :
         while not rospy.is_shutdown() :
             if self.start==True:
                 if (min(self.tofs["fl"], self.tofs["fr"]) < tofs_lidar_threshold or self.ONLY_TOFS) and not self.ONLY_LIDAR :
-
                     if nav!="tofs":
                         rospy.loginfo("NAV TOF")
                         nav="tofs"
                     self.set_speed_angle(self.nav_tofs["speed"], self.nav_tofs["angle"])
                 else :
-                    if nav!="lidar":
-                        rospy.loginfo("NAV LIDAR")
-                        nav="lidar"
-
                     if nav!="lidar":
                         rospy.loginfo("NAV LIDAR")
                         nav="lidar"
@@ -114,13 +109,11 @@ class Navigation() :
             rate.sleep()
         
 
-
-if __name__ == "_main_" :
+if __name__ == "__main__" :
         ONLY_LIDAR=rospy.get_param("ONLY_LIDAR",default=False)
         ONLY_TOFS=rospy.get_param("ONLY_TOFS",default=False)
 
         nav = Navigation(ONLY_TOFS=ONLY_TOFS,ONLY_LIDAR=ONLY_LIDAR)
-
         nav.run()
 
         rospy.spin()

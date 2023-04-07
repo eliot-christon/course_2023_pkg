@@ -12,7 +12,7 @@
     <!-- Run nodes-->
     <node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True"/>
         
-    <node pkg="course_2023_pkg" type="nav_haut_niveau.py" name="nav_haut_niveau" output="screen"/>
+    <node pkg="course_2023_pkg" type="nav_haut_niveau.py" name="nav_haut_niveau" output="screen" required="True"/>
 
     <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen"/>
 

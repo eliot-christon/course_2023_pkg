@@ -15,6 +15,7 @@
     <node pkg="course_2023_pkg" type="nav_haut_niveau.py" name="nav_haut_niveau" output="screen"/>
 
     <param name="haut_niv" value="True"/>
+    
     <param name="ONLY_LIDAR" value="True"/>
     <param name="ONLY_TOFS" value="False"/>
 
