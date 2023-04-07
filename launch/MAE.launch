@@ -2,7 +2,7 @@
 <launch>
 
     <!-- Set parameters -->
-    <param name="Stop" value="1"/>
+    <param name="left_is_green" value="True"/>
 
     <!-- Including launch files -->
     <include file="$(find course_2023_pkg)/launch/lidar_navigation.launch"/>

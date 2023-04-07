@@ -72,7 +72,7 @@ class Navigation() :
         self.MIN_DIST  = rospy.get_param(topic_folder+"min_dist",   default=self.MIN_DIST)
         self.MIN_SPEED = rospy.get_param(topic_folder+"min_speed",  default=self.MIN_SPEED)
         self.BACKWARD_SPEED = rospy.get_param(topic_folder+"backward_speed", default=self.BACKWARD_SPEED)
-        self.LEFT_IS_GREEN = rospy.get_param(topic_folder+"left_is_green", default=self.LEFT_IS_GREEN)
+        self.LEFT_IS_GREEN = rospy.get_param("left_is_green", default=self.LEFT_IS_GREEN)
 
 
     def run(self) :

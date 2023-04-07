@@ -98,6 +98,30 @@ Ce noeud publie sur deux topics:
         self.sensi=msg.data
         
     def callback(self, msg) : 
+         #Détection de la couleur rouge
+        h_min1 = 0
+        h_max1 = 26
+        s_min1 = 90
+        s_max1 = 255
+        v_min1 = 50
+        v_max1 = 255
+        #Détection de la couleur rouge
+        h_min2 = 90
+        h_max2 = 160
+        s_min2 = 50
+        s_max2 = 255
+        v_min2 = 50
+        v_max2 = 255
+
+        lower1 = np.array([h_min1, s_min1, v_min1])
+        upper1 = np.array([h_max1, s_max1, v_max1])
+
+        lower2 = np.array([h_min2, s_min2, v_min2])
+        upper2 = np.array([h_max2, s_max2, v_max2])
+
+        mask1 = cv2.inRange(hsv, lower1, upper1)
+        mask2 = cv2.inRange(hsv, lower2, upper2)
+
         # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
         # print("yes")
         #On récupère deux lignes verticales à gauche et à droite

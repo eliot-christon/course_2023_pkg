@@ -98,13 +98,16 @@ Ce noeud publie sur deux topics:
         self.sensi=msg.data
         
     def callback(self, msg) : 
+        limite_haute=rospy.get_param('lim_haut', default=480)
+        limite_basse=rospy.get_param('lim_bas', default=0)
+
         # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
         # print("yes")
         #On récupère deux lignes verticales à gauche et à droite
         scan = msg.data		
-        leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
-        rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
-        middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
+        leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
+        rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
+        middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
 
         # leftscan=np.array(scan)[:,10,0:3]
         # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
@@ -121,6 +124,8 @@ Ce noeud publie sur deux topics:
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown() :
+            left_is_green=rospy.get_param('left_is_green',default=True)
+
             #On compte le nombre de pixel rouge selon leur valeur hsv
             count_red_left=0
             for p in self.lefthsv:
@@ -212,6 +217,14 @@ Ce noeud publie sur deux topics:
 
             else:
                 self.wcolor.data="???"
+
+            if not(left_is_green):
+                if self.direction.data=="wrong":
+                    self.direction.data="right"
+                if self.direction.data=="right":
+                    self.direction.data="wrong"
+                self.dir.data=not(self.dir.data)
+
 
             self.pubdirection.publish(self.direction)
             self.pubdir.publish(self.dir)

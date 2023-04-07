@@ -3,6 +3,11 @@
 
 	<param name="rgb" value="0"/>
 	<param name="reel" value="0"/>
+	<param name="left_is_green" value="True"/>
+	<param name="lim_haut" value="480"/>
+	<param name="lim_bas" value="0"/>
+
+
 
 	
 
