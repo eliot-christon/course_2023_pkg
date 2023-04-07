@@ -52,17 +52,19 @@ class MAE:
         self.fin_d_tour=msg.data
 
     def callback_direction(self, msg) :
-        self.direction=msg.data
+        self.dir=msg.data
 
 
     #calcul de l'état future
     def f_state(self):
 
         if self.EP == 0:
-            
+
             if self.dist_lim and self.dir:
+ 
                 self.EF=1
             elif not(self.dir):
+
                 self.EF=2
             else:
                 self.EF=0
@@ -70,6 +72,7 @@ class MAE:
         if self.EP == 1:
             if not(self.dist_lim) and self.dir:
                 self.EF=0
+                
             elif not(self.dir):
                 self.EF=2
             else:

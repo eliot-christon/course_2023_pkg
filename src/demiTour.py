@@ -57,7 +57,7 @@ if __name__ == '__main__':
     pub = rospy.Publisher("/d_tourSpeedAngleCommand", Float32MultiArray, queue_size=10)
     rospy.Subscriber("/LidarScan", Float32MultiArray, callback_lidar)
     rospy.Subscriber("/SensorsScan", Float32MultiArray, callback_tofs)
-    rospy.Subscriber("/Dir", Bool, callback_dir)
+    rospy.Subscriber("/Direction", String, callback_dir)
     rate = rospy.Rate(5)
     #time.sleep(5)
 

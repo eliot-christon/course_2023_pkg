@@ -7,7 +7,7 @@ import numpy as np
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import LaserScan
 
-
+CLIP_DIST=3
 
 class Control():
     def __init__(self):
@@ -90,7 +90,7 @@ def lidar_preprocess_callback(msg,c):
     for i in range(n)[intv[0]:intv[1]]:
         #PLUS BESOIN DU IF-ELSE CAR ON INTERPOLE TOUTE LA DATA UNE SEULE FOIS
         if scan[i]!=float('inf'):
-            c.front_dist.data[i-intv[0]]=np.clip(scan[i],0,3) #on clip pour s'orienter par rapport a l'env "local"
+            c.front_dist.data[i-intv[0]]=np.clip(scan[i],0,CLIP_DIST) #on clip pour s'orienter par rapport a l'env "local"
         
         else:
             #chercher la bonne valeur a prendre
@@ -98,17 +98,17 @@ def lidar_preprocess_callback(msg,c):
             
             scan=interpolate(scan,i)
             iter+=1
-            #print(iter)
-            c.front_dist.data[i-intv[0]]=(np.clip(scan[i],0,3))
+            print(iter)
+            c.front_dist.data[i-intv[0]]=(np.clip(scan[i],0,CLIP_DIST))
 
     #side data pour rester au milieu
     c.side_dist.data=[0,0]
     for ind,i in enumerate([n//4,3*n//4]):
         if scan[i]!=float('inf'):
-            c.side_dist.data[ind]=(np.clip(scan[i],0,3)) 
+            c.side_dist.data[ind]=(np.clip(scan[i],0,CLIP_DIST)) 
         else:
             scan=interpolate(scan,i)
-            c.side_dist.data[ind]=(np.clip(scan[i],0,3))
+            c.side_dist.data[ind]=(np.clip(scan[i],0,CLIP_DIST))
 
     
     #print(len(c.front_dist.data))       

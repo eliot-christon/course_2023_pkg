@@ -22,6 +22,7 @@ class Navigation() :
         self.d_tour = {"speed" : 0.0, "angle" : 0.0}
         self.tofs = {"fl" : 0.0, "fr" : 0.0, "bl" : 0.0, "br" : 0.0}
         self.EP=0
+        self.start=False
 
         # Init ROS node
         rospy.init_node('navigation_haut_niveau', anonymous=True)
@@ -31,7 +32,6 @@ class Navigation() :
         self.pub_angle = rospy.Publisher("/AngleCommand", Float32, queue_size = 1)
         self.pub_dist_lim = rospy.Publisher("/Dist_lim", Bool, queue_size = 1)
         self.pub_fin_d_tour = rospy.Publisher("/Fin_d_tour", Bool, queue_size = 1)
-        self.pub_dir = rospy.Publisher("/Direction", Bool, queue_size = 1)
 
         # Init ROS subscribers
         self.sub_tfs_dist = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_tofs_dist)
@@ -42,6 +42,10 @@ class Navigation() :
 
         
         # other subscribers should be added here
+        self.sub_start = rospy.Subscriber("/Start_flag",Bool,self.start_stop_callback) #start/stop flag control from teleop_robot.py
+
+    def start_stop_callback(self,msg):
+        self.start=msg.data
 
     def callback_tofs_dist(self, msg) :
         """ Callback for the tofs distance"""
@@ -98,8 +102,8 @@ class Navigation() :
         # main loop
         while not rospy.is_shutdown() :
             #En fonction de l'état on choisi quel commande de vitesse utiliser
-            stop=rospy.get_param("Stop", default=1)
-            if stop==0:
+
+            if self.start==True:
                 if self.EP == 0:
                     self.set_speed_angle(self.nav_lidar["speed"], self.nav_lidar["angle"])
                 elif self.EP == 1:
@@ -107,7 +111,7 @@ class Navigation() :
                 elif self.EP == 2:
                     self.set_speed_angle(self.d_tour["speed"], self.d_tour["angle"])
             else:
-                self.set_speed_angle(0.0, 0.0)
+                self.set_speed_angle(0, 0)
 
                 
             

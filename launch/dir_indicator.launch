@@ -7,7 +7,7 @@
 	
 
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator"/>
+	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True"/>
 
 
 
