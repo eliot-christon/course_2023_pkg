@@ -27,7 +27,7 @@
 <param name="kc" value="-0.85"/>
 <param name="ks" value="1"/>
 <!-- param lead controler-->
-<param name="kd" value="8"/>
+<param name="kd" value="6.5"/>
 <param name="tau" value="1.0e-6"/>
 <param name="a" value="10"/>
 

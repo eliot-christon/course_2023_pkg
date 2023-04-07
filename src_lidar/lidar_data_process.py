@@ -19,6 +19,7 @@ class Control:
         self.front_dist=Float32()
         self.offset=0.  #en faire parametre
         self.obstacle_ahead=False
+        self.print=False #pour afficher msg de manoeuvre 1 fois par manoeuvre
 
 
 #navigation par defaut
@@ -30,7 +31,7 @@ def default_nav(front_data,quadran=[]):
 
     a0,a1=rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)  #pour qualif sans obstacle mieux avec 130,230°
     
-    if quadran==[]:
+    if len(quadran)==0:
         angles=np.linspace(np.deg2rad(a0), np.deg2rad(a1), len(front_data))
     else: angles=quadran
 
@@ -52,7 +53,7 @@ def default_nav(front_data,quadran=[]):
 #COMME CA SI IL EVITE OBSTACLE EN PARTANT A GAUCHE ET ENSUITE IL VEUT ALLER 
 #A DROITE LA COMMANDE SERA PAS AUSSI BRUSQUE 
 def quadran_nav(front_data,N):
-    print("MANOEUVRE D'EVITEMENT")
+    rospy.loginfo("MANOEUVRE D'EVITEMENT")
     step_size=rospy.get_param("step_size",default=10)#step interval for front_data
     steps=len(front_data)//step_size
 
@@ -76,21 +77,11 @@ def quadran_nav(front_data,N):
             sums[n]=sum(front_data[n*quadran_size:(n+1)*quadran_size:step_size])
     
     sums[n//2]=0 #on veut pas regarder ua centre
-    """ for i in range(steps):
-        
-        if i//denom>=N: #si jamais la quantification ne peut pas etre bien faite -> lien entre N, steps, step_size....
-            break
-
-        #avgs[i//(steps//(N-1))]+=angles[i*step_size]*front_data[i*step_size]
-        
-        sums[i//denom]+=front_data[i*step_size] """
     
-    
-
     #if steps//(N-1)<N : avgs[N-1],sums[N-1]= angles[(N-1)*step_size]*front_data[(N-1)*step_size],front_data[(N-1)*step_size]
     #ca marche mieux en simu sans la 3eme composante
     
-    print(sums,"\n")
+    #print(sums,"\n")
     best_ind=np.argmax(sums)
 
     if best_ind==0:
@@ -103,15 +94,6 @@ def quadran_nav(front_data,N):
         best_quadran=front_data[best_ind*quadran_size:(best_ind+1)*quadran_size]
         angles=angles[best_ind*quadran_size:(best_ind+1)*quadran_size]
 
-    """sum=sums[0]
-    avg=avgs[0]
-    for i in range(1,N):
-        if sums[i]>sum:
-            sum=sums[i]
-            avg=avgs[i]
-            best_ind=i
-    avg/=sum """
-    #print(angles)
     direction=default_nav(best_quadran,angles)#avg-np.pi
     return direction
 
@@ -133,7 +115,7 @@ def analyze_front(front_data,c):
     front_dist=0
     r=range(ind0,ind1,3)
     for i in r:
-        if front_data[i]<SAFETY_DIST and front_data[i]>0: c.obstacle_ahead=True
+        if front_data[i]<SAFETY_DIST and front_data[i]>0: c.obstacle_ahead=True #front_data[i]>0 pour eviter bug en reel
         
         front_dist+=front_data[i]
     
@@ -174,11 +156,12 @@ def data_process_callback(msg_f,msg_s,c):
         
         c.front_dist=front_dist
 
-        #equivalent to orientation error
-        N=rospy.get_param("N_cadrans",default=3) #-> pour N=3 le array a des nan des fois -> div par 0 surement ->pck avec N=3 et steps on peut pas faire de subdivision t.q. on remplit tableau
+        
+        N=rospy.get_param("N_cadrans",default=3) 
         
         direction=quadran_nav(front_data,N) if c.obstacle_ahead==True else default_nav(front_data)#avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
 
+        #equivalent to orientation error
         c.dir=direction-c.offset #-offset car defini t.q. offset>0 => gauche
 
 

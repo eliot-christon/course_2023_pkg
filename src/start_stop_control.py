@@ -109,6 +109,11 @@ class Controller(QtWidgets.QMainWindow) :
 			#ICI faire commande de start -> lancer un flag sur topic qui permet a navigation haut niveau de demarrer our arreter moteurs
 			self.b_space.setEnabled(True);self.b_space.setChecked(True);self.b_space.setEnabled(False)
 			self.start= not self.start
+			if self.start:
+				rospy.loginfo("STARTING NAVIGATION")
+			else:
+				rospy.loginfo("STOPPING NAVIGATION")
+
 			
 		else:
 			self.b_space.setEnabled(True);self.b_space.setChecked(False);self.b_space.setEnabled(False)

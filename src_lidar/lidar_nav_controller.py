@@ -92,13 +92,13 @@ if __name__=='__main__':
 
         #check haut niveau navigation
         haut_niv=rospy.get_param("haut_niv",default=False)
-
+        print(haut_niv)
 
         while not rospy.is_shutdown():
             if haut_niv==False:
                 angle_pub.publish(c.ang)
                 speed_pub.publish(c.speed)
-            
+
             c.command.data=[c.speed, c.ang]
 
             command_pub.publish(c.command)
