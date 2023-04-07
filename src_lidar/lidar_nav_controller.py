@@ -92,8 +92,9 @@ if __name__=='__main__':
         command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
 
         #check haut niveau navigation
-        
-        print(haut_niv)
+
+        haut_niv=rospy.get_param("haut_niv",default=False)
+
 
         while not rospy.is_shutdown():
             if haut_niv==False:

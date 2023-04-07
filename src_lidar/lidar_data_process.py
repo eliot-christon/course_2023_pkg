@@ -115,8 +115,9 @@ def analyze_front(front_data,c):
     front_dist=0
     r=range(ind0,ind1,3)
     for i in r:
+
         if front_data[i]<SAFETY_DIST and front_data[i]>0: c.obstacle_ahead=True #front_data[i]>0 pour eviter bug en reel
-        
+
         front_dist+=front_data[i]
     
     front_dist/=len(r) #on moyenne sur le nomnre de points utilises

@@ -93,6 +93,7 @@ class Navigation() :
         while not rospy.is_shutdown() :
             if self.start==True:
                 if (min(self.tofs["fl"], self.tofs["fr"]) < tofs_lidar_threshold or self.ONLY_TOFS) and not self.ONLY_LIDAR :
+
                     if nav!="tofs":
                         rospy.loginfo("NAV TOF")
                         nav="tofs"
@@ -101,6 +102,7 @@ class Navigation() :
                     if nav!="lidar":
                         rospy.loginfo("NAV LIDAR")
                         nav="lidar"
+
                     self.set_speed_angle(self.nav_lidar["speed"], self.nav_lidar["angle"])
             
             else:
@@ -109,11 +111,13 @@ class Navigation() :
             rate.sleep()
         
 
+
 if __name__ == "_main_" :
         ONLY_LIDAR=rospy.get_param("ONLY_LIDAR",default=False)
         ONLY_TOFS=rospy.get_param("ONLY_TOFS",default=False)
 
         nav = Navigation(ONLY_TOFS=ONLY_TOFS,ONLY_LIDAR=ONLY_LIDAR)
+
         nav.run()
 
         rospy.spin()
