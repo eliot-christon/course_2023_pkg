@@ -5,11 +5,11 @@
     <param name="left_is_green" value="True"/>
 
     <!-- Including launch files -->
-    <include file="$(find course_2023_pkg)/launch/lidar_navigation.launch"/>
+    <include file="$(find course_2023_pkg)/launch/lidar_navigation_reel.launch"/>
     
     <include file="$(find course_2023_pkg)/launch/nav_tofs.launch" />
     <include file="$(find course_2023_pkg)/launch/dir_indicator.launch" />
-    <include file="$(find course_2023_pkg)/launch/demi_tour_simu_mae.launch" />
+    <include file="$(find course_2023_pkg)/launch/demi_tour.launch" />
 
     <!-- Run nodes-->
     <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>

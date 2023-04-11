@@ -3,11 +3,12 @@
 
 import rospy
 import numpy as np
+import message_filters
 
 from std_msgs.msg import Float32MultiArray, Bool
 from sensor_msgs.msg import LaserScan
 
-CLIP_DIST=3
+CLIP_DIST=rospy.get_param("CLIP_DIST",default=3)
 
 class Control():
     def __init__(self):
@@ -115,9 +116,10 @@ def lidar_preprocess_callback(msg,c):
         #print(len(c.front_dist.data))       
             
 
-
-def onrun_callback(msg,c):
-    c.run=msg.data           
+#recupere le flag de MAE pour connaitre etat
+def onrun_callback(msg_l,msg_d,c):
+    #demi tour utilise aussi lidar_data
+    c.run=(msg_l.data or msg_d.data)       
     
 
 if __name__=='__main__':
@@ -143,9 +145,15 @@ if __name__=='__main__':
             rospy.Subscriber(lidar_topic, Float32MultiArray, lidar_preprocess_callback,c)
 
         #subscribe MAE state
-        rospy.Subscriber("/Nav_lid",Bool,onrun_callback,c)
+        #rospy.Subscriber("/Nav_lid",Bool,onrun_callback,c)
+        #rospy.Subscriber("/D_tour",Bool,onrun_callback,c)
 
 
+        lidar_flag=message_filters.Subscriber("/Nav_lid",Bool, queue_size=1)
+        d_tour_flag=message_filters.Subscriber("/D_tour",Bool,queue_size=1)
+
+        ts = message_filters.ApproximateTimeSynchronizer([lidar_flag, d_tour_flag], queue_size=1, slop=0.1, allow_headerless=True)
+        ts.registerCallback(onrun_callback,c)
 
 
         #publisher de front data
