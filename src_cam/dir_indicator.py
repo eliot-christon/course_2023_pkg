@@ -59,16 +59,18 @@ Ce noeud publie sur deux topics:
         #subscriber
         sub_topic = rospy.get_param("image_datas", default="/ImageScan")
         sub_sensi_topic= rospy.get_param("sensi_topic", default="/Sensi")
-        reelparam = rospy.get_param("reel", default="1")
-        if reelparam == 1:
+
+        #parameters
+        self.reelparam = rospy.get_param("reel", default=0)
+        self.rgb=rospy.get_param('rgb',default=0)
+
+        if self.reelparam == 1:
             self.sub=rospy.Subscriber(sub_topic, SensorImage, self.callback)
         else:
             self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
 
         #sub pour le topic de sensibilité de la direction
         self.sub_sensi=rospy.Subscriber(sub_sensi_topic, Bool, self.callback_sensi)
-        
-        
         
 
         #publisher
@@ -100,20 +102,13 @@ Ce noeud publie sur deux topics:
     def callback(self, msg) : 
         limite_haute=rospy.get_param('lim_haut', default=480)
         limite_basse=rospy.get_param('lim_bas', default=0)
-        reel=rospy.get_param('reel', default=0)
 
-        if reel==0 :
+        if self.reelparam==0 :
             #On récupère deux lignes verticales à gauche et à droite
             scan = msg.data		
             leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
             rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
             middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
-
-            #On convertie leurs valeur bgr en valeur hsv
-            rgb=rospy.get_param('rgb',default=0)
-            self.lefthsv = bgr2hsv(leftscan,rgb)
-            self.righthsv = bgr2hsv(rightscan,rgb)
-            self.middlehsv = bgr2hsv(middlescan,rgb)
 
         else :
             #On récupère deux lignes verticales à gauche et à droite
@@ -126,13 +121,20 @@ Ce noeud publie sur deux topics:
             middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
 
 
-        rospy.loginfo(self.middlehsv)
+        #On convertie leurs valeur bgr en valeur hsv
+        
+        self.lefthsv = bgr2hsv(leftscan,self.rgb)
+        self.righthsv = bgr2hsv(rightscan,self.rgb)
+        self.middlehsv = bgr2hsv(middlescan,self.rgb)
+
+
+        #rospy.loginfo(self.middlehsv)
 
     def run(self):
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown() :
-            left_is_green=rospy.get_param('left_is_green')
+            left_is_green=rospy.get_param('left_is_green', default=True)
 
             #On compte le nombre de pixel rouge selon leur valeur hsv
             count_red_left=0
