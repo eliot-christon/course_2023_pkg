@@ -100,31 +100,39 @@ Ce noeud publie sur deux topics:
     def callback(self, msg) : 
         limite_haute=rospy.get_param('lim_haut', default=480)
         limite_basse=rospy.get_param('lim_bas', default=0)
+        reel=rospy.get_param('reel', default=0)
 
-        # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-        # print("yes")
-        #On récupère deux lignes verticales à gauche et à droite
-        scan = msg.data		
-        leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
-        rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
-        middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
+        if reel==0 :
+            #On récupère deux lignes verticales à gauche et à droite
+            scan = msg.data		
+            leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
+            rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
+            middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
 
-        # leftscan=np.array(scan)[:,10,0:3]
-        # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
-        # middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+            #On convertie leurs valeur bgr en valeur hsv
+            rgb=rospy.get_param('rgb',default=0)
+            self.lefthsv = bgr2hsv(leftscan,rgb)
+            self.righthsv = bgr2hsv(rightscan,rgb)
+            self.middlehsv = bgr2hsv(middlescan,rgb)
 
-        #On convertie leurs valeur bgr en valeur hsv
-        rgb=rospy.get_param('rgb',default=0)
-        self.lefthsv = bgr2hsv(leftscan,rgb)
-        self.righthsv = bgr2hsv(rightscan,rgb)
-        self.middlehsv = bgr2hsv(middlescan,rgb)
+        else :
+            #On récupère deux lignes verticales à gauche et à droite
+            scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
+            print("yes")
+
+            #On convertie leurs valeur bgr en valeur hsv
+            leftscan=np.array(scan)[:,10,0:3]
+            rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
+            middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+
+
         rospy.loginfo(self.middlehsv)
 
     def run(self):
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown() :
-            left_is_green=rospy.get_param('left_is_green',default=True)
+            left_is_green=rospy.get_param('left_is_green')
 
             #On compte le nombre de pixel rouge selon leur valeur hsv
             count_red_left=0
