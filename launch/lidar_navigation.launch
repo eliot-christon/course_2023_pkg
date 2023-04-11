@@ -20,6 +20,7 @@
 <param name="MAX_SPEED" value="1"/>
 <param name="MAX_ANGLE" value="1"/>
 <param name="SAFETY_DIST" value="0.85"/>
+<param name="CLIP_DIST" value="3"/>
 
 
 <param name="lidar_nav_only" value="False"/>

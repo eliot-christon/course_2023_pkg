@@ -50,7 +50,7 @@ class Navigation() :
     def callback_tofs_dist(self, msg) :
         """ Callback for the tofs distance"""
 
-        tofs_lidar_threshold = 1.0 # m
+        tofs_lidar_threshold = rospy.get_param("tofs_lidar_threshold", default=1.0)  # 1.0m
 
         self.tofs["fl"] = msg.data[0]
         self.tofs["fr"] = msg.data[1]
