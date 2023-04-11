@@ -13,7 +13,7 @@
 	<param name="tof_topic" value="/SensorsScan"/>
 
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="pub_tofs2dist.py" name="pub_tofs2dist" required="True"/>
+	<node pkg="course_2023_pkg" type="pub_tofs2dist.py" name="pub_tofs2dist_nav" required="True"/>
 
 	<node pkg="course_2023_pkg" type="nav_tofs.py" name="nav_tofs" output="screen" required="True">
 

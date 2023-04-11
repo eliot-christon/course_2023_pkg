@@ -119,6 +119,7 @@ def lidar_preprocess_callback(msg,c):
 #recupere le flag de MAE pour connaitre etat
 def onrun_callback(msg_l,msg_d,c):
     #demi tour utilise aussi lidar_data
+    print("ici")
     c.run=(msg_l.data or msg_d.data)       
     
 

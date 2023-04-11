@@ -104,21 +104,22 @@ Ce noeud publie sur deux topics:
         # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
         # print("yes")
         #On récupère deux lignes verticales à gauche et à droite
-        scan = msg.data		
-        leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
-        rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
-        middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
+        scan = msg.data
+        if len(scan)>0:	
+            leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
+            rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
+            middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
 
-        # leftscan=np.array(scan)[:,10,0:3]
-        # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
-        # middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+            # leftscan=np.array(scan)[:,10,0:3]
+            # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
+            # middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
 
-        #On convertie leurs valeur bgr en valeur hsv
-        rgb=rospy.get_param('rgb',default=0)
-        self.lefthsv = bgr2hsv(leftscan,rgb)
-        self.righthsv = bgr2hsv(rightscan,rgb)
-        self.middlehsv = bgr2hsv(middlescan,rgb)
-        rospy.loginfo(self.middlehsv)
+            #On convertie leurs valeur bgr en valeur hsv
+            rgb=rospy.get_param('rgb',default=0)
+            self.lefthsv = bgr2hsv(leftscan,rgb)
+            self.righthsv = bgr2hsv(rightscan,rgb)
+            self.middlehsv = bgr2hsv(middlescan,rgb)
+            rospy.loginfo(self.middlehsv)
 
     def run(self):
         rate = rospy.Rate(20)

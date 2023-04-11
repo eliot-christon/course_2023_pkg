@@ -19,7 +19,7 @@
 
 <node pkg="course_2023_pkg" name="plot_lidar" type="plot_lidar_balt.py" output="screen" required="false"/>
 
-<param name="MAX_SPEED" value="0.55"/>
+<param name="MAX_SPEED" value="0.6"/>
 <param name="MAX_ANGLE" value="1"/>
 <param name="SAFETY_DIST" value="0.45"/>
 <param name="CLIP_DIST" value="3"/>
@@ -28,7 +28,7 @@
 <param name="lidar_nav_only" value="False"/>
 
 <param name="kc" value="-0.2"/>
-<param name="ks" value="0.45"/>
+<param name="ks" value="0.5"/>
 <!-- param lead controler-->
 <param name="kd" value="8.5"/>
 <param name="tau" value="1.0e-7"/>

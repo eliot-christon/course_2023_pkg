@@ -3,7 +3,6 @@
 
 import rospy
 import numpy as np
-import matplotlib.pyplot as plt
 
 from std_msgs.msg import Float32, Float32MultiArray, Bool
 import message_filters 
@@ -101,7 +100,7 @@ if __name__=='__main__':
 
         #check haut niveau navigation
         haut_niv=rospy.get_param("haut_niv",default=False)
-        print(haut_niv)
+        print("Navigation haut_niv:",haut_niv)
 
         while not rospy.is_shutdown():
             if haut_niv==False:
