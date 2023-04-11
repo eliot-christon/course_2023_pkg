@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-	<param name="rgb" value="1"/>
+	<param name="rgb" value="0"/>
 	<param name="reel" value="1"/>
 
 	
