@@ -1,7 +1,11 @@
 <launch>
 
 <!-- Run lidar_data_reel node -->
-<node pkg="course_2023_pkg" name="lidar_data_dtour" type="lidar_data_reel.py" output="screen" required="true"/>
+<node pkg="course_2023_pkg" name="lidar_data_dtour" type="lidar_data_reel.py" output="screen" required="true">
+    <param name="angle0" value="45"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="315"/> <!--angles en degres, convertis en radians par la suite-->
+
+</node>
 
 <!-- Run pub_tofs2dist.py node to change the param for the tof topic of the simulation-->
 <node pkg="course_2023_pkg" name="pub_tofs2dist_dtour" type="pub_tofs2dist.py" output="screen" required="true"/>
@@ -14,8 +18,6 @@
 
 <param name="max_speed" value="0.7"/> <!-- max speed of the robot -->
 <param name="tof_topic" value="/TofsScan"/> <!-- tofs topic of the simulation -->
-<param name="angle0" value="45"/> <!--angles en degres, convertis en radians par la suite-->
-<param name="angle1" value="315"/> <!--angles en degres, convertis en radians par la suite-->
 
 
 </launch>

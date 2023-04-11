@@ -113,7 +113,7 @@ Ce noeud publie sur deux topics:
         else :
             #On récupère deux lignes verticales à gauche et à droite
             scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-            print("yes")
+            #print("yes")
 
             #On convertie leurs valeur bgr en valeur hsv
             leftscan=np.array(scan)[:,10,0:3]
@@ -184,7 +184,7 @@ Ce noeud publie sur deux topics:
             
             
             # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
-            rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+            #rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
 
             #On passe d'une sensibilité à l'autre en fonction de self.sensi
 

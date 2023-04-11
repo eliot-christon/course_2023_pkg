@@ -4,12 +4,18 @@
     <param name="front_topic" value="/front_data"/>
     <param name="side_topic" value="/side_data"/>
     <param name="lidar_topic" value="/LidarScan"/>
+    <param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
+
 </node>
 
 <!-- Run one lidar_data_process -->
 <node pkg="course_2023_pkg" name="data_process" type="lidar_data_process.py" output="screen" required="true">
     <param name="front_data_topic" value="/front_data"/>
     <param name="side_data_topic" value="/side_data"/>
+    <param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
+
 </node>
 
 <!-- Run one lidar_nav_controller -->
@@ -35,8 +41,6 @@
 
 <param name="step_size" value="5"/>
 
-<param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
-<param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
 
 <!--angles utilises pour calcul de front_dist-->
 <param name="i0" value="165"/> 

@@ -35,19 +35,19 @@ class Plot :
 	def callback(self, msg) :
 
 		scan = msg.data #le lidar envoit un scan 360° autour de la voiture sur un array de longueur len(scan)
-		a0,a1=rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)#rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)
-		if self.angles is None : self.angles = np.linspace(np.deg2rad(a0), np.deg2rad(a1),len(scan))#(np.deg2rad(120), np.deg2rad(240), len(scan)) #pour front data
+		if len(scan)>0:
+			a0,a1=rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)#rospy.get_param("angle0",default=120),rospy.get_param("angle1",default=240)
+			if self.angles is None : self.angles = np.linspace(np.deg2rad(a0), np.deg2rad(a1),len(scan))#(np.deg2rad(120), np.deg2rad(240), len(scan)) #pour front data
+			
+			self.x_data = [] ; self.y_data = []
+			for i in range(len(scan)) :
+				#On converti la distance renvoyee par data en coord x,y dans le referentiel du robot
+				self.x_data.append(scan[i] * np.cos(self.angles[i]))
+				self.y_data.append(scan[i] * np.sin(self.angles[i]))
 		
-		self.x_data = [] ; self.y_data = []
-		for i in range(len(scan)) :
-			#On converti la distance renvoyee par data en coord x,y dans le referentiel du robot
-			self.x_data.append(scan[i] * np.cos(self.angles[i]))
-			self.y_data.append(scan[i] * np.sin(self.angles[i]))
-	
 	def callback_scan(self, msg) :
 
 		scan = np.array(msg.ranges) #le lidar envoit un scan 360° autour de la voiture sur un array de longueur len(scan)
-		print(scan)
 		if len(scan)>0:
 			scan=np.roll(scan,len(scan)//2)
 			scan=np.flip(scan)

@@ -78,8 +78,8 @@ def lidar_preprocess_callback(msg,c):
             scan=np.roll(scan,-n//2)#on shift l'array pour avoir devant a n//2
             scan=np.flip(scan)#on inverse l'ordre -> gauche droite
 
-        intv=[int((rospy.get_param("angle0",default=120))/90 * n/4),
-            int(rospy.get_param("angle1",default=240)/270 * 3*n/4)] #angles interval
+        intv=[int((rospy.get_param("~angle0",default=120))/90 * n/4),
+            int(rospy.get_param("~angle1",default=240)/270 * 3*n/4)] #angles interval
         
         
         angles=np.linspace(0,2*np.pi,n)
@@ -119,7 +119,6 @@ def lidar_preprocess_callback(msg,c):
 #recupere le flag de MAE pour connaitre etat
 def onrun_callback(msg_l,msg_d,c):
     #demi tour utilise aussi lidar_data
-    print("ici")
     c.run=(msg_l.data or msg_d.data)       
     
 

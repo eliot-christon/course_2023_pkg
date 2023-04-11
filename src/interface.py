@@ -98,17 +98,26 @@ class Navigation() :
         # frequency of the loop
         HZ = 20 # Hz
         rate = rospy.Rate(HZ)
-
+        nav=""
         # main loop
         while not rospy.is_shutdown() :
             #En fonction de l'état on choisi quel commande de vitesse utiliser
 
             if self.start==True:
                 if self.EP == 0:
+                    if nav!="lidar":
+                        rospy.loginfo("NAV LIDAR")
+                        nav="lidar"
                     self.set_speed_angle(self.nav_lidar["speed"], self.nav_lidar["angle"])
                 elif self.EP == 1:
+                    if nav!="tofs":
+                        rospy.loginfo("NAV TOFS")
+                        nav="tofs"
                     self.set_speed_angle(self.nav_tofs["speed"], self.nav_tofs["angle"])
                 elif self.EP == 2:
+                    if nav!="demi_tour":
+                        rospy.loginfo("DEMI-TOUR")
+                        nav="demi_tour"
                     self.set_speed_angle(self.d_tour["speed"], self.d_tour["angle"])
             else:
                 self.set_speed_angle(0, 0)
