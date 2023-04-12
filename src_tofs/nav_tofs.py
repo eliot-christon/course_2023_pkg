@@ -8,7 +8,7 @@ Projet PFE : Voiture autonome
 
 import rospy
 
-from std_msgs.msg import Float32MultiArray, Float32, String
+from std_msgs.msg import Float32MultiArray, Float32, String, Bool
 
 class Navigation() : 
 
@@ -18,6 +18,7 @@ class Navigation() :
         self.angle = 0
         self.dist = [10.0, 10.0, 10.0, 10.0]
         self.wall_color = ""
+        self.compute = True
 
         # parameters
         self.actualize_params()
@@ -45,9 +46,14 @@ class Navigation() :
             self.pub_message = rospy.Publisher("/TofsNavMessage", String, queue_size = 1)
 
         # Init ROS SUBSCRIBERS
-        self.sub_dist = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_dist)
-        self.sub_wall = rospy.Subscriber("/WallColor", String, self.callback_wall)
+        self.sub_dist    = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_dist)
+        self.sub_wall    = rospy.Subscriber("/WallColor", String, self.callback_wall)
+        self.pub_nav_tof = rospy.Subscriber("/Nav_tof", Bool, self.callback_nav_tof)
     
+    def callback_nav_tof(self, msg) :
+        """ Callback function for the navigation topic """
+        self.compute = msg.data
+
     def callback_wall(self, msg) :
         """ Callback function for the wall color topic """
         self.wall_color = msg.data
@@ -100,6 +106,9 @@ class Navigation() :
         # main loop
         while not rospy.is_shutdown() :
 
+            if not self.compute : # if the navigation is not activated
+                continue          # go to the next iteration
+
             # actualize the parameters
             self.actualize_params()
 
@@ -110,7 +119,7 @@ class Navigation() :
                 "rr" : self.dist[3], # rear right
             }
 
-            # calculate the current shortest distance and normalize it between 0 and 1
+            # calculate the current shortest sensor distance and normalize it between 0 and 1
             dist = min(sensor["fl"], sensor["fr"])
             norma_dist = dist / self.MAX_DIST
 

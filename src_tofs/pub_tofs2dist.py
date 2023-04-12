@@ -7,15 +7,20 @@ Projet PFE : Voiture autonome
 """
 
 import rospy
-from std_msgs.msg import Float32MultiArray, Int16MultiArray
+from std_msgs.msg import Float32MultiArray, Int16MultiArray, Bool
+import numpy as np
 
 class Distance() : 
 
-    def __init__(self, MAX_DIST=10.0, nb_tofs=4, queue_size=5) : 
+    def __init__(self, nb_tofs=4, queue_size=3) : 
         
+        # Params
+        self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
+        self.tofs_lidar_threshold = rospy.get_param("tofs_lidar_threshold", default=1)
+        self.MAX_DIST = rospy.get_param("tofs_default_max_dist",  default=1.5) # default max distance of the tofs
+
         self.nb_tofs = nb_tofs
-        self.MAX_DIST = MAX_DIST # default max distance of the tofs
-        self.dist = [MAX_DIST] * self.nb_tofs
+        self.dist = [self.MAX_DIST] * self.nb_tofs
         self.queue = [self.dist] * queue_size
 
         # Init ROS node
@@ -23,11 +28,13 @@ class Distance() :
 
         # Init ROS publishers
         self.pub_dist = rospy.Publisher("/TofsDistance", Float32MultiArray, queue_size = 1)
+        self.pub_lim = rospy.Publisher("/Dist_lim", Bool, queue_size = 1)
+
+        # Params
+        self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
+        self.tofs_lidar_threshold = rospy.get_param("tofs_lidar_threshold", default=1)
 
         # Init ROS subscribers
-        # By default we're using the simulation topics
-        self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
-
         if(self.tof_topic == "/SensorsScan"):
             self.sub_tofs = rospy.Subscriber(self.tof_topic, Float32MultiArray, self.callback_tofs_simu)
         elif(self.tof_topic == "/TofsScan"):
@@ -41,14 +48,23 @@ class Distance() :
         """ Callback of the simulated tofs subscriber """
         # [front_left, front_right, rear_left, rear_right]
         self.dist = [d if d > 0.001 else self.MAX_DIST for d in msg.data]
-        self.movingAverage_filter()
-        self.pub_dist.publish(Float32MultiArray(data=self.dist))
+        self.global_publisher()
 
     def callback_tofs(self, msg) :
         """ Callback of the tofs subscriber """
         self.dist = [d/(1000) if d/(1000)<self.MAX_DIST else self.MAX_DIST for d in msg.data] # conversion to meters
-        self.movingAverage_filter()
+        self.global_publisher()
+        
+    def global_publisher(self) :
+        """ Callback of the global subscriber """
+        self.eliminate_zero_values()
+        self.median_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
+        # Check if the distance is under a threshold
+        if min(self.dist[:2]) < self.tofs_lidar_threshold :
+            self.pub_lim.publish(Bool(data=True))
+        else :
+            self.pub_lim.publish(Bool(data=False))
 
     def movingAverage_filter(self) :
         """ Filter the distance with a moving average"""
@@ -56,13 +72,24 @@ class Distance() :
         self.queue.append(self.dist)
         self.dist = [sum([d[i] for d in self.queue]) / len(self.queue) for i in range(self.nb_tofs)]
     
+    def median_filter(self) :
+        """ Filter the distance with a median filter"""
+        self.queue.pop(0)
+        self.queue.append(self.dist)
+        temp = np.array(self.queue).T
+        self.dist = [np.median(temp[i]) for i in range(self.nb_tofs)]
+
+    def eliminate_zero_values(self):
+        """eliminate zero values"""
+        for i in range(self.nb_tofs) :
+            if self.dist[i] < 0.0001 :
+                self.dist[i] = self.queue[-1][i]
+    
+    
 
 
 if __name__ == "__main__" :
 
-    topic_folder = rospy.get_param("topic_folder", default="nav_tofs/")
-    max_ds = rospy.get_param(topic_folder+"tofs_default_max_dist",  default=1.5)
-
-    Distance(MAX_DIST=max_ds)
+    Distance()
     # now we can use rospy.spin() to keep the node alive
     rospy.spin()
