@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-	<param name="rgb" value="1"/>
+	<param name="rgb" value="0"/>
 	<param name="reel" value="1"/>
 
 	
 
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator"/>
+	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True" output="screen"/>
 
 
 

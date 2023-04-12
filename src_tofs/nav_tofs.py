@@ -72,14 +72,14 @@ class Navigation() :
         self.MIN_DIST  = rospy.get_param(topic_folder+"min_dist",   default=self.MIN_DIST)
         self.MIN_SPEED = rospy.get_param(topic_folder+"min_speed",  default=self.MIN_SPEED)
         self.BACKWARD_SPEED = rospy.get_param(topic_folder+"backward_speed", default=self.BACKWARD_SPEED)
-        self.LEFT_IS_GREEN = rospy.get_param(topic_folder+"left_is_green", default=self.LEFT_IS_GREEN)
+        self.LEFT_IS_GREEN = rospy.get_param("left_is_green", default = True)
 
 
     def run(self) :
         """ Main loop of the navigation running with front and back tofs"""
 
         # lateral distance to the obstacle
-        recul_dist = 0.5
+        recul_dist = rospy.get_param("recul_dist",default=0.5)
 
         # boleans
         going_backwards = False
@@ -198,7 +198,7 @@ if __name__ == "__main__" :
         min_ds = rospy.get_param(topic_folder+"min_dist",  default=0.15)
         max_ag = rospy.get_param(topic_folder+"max_angle", default=1.0)
         back_sp = rospy.get_param(topic_folder+"backward_speed", default=0.5)
-        left_is_green = rospy.get_param(topic_folder+"left_is_green", default=True)
+        left_is_green = rospy.get_param("left_is_green", default = True)
 
         
         nav = Navigation(MAX_SPEED=max_sp, MAX_ANGLE=max_ag, MAX_DIST=max_ds, MIN_DIST=min_ds, MIN_SPEED=min_sp, BACKWARD_SPEED=back_sp, LEFT_IS_GREEN=left_is_green)

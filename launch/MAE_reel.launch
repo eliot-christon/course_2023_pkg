@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Set parameters -->
+    <param name="left_is_green" value="True"/>
+
+    <!-- Including launch files -->
+    <include file="$(find course_2023_pkg)/launch/lidar_navigation_reel.launch"/>
+    
+    <include file="$(find course_2023_pkg)/launch/nav_tofs.launch" />
+    <include file="$(find course_2023_pkg)/launch/dir_indicator_reel.launch" />
+    <include file="$(find course_2023_pkg)/launch/demi_tour.launch" />
+
+    <!-- Run nodes-->
+    <!--LANCER CE NOEUD DE COMMANDE DEPUIS L'ORDI EXTERNE PCK INTERFACE PEUT PAS TOURNER SUR PI-->
+    <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
+
+
+    <node pkg="course_2023_pkg" type="MAE.py" name="MAE" output="screen" required="True"/>
+        
+    <node pkg="course_2023_pkg" type="interface.py" name="interface" output="screen" required="True"/>
+
+    <param name="haut_niv" value="True"/>
+
+    <!--seuil passage de lidar a tofs-->
+    <param name="tofs_lidar_threshold" value="1.0"/>
+
+    <param name="reel" value="1"/>
+    
+    
+
+</launch>
+

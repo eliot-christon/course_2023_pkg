@@ -59,18 +59,16 @@ Ce noeud publie sur deux topics:
         #subscriber
         sub_topic = rospy.get_param("image_datas", default="/ImageScan")
         sub_sensi_topic= rospy.get_param("sensi_topic", default="/Sensi")
-
-        #parameters
-        self.reelparam = rospy.get_param("reel", default=0)
-        self.rgb=rospy.get_param('rgb',default=0)
-
-        if self.reelparam == 1:
+        reelparam = rospy.get_param("reel", default="1")
+        if reelparam == 1:
             self.sub=rospy.Subscriber(sub_topic, SensorImage, self.callback)
         else:
             self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
 
         #sub pour le topic de sensibilité de la direction
         self.sub_sensi=rospy.Subscriber(sub_sensi_topic, Bool, self.callback_sensi)
+        
+        
         
 
         #publisher
@@ -100,42 +98,53 @@ Ce noeud publie sur deux topics:
         self.sensi=msg.data
         
     def callback(self, msg) : 
-        limite_haute=rospy.get_param('lim_haut', default=480)
-        limite_basse=rospy.get_param('lim_bas', default=0)
+         #Détection de la couleur rouge
+        h_min1 = 0
+        h_max1 = 26
+        s_min1 = 90
+        s_max1 = 255
+        v_min1 = 50
+        v_max1 = 255
+        #Détection de la couleur rouge
+        h_min2 = 90
+        h_max2 = 160
+        s_min2 = 50
+        s_max2 = 255
+        v_min2 = 50
+        v_max2 = 255
 
-        if self.reelparam==0 :
-            #On récupère deux lignes verticales à gauche et à droite
-            scan = msg.data		
-            leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
-            rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
-            middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
+        lower1 = np.array([h_min1, s_min1, v_min1])
+        upper1 = np.array([h_max1, s_max1, v_max1])
 
-        else :
-            #On récupère deux lignes verticales à gauche et à droite
-            scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-            #print("yes")
+        lower2 = np.array([h_min2, s_min2, v_min2])
+        upper2 = np.array([h_max2, s_max2, v_max2])
 
-            #On convertie leurs valeur bgr en valeur hsv
-            leftscan=np.array(scan)[:,10,0:3]
-            rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
-            middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+        mask1 = cv2.inRange(hsv, lower1, upper1)
+        mask2 = cv2.inRange(hsv, lower2, upper2)
 
+        # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
+        # print("yes")
+        #On récupère deux lignes verticales à gauche et à droite
+        scan = msg.data		
+        leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
+        rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
+        middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
+
+        # leftscan=np.array(scan)[:,10,0:3]
+        # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
+        # middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
 
         #On convertie leurs valeur bgr en valeur hsv
-        
-        self.lefthsv = bgr2hsv(leftscan,self.rgb)
-        self.righthsv = bgr2hsv(rightscan,self.rgb)
-        self.middlehsv = bgr2hsv(middlescan,self.rgb)
-
-
-        #rospy.loginfo(self.middlehsv)
+        rgb=rospy.get_param('rgb',default=0)
+        self.lefthsv = bgr2hsv(leftscan,rgb)
+        self.righthsv = bgr2hsv(rightscan,rgb)
+        self.middlehsv = bgr2hsv(middlescan,rgb)
+        rospy.loginfo(self.middlehsv)
 
     def run(self):
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown() :
-            left_is_green=rospy.get_param('left_is_green', default=True)
-
             #On compte le nombre de pixel rouge selon leur valeur hsv
             count_red_left=0
             for p in self.lefthsv:
@@ -184,7 +193,7 @@ Ce noeud publie sur deux topics:
             
             
             # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
-            #rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+            rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
 
             #On passe d'une sensibilité à l'autre en fonction de self.sensi
 
@@ -227,14 +236,6 @@ Ce noeud publie sur deux topics:
 
             else:
                 self.wcolor.data="???"
-
-            if not(left_is_green):
-                if self.direction.data=="wrong":
-                    self.direction.data="right"
-                if self.direction.data=="right":
-                    self.direction.data="wrong"
-                self.dir.data=not(self.dir.data)
-
 
             self.pubdirection.publish(self.direction)
             self.pubdir.publish(self.dir)

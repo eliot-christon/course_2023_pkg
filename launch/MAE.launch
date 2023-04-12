@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Set arguments -->
+    <arg name="left_is_green" default="False"/>
+    
+    <!-- Including launch files -->
+    <include file="$(find course_2023_pkg)/launch/lidar_navigation.launch"/>
+    
+    <include file="$(find course_2023_pkg)/launch/nav_tofs.launch" >
+        <arg name="left_is_green" value="$(arg left_is_green)"/>
+        
+    </include>
+
+    <include file="$(find course_2023_pkg)/launch/dir_indicator.launch" >
+        <arg name="left_is_green" value="$(arg left_is_green)"/>
+        
+    </include>
+
+    <include file="$(find course_2023_pkg)/launch/demi_tour_simu_mae.launch" />
+
+    <!-- Run nodes-->
+    <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
+
+
+    <node pkg="course_2023_pkg" type="MAE.py" name="MAE" output="screen" required="True"/>
+        
+    <node pkg="course_2023_pkg" type="interface.py" name="interface" output="screen" required="True"/>
+    <param name="haut_niv" value="True"/>
+
+    <!--seuil passage de lidar a tofs-->
+    <param name="tofs_lidar_threshold" value="1.0"/>
+    
+
+</launch>
+

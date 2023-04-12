@@ -3,11 +3,12 @@
 
 import rospy
 import numpy as np
+import message_filters
 
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, Bool
 from sensor_msgs.msg import LaserScan
 
-
+CLIP_DIST=rospy.get_param("CLIP_DIST",default=3)
 
 class Control():
     def __init__(self):
@@ -15,6 +16,7 @@ class Control():
         self.front_angle=[]
         self.side_dist=Float32MultiArray()
         self.topic=None
+        self.run=True
 
 #We're listenning to the /LidarScan topic, processing the data and publishing to /front_data and /side_data
 
@@ -61,61 +63,63 @@ def interpolate(data, ind):
 
 
 def lidar_preprocess_callback(msg,c):
+    if c.run:
+        scan=[]
+        #on recupere bonne data 
+        if c.topic=="/scan":
+            scan=np.array(msg.ranges) 
+        elif c.topic=="/LidarScan":
+            scan=np.array(msg.data)
+        #scan reel a devant a 0 donc on shift tous l'array de n/2 pour garder les autres noeuds focntionnels
+        n=len(scan)
 
-    scan=[]
-    #on recupere bonne data 
-    if c.topic=="/scan":
-        scan=np.array(msg.ranges) 
-    elif c.topic=="/LidarScan":
-        scan=np.array(msg.data)
-    #scan reel a devant a 0 donc on shift tous l'array de n/2 pour garder les autres noeuds focntionnels
-    n=len(scan)
+        #si /scan
+        if c.topic=="/scan":
+            scan=np.roll(scan,-n//2)#on shift l'array pour avoir devant a n//2
+            scan=np.flip(scan)#on inverse l'ordre -> gauche droite
 
-    #si /scan
-    if c.topic=="/scan":
-        scan=np.roll(scan,-n//2)#on shift l'array pour avoir devant a n//2
-        scan=np.flip(scan)#on inverse l'ordre -> gauche droite
-
-    intv=[int((rospy.get_param("angle0",default=120))/90 * n/4),
-         int(rospy.get_param("angle1",default=240)/270 * 3*n/4)] #angles interval
-    
-    
-    angles=np.linspace(0,2*np.pi,n)
-    c.front_angles=angles[intv[0]:intv[1]] #on va pas regarder tout le cadran avant mais, a nouveau, un sous ensmeble
-    
-    c.front_dist.data=np.zeros(len(c.front_angles))
-    iter=0
-    scan=interpolate(scan,0) #on interpole une fois
-    
-    for i in range(n)[intv[0]:intv[1]]:
-        #PLUS BESOIN DU IF-ELSE CAR ON INTERPOLE TOUTE LA DATA UNE SEULE FOIS
-        if scan[i]!=float('inf'):
-            c.front_dist.data[i-intv[0]]=np.clip(scan[i],0,3) #on clip pour s'orienter par rapport a l'env "local"
+        intv=[int((rospy.get_param("~angle0",default=120))/90 * n/4),
+            int(rospy.get_param("~angle1",default=240)/270 * 3*n/4)] #angles interval
         
-        else:
-            #chercher la bonne valeur a prendre
-            #on a inf pour certaines sections du scan -> on va interpoler lineairement (approx) pour completer ces points
+        
+        angles=np.linspace(0,2*np.pi,n)
+        c.front_angles=angles[intv[0]:intv[1]] #on va pas regarder tout le cadran avant mais, a nouveau, un sous ensmeble
+        
+        c.front_dist.data=np.zeros(len(c.front_angles))
+        iter=0
+        scan=interpolate(scan,0) #on interpole une fois
+        
+        for i in range(n)[intv[0]:intv[1]]:
+            #PLUS BESOIN DU IF-ELSE CAR ON INTERPOLE TOUTE LA DATA UNE SEULE FOIS
+            if scan[i]!=float('inf'):
+                c.front_dist.data[i-intv[0]]=np.clip(scan[i],0,CLIP_DIST) #on clip pour s'orienter par rapport a l'env "local"
             
-            scan=interpolate(scan,i)
-            iter+=1
-            print(iter)
-            c.front_dist.data[i-intv[0]]=(np.clip(scan[i],0,3))
+            else:
+                #chercher la bonne valeur a prendre
+                #on a inf pour certaines sections du scan -> on va interpoler lineairement (approx) pour completer ces points
+                
+                scan=interpolate(scan,i)
+                iter+=1
+                print(iter)
+                c.front_dist.data[i-intv[0]]=(np.clip(scan[i],0,CLIP_DIST))
 
-    #side data pour rester au milieu
-    c.side_dist.data=[0,0]
-    for ind,i in enumerate([n//4,3*n//4]):
-        if scan[i]!=float('inf'):
-            c.side_dist.data[ind]=(np.clip(scan[i],0,3)) 
-        else:
-            scan=interpolate(scan,i)
-            c.side_dist.data[ind]=(np.clip(scan[i],0,3))
+        #side data pour rester au milieu
+        c.side_dist.data=[0,0]
+        for ind,i in enumerate([n//4,3*n//4]):
+            if scan[i]!=float('inf'):
+                c.side_dist.data[ind]=(np.clip(scan[i],0,CLIP_DIST)) 
+            else:
+                scan=interpolate(scan,i)
+                c.side_dist.data[ind]=(np.clip(scan[i],0,CLIP_DIST))
 
-
-    #print(len(c.front_dist.data))       
+        
+        #print(len(c.front_dist.data))       
             
 
-
-            
+#recupere le flag de MAE pour connaitre etat
+def onrun_callback(msg_l,msg_d,c):
+    #demi tour utilise aussi lidar_data
+    c.run=(msg_l.data or msg_d.data)       
     
 
 if __name__=='__main__':
@@ -140,7 +144,16 @@ if __name__=='__main__':
         elif lidar_topic=="/LidarScan":
             rospy.Subscriber(lidar_topic, Float32MultiArray, lidar_preprocess_callback,c)
 
+        #subscribe MAE state
+        #rospy.Subscriber("/Nav_lid",Bool,onrun_callback,c)
+        #rospy.Subscriber("/D_tour",Bool,onrun_callback,c)
 
+
+        lidar_flag=message_filters.Subscriber("/Nav_lid",Bool, queue_size=1)
+        d_tour_flag=message_filters.Subscriber("/D_tour",Bool,queue_size=1)
+
+        ts = message_filters.ApproximateTimeSynchronizer([lidar_flag, d_tour_flag], queue_size=1, slop=0.1, allow_headerless=True)
+        ts.registerCallback(onrun_callback,c)
 
 
         #publisher de front data
