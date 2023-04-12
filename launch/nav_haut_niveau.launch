@@ -19,7 +19,7 @@
     <param name="haut_niv" value="True"/>
 
     <param name="ONLY_LIDAR" value="False"/>
-    <param name="ONLY_TOFS" value="False"/>
+    <param name="ONLY_TOFS" value="True"/>
 
 </launch>
 

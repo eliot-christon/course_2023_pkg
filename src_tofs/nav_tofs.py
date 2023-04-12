@@ -12,21 +12,15 @@ from std_msgs.msg import Float32MultiArray, Float32, String
 
 class Navigation() : 
 
-    def __init__(self, MAX_SPEED=1.0, MAX_ANGLE=1.0, MAX_DIST=1.5, MIN_DIST=0.15, MIN_SPEED=0.2, BACKWARD_SPEED=0.5, LEFT_IS_GREEN=True) : 
+    def __init__(self) : 
         # variables
         self.speed = 0
         self.angle = 0
         self.dist = [10.0, 10.0, 10.0, 10.0]
         self.wall_color = ""
 
-        # constants
-        self.MAX_SPEED = MAX_SPEED # default max speed of the car
-        self.MAX_ANGLE = MAX_ANGLE # default max angle of the car
-        self.MAX_DIST  = MAX_DIST  # default max distance of the tofs
-        self.MIN_DIST  = MIN_DIST  # minimum distance = too close
-        self.MIN_SPEED = MIN_SPEED # minimum speed = too slow
-        self.BACKWARD_SPEED = BACKWARD_SPEED # speed command when the car is going backward
-        self.LEFT_IS_GREEN = LEFT_IS_GREEN # True if the left wall is green, False if the right wall is green
+        # parameters
+        self.actualize_params()
 
         # print the parameters
         print("PARAMETERS : ")
@@ -42,8 +36,13 @@ class Navigation() :
         rospy.init_node('nav_tofs', anonymous=True)
 
         # Init ROS PUBLISHERS
-        self.pub_nav = rospy.Publisher("/TofsSpeedAngleCommand", Float32MultiArray, queue_size = 1)
-        self.pub_message = rospy.Publisher("/TofsNavMessage", String, queue_size = 1)
+        if self.HAUT_NIV :
+            self.pub_nav = rospy.Publisher("/TofsSpeedAngleCommand", Float32MultiArray, queue_size = 1)
+            self.pub_message = rospy.Publisher("/TofsNavMessage", String, queue_size = 1)
+        else :
+            self.pub_speed = rospy.Publisher("/SpeedCommand", Float32, queue_size = 1)
+            self.pub_angle = rospy.Publisher("/AngleCommand", Float32, queue_size = 1)
+            self.pub_message = rospy.Publisher("/TofsNavMessage", String, queue_size = 1)
 
         # Init ROS SUBSCRIBERS
         self.sub_dist = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_dist)
@@ -61,18 +60,22 @@ class Navigation() :
         """ Set the speed and angle of the car """
         self.speed = speed
         self.angle = angle
-        self.pub_nav.publish(Float32MultiArray(data=[self.speed, self.angle]))
+        if self.HAUT_NIV :
+            self.pub_nav.publish(Float32MultiArray(data=[self.speed, self.angle]))
+        else :
+            self.pub_speed.publish(self.speed)
+            self.pub_angle.publish(self.angle)
 
     def actualize_params(self) :
         """ Actualize the parameters of the car """
-        topic_folder = rospy.get_param("topic_folder", default="nav_tofs/")
-        self.MAX_SPEED = rospy.get_param(topic_folder+"max_speed",  default=self.MAX_SPEED)
-        self.MAX_ANGLE = rospy.get_param(topic_folder+"max_angle",  default=self.MAX_ANGLE)
-        self.MAX_DIST  = rospy.get_param(topic_folder+"max_dist",   default=self.MAX_DIST)
-        self.MIN_DIST  = rospy.get_param(topic_folder+"min_dist",   default=self.MIN_DIST)
-        self.MIN_SPEED = rospy.get_param(topic_folder+"min_speed",  default=self.MIN_SPEED)
-        self.BACKWARD_SPEED = rospy.get_param(topic_folder+"backward_speed", default=self.BACKWARD_SPEED)
-        self.LEFT_IS_GREEN = rospy.get_param("left_is_green", default = True)
+        self.HAUT_NIV       = rospy.get_param("haut_niv", default = False)           # navigation geree par un plus haut niveau
+        self.MAX_SPEED      = rospy.get_param("max_speed", default=1.0)              # default max speed of the car
+        self.MAX_ANGLE      = rospy.get_param("max_angle", default=1.0)              # default max angle of the car
+        self.MAX_DIST       = rospy.get_param("tofs_default_max_dist",  default=1.5) # default max distance of the tofs
+        self.MIN_DIST       = rospy.get_param("min_dist",  default=0.15)             # minimum distance = too close
+        self.MIN_SPEED      = rospy.get_param("min_speed", default=0.2)              # minimum speed = too slow
+        self.BACKWARD_SPEED = rospy.get_param("backward_speed", default=0.5)         # speed command when the car is going backward
+        self.LEFT_IS_GREEN  = rospy.get_param("left_is_green", default = True)       # True if the left wall is green, False if the right wall is green
 
 
     def run(self) :
@@ -186,22 +189,11 @@ class Navigation() :
             self.pub_message.publish(mess)
 
             rate.sleep()
-        
+            
 
 if __name__ == "__main__" :
 
-        # get the parameters
-        topic_folder = rospy.get_param("topic_folder", default="nav_tofs/")
-        max_sp = rospy.get_param(topic_folder+"max_speed", default=1.0)
-        min_sp = rospy.get_param(topic_folder+"min_speed", default=0.2)
-        max_ds = rospy.get_param(topic_folder+"tofs_default_max_dist",  default=1.5)
-        min_ds = rospy.get_param(topic_folder+"min_dist",  default=0.15)
-        max_ag = rospy.get_param(topic_folder+"max_angle", default=1.0)
-        back_sp = rospy.get_param(topic_folder+"backward_speed", default=0.5)
-        left_is_green = rospy.get_param("left_is_green", default = True)
-
-        
-        nav = Navigation(MAX_SPEED=max_sp, MAX_ANGLE=max_ag, MAX_DIST=max_ds, MIN_DIST=min_ds, MIN_SPEED=min_sp, BACKWARD_SPEED=back_sp, LEFT_IS_GREEN=left_is_green)
+        nav = Navigation()
         nav.run()
 
         rospy.spin()

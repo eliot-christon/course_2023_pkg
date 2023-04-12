@@ -4,19 +4,14 @@
 	
 
 
-<<<<<<< HEAD
 	<param name="max_speed" value="0.7"/>
-=======
-	<param name="max_speed" value="1"/>
->>>>>>> a7eab6b8d3e97e8dae54fe07d3951aa15547df7c
-	<param name="backward_speed" value="0.1"/>
-	<param name="min_speed" value="0.4"/>
+	<param name="backward_speed" value="0.5"/>
+	<param name="min_speed" value="0.3"/>
 	<param name="max_angle" value="1.0"/>
 	<param name="tofs_default_max_dist"  value="1.5"/>
 	<param name="min_dist"  value="0.15"/>
-	<param name="topic_folder"  value=""/>
 	<param name="recul_dist" value="0.5"/>
-	<param name="tof_topic" value="/SensorsScan"/>
+	<param name="tof_topic" value="/TofsScan"/>
 	<param name="left_is_green" value="$(arg left_is_green)"/>
 	
 
