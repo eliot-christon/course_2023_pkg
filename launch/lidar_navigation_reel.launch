@@ -19,16 +19,18 @@
 
 <node pkg="course_2023_pkg" name="plot_lidar" type="plot_lidar_balt.py" output="screen" required="false"/>
 
-<param name="MAX_SPEED" value="0.7"/>
+<param name="MAX_SPEED" value="0.8"/>
 <param name="MAX_ANGLE" value="1"/>
 <param name="SAFETY_DIST" value="0.45"/>
 <param name="CLIP_DIST" value="3"/>
+<param name="MIN_DIST" value="0.7"/>
+
 
 
 <param name="lidar_nav_only" value="False"/>
 
 <param name="kc" value="-0.2"/>
-<param name="ks" value="0.9"/>
+<param name="ks" value="1.5"/>
 <!-- param lead controler-->
 <param name="kd" value="8.5"/>
 <param name="tau" value="1.0e-7"/>
@@ -36,14 +38,14 @@
 
 <param name="step_size" value="10"/>
 
-<param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
-<param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
+<param name="angle0" value="110"/> <!--angles en degres, convertis en radians par la suite-->
+<param name="angle1" value="250"/> <!--angles en degres, convertis en radians par la suite-->
 
 <!--angles utilises pour calcul de front_dist-->
 <param name="i0" value="165"/> 
 <param name="i1" value="195"/> 
 
-<param name="N_cadrans" value='3'/>
+<param name="N_cadrans" value='5'/>
 
 <param name="haut_niv" value="False"/>
 </launch>

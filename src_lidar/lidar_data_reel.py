@@ -78,8 +78,8 @@ def lidar_preprocess_callback(msg,c):
             scan=np.roll(scan,-n//2)#on shift l'array pour avoir devant a n//2
             scan=np.flip(scan)#on inverse l'ordre -> gauche droite
 
-        intv=[int((rospy.get_param("~angle0",default=120))/90 * n/4),
-            int(rospy.get_param("~angle1",default=240)/270 * 3*n/4)] #angles interval
+        intv=[int((rospy.get_param("angle0",default=120))/90 * n/4),
+            int(rospy.get_param("angle1",default=240)/270 * 3*n/4)] #angles interval
         
         
         angles=np.linspace(0,2*np.pi,n)
