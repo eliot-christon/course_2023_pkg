@@ -152,35 +152,34 @@ def data_process_callback(msg_f,msg_s,c):
     #step_size=rospy.get_param("step_size",default=10)#step interval for front_data 
 
     #si lidar nav par MAE
-    if c.run:
-        front_data=msg_f.data #tableau contient dist autour du robot entre [a0,a1]
+    front_data=msg_f.data #tableau contient dist autour du robot entre [a0,a1]
 
-        if len(front_data)!=0:
-            #si objet au milieu <-> front_data[diag_gauche]>front_data[n//2]<front_data[diag_droite]
-            #probleme est qu'en faisant moyenne la direction a prendre est quand meme le milieu du a la symetrie
-            #devier-> ajouter offfset a avg qui fera qu'en faisant moy on ira vers gauche ou droite
-            #METTRE EN PLACE UN FLAG RECUPERE DANS nv_control QUI AJUSTE VITESSE ET COMMANDE DE BRAQUAGE
-            
-            
-            front_dist=analyze_front(front_data,c)
-            
-            
-            #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
-            
-            c.front_dist=front_dist
+    if len(front_data)!=0:
+        #si objet au milieu <-> front_data[diag_gauche]>front_data[n//2]<front_data[diag_droite]
+        #probleme est qu'en faisant moyenne la direction a prendre est quand meme le milieu du a la symetrie
+        #devier-> ajouter offfset a avg qui fera qu'en faisant moy on ira vers gauche ou droite
+        #METTRE EN PLACE UN FLAG RECUPERE DANS nv_control QUI AJUSTE VITESSE ET COMMANDE DE BRAQUAGE
+        
+        
+        front_dist=analyze_front(front_data,c)
+        
+        
+        #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
+        
+        c.front_dist=front_dist
 
-            
-            N=rospy.get_param("N_cadrans",default=3) 
-            
-            direction=quadran_nav(front_data,N) if c.obstacle_ahead==True else default_nav(front_data)#avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
+        
+        N=rospy.get_param("N_cadrans",default=3) 
+        
+        direction=quadran_nav(front_data,N) if c.obstacle_ahead==True else default_nav(front_data)#avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
 
-            #equivalent to orientation error
-            c.dir=direction-c.offset #-offset car defini t.q. offset>0 => gauche
+        #equivalent to orientation error
+        c.dir=direction-c.offset #-offset car defini t.q. offset>0 => gauche
 
 
-        side_data=msg_s.data
-        #equivalent to centering error
-        c.center=side_data[0]-side_data[1] +c.offset if len(side_data)!=0 else 0  #left-right + offset
+    side_data=msg_s.data
+    #equivalent to centering error
+    c.center=side_data[0]-side_data[1] +c.offset if len(side_data)!=0 else 0  #left-right + offset
         
     
 def onrun_callback(msg,c):
@@ -210,7 +209,7 @@ if __name__=='__main__':
         #subscribe MAE state
         rospy.Subscriber("/Nav_lid",Bool,onrun_callback,c)
 
-        #publish commands - test
+        #define rate
         rate=rospy.Rate(10)
 
 
@@ -223,11 +222,15 @@ if __name__=='__main__':
         #publidhs front dist
         front_dist_pub=rospy.Publisher("/front_dist",Float32,queue_size=1)
 
+        #publish obstacle ahead
+        obstacle_ahead_pub=rospy.Publisher("/obstacle_warning",Bool,queue_size=1)
+
         while not rospy.is_shutdown():
 
             dir_pub.publish(c.dir)
             center_pub.publish(c.center)
             front_dist_pub.publish(c.front_dist)
+            obstacle_ahead_pub.publish(c.obstacle_ahead)
 
             rate.sleep()
         
