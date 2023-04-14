@@ -125,7 +125,7 @@ class Controller(QtWidgets.QMainWindow) :
 			self.b_up.setEnabled(True) ; self.b_up.setChecked(True) ; self.b_up.setEnabled(False)
 		else : 
 			if (self.pressed_keys[QtCore.Qt.Key_Down]) : 
-				self.speed_msg = -1*self.max_speed  
+				self.speed_msg = -0.2*self.max_speed  
 				self.b_down.setEnabled(True) ; self.b_down.setChecked(True) ; self.b_down.setEnabled(False)
 			else : 
 				self.speed_msg = 0.0 
