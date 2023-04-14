@@ -150,6 +150,7 @@ if __name__=='__main__':
         #rospy.Subscriber("/D_tour",Bool,onrun_callback,c)
 
 
+
         lidar_flag=message_filters.Subscriber("/Nav_lid",Bool, queue_size=1)
         d_tour_flag=message_filters.Subscriber("/D_tour",Bool,queue_size=1)
 
