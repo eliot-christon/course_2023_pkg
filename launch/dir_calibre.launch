@@ -14,10 +14,13 @@
 	
 
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True" output="screen">
+	<node pkg="course_2023_pkg" type="dir_indicatorv2.py" name="dir_indicator" required="True" output="screen">
 		
 	</node>
 
+	<node pkg="course_2023_pkg" type="plot_indicator.py" name="plot_indicator" required="True" output="screen" >
+		
+	</node>
 
 
 

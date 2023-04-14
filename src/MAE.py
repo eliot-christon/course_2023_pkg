@@ -79,7 +79,8 @@ class MAE:
                 self.EF == 1
 
         if self.EP == 2:
-            if self.fin_d_tour:
+            # if self.fin_d_tour or self.dir:
+            if self.dir:
                 self.EF=1
             else:
                 self.EF=2
