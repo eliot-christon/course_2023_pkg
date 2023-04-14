@@ -8,7 +8,6 @@ import message_filters
 from std_msgs.msg import Float32MultiArray, Float32, Bool
 
 
-SAFETY_DIST=rospy.get_param("SAETY_DIST",default=0.5)
 
 class Control:
     def __init__(self):
@@ -111,7 +110,8 @@ def quadran_nav(front_data,N):
 
 def analyze_front(front_data,c):
     #calcule la distance moyenne a l'avant et chercho obstacle pour mode evitement ou default
-    
+    SAFETY_DIST=rospy.get_param("SAETY_DIST",default=0.5)
+
     step_size=rospy.get_param("step_size",default=10)
 
     a0,a1=rospy.get_param("~angle0",default=120),rospy.get_param("~angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
