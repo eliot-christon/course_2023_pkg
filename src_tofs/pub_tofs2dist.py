@@ -62,7 +62,7 @@ class Distance() :
     def global_publisher(self) :
         """ Callback of the global subscriber """
         self.eliminate_zero_values()
-        self.ponderated_mean_filter()
+        self.median_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
         # Check if the distance is under a threshold
         if min(self.dist[:2]) < self.tofs_lidar_threshold :
@@ -77,13 +77,6 @@ class Distance() :
         self.queue.pop(0)
         self.queue.append(self.dist)
         self.dist = [sum([d[i] for d in self.queue]) / len(self.queue) for i in range(self.nb_tofs)]
-    
-    def ponderated_mean_filter(self) :
-        """ Filter the distance with a ponderated mean"""
-        self.queue.pop(0)
-        self.queue.append(self.dist)
-        temp = np.array(self.queue).T
-        self.dist = [np.mean(temp[i], weights=[i+1 for i in range(len(self.queue))]) for i in range(self.nb_tofs)]
     
     def median_filter(self) :
         """ Filter the distance with a median filter"""
