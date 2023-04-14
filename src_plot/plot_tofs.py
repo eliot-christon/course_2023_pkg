@@ -39,7 +39,7 @@ class Plot :
         self._p2 = self.ax.bar(self.nums, self.processed_data, alpha=0.5, label='processed_data', color = 'b', align='edge', width=0.25)
 
     def callback_raw(self, msg) :
-        self.raw_data = msg.data
+        self.raw_data = [d/1000 for d in msg.data]
     
     def callback_processed(self, msg) :
         self.processed_data = msg.data
