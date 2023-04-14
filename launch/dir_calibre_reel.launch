@@ -2,8 +2,6 @@
 <launch>
 	<arg name="left_is_green" default="True"/>
 
-	<arg name="left_is_green" default="True"/>
-
 	<param name="reel" value="1"/>
 	
 
@@ -30,11 +28,20 @@
 	<param name="min_val_green" value="40"/>
 	<param name="max_val_red" value="255"/>
 	<param name="max_val_green" value="255"/>
-	
+
 
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True" output="screen"/>
+	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True" output="screen">
+		
+	</node>
 
+	<node pkg="course_2023_pkg" type="plot_indicator.py" name="plot_indicator" required="True" output="screen">
+		
+	</node>
+
+	<node pkg="main_subscriber" type="camera_plot.py" name="camera" required="True" output="screen">
+		
+	</node>
 
 
 

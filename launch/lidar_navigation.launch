@@ -1,4 +1,9 @@
 <launch>
+
+<!-- Set arguments -->
+<arg name="haut_niv" default="False"/>
+
+
 <!-- Run one lidar_front_data node -->
 <node pkg="course_2023_pkg" name="get_front_data" type="lidar_data_reel.py" output="screen" required="true">
     <param name="front_topic" value="/front_data"/>
@@ -48,7 +53,8 @@
 
 <param name="N_cadrans" value='5'/>
 
-<param name="haut_niv" value="False"/>
+
+<param name="haut_niv" value="$(arg haut_niv)"/>
 
 
 </launch>

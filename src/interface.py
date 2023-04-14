@@ -34,7 +34,7 @@ class Navigation() :
         self.pub_fin_d_tour = rospy.Publisher("/Fin_d_tour", Bool, queue_size = 1)
 
         # Init ROS subscribers
-        self.sub_tfs_dist = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_tofs_dist)
+        #self.sub_tfs_dist = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_tofs_dist)
         self.sub_nav_tofs = rospy.Subscriber("/TofsSpeedAngleCommand", Float32MultiArray, self.callback_tofs)
         self.sub_nav_lidar = rospy.Subscriber("/LidarSpeedAngleCommand", Float32MultiArray, self.callback_lidar)
         self.sub_d_tour = rospy.Subscriber("/d_tourSpeedAngleCommand", Float32MultiArray, self.callback_d_tour)
@@ -47,20 +47,20 @@ class Navigation() :
     def start_stop_callback(self,msg):
         self.start=msg.data
 
-    def callback_tofs_dist(self, msg) :
-        """ Callback for the tofs distance"""
+    # def callback_tofs_dist(self, msg) :
+    #     """ Callback for the tofs distance"""
 
-        tofs_lidar_threshold = rospy.get_param("tofs_lidar_threshold", default=1.0)  # 1.0m
+    #     tofs_lidar_threshold = rospy.get_param("tofs_lidar_threshold", default=1.0)  # 1.0m
 
-        self.tofs["fl"] = msg.data[0]
-        self.tofs["fr"] = msg.data[1]
-        self.tofs["bl"] = msg.data[2]
-        self.tofs["br"] = msg.data[3]
+    #     self.tofs["fl"] = msg.data[0]
+    #     self.tofs["fr"] = msg.data[1]
+    #     self.tofs["bl"] = msg.data[2]
+    #     self.tofs["br"] = msg.data[3]
 
-        if min(self.tofs["fl"], self.tofs["fr"]) < tofs_lidar_threshold:
-            self.pub_dist_lim.publish(True)
-        else:
-            self.pub_dist_lim.publish(False)
+    #     if min(self.tofs["fl"], self.tofs["fr"]) < tofs_lidar_threshold:
+    #         self.pub_dist_lim.publish(True)
+    #     else:
+    #         self.pub_dist_lim.publish(False)
 
     def callback_lidar(self, msg) :
         """ Callback for the lidar commands"""
