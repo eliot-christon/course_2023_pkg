@@ -29,9 +29,9 @@ def bgr2hsv (colonne, rgb=0):
         elif v==r:
             h=60*(g-b)/(v-np.min(p))
         elif v==g:
-            h=120+60*(b-r)/(v-np.min(p))
+            h=120+(60*(b-r)/(v-np.min(p)))
         elif v==b:
-            h=240+60*(r-g)/(v-np.min(p))
+            h=240+(60*(r-g)/(v-np.min(p)))
         if h < 0:
             h+=360
         v=255*v
@@ -62,7 +62,24 @@ Ce noeud publie sur deux topics:
 
         #parameters
         self.reelparam = rospy.get_param("reel", default=0)
-        self.rgb=rospy.get_param('rgb',default=0)
+
+
+        self.max_hue_red = rospy.get_param('max_hue_red', default=14)
+        self.min_hue_red = rospy.get_param('min_hue_red', default=280)
+        self.max_hue_green = rospy.get_param('max_hue_green', default=160)
+        self.min_hue_green = rospy.get_param('min_hue_green', default=90)
+
+
+        self.min_sat_red = rospy.get_param('min_sat_red', default=90)
+        self.min_sat_green = rospy.get_param('min_sat_green', default=50)
+        self.max_sat_red = rospy.get_param('max_sat_red', default=255)
+        self.max_sat_green = rospy.get_param('max_sat_green', default=255)
+
+        self.min_val_red = rospy.get_param('min_val_red', default=50)
+        self.min_val_green = rospy.get_param('min_val_green', default=50)
+        self.max_val_red = rospy.get_param('max_val_red', default=255)
+        self.max_val_green = rospy.get_param('max_val_green', default=255)
+        
 
         if self.reelparam == 1:
             self.sub=rospy.Subscriber(sub_topic, SensorImage, self.callback)
@@ -100,8 +117,25 @@ Ce noeud publie sur deux topics:
         self.sensi=msg.data
         
     def callback(self, msg) : 
-        limite_haute=rospy.get_param('lim_haut', default=480)
+        limite_haute=rospy.get_param('lim_haut', default=0)
         limite_basse=rospy.get_param('lim_bas', default=0)
+        rgb=rospy.get_param('rgb',default=0)
+
+        self.max_hue_red = rospy.get_param('max_hue_red', default=14)
+        self.min_hue_red = rospy.get_param('min_hue_red', default=280)
+        self.max_hue_green = rospy.get_param('max_hue_green', default=160)
+        self.min_hue_green = rospy.get_param('min_hue_green', default=90)
+
+
+        self.min_sat_red = rospy.get_param('min_sat_red', default=90)
+        self.min_sat_green = rospy.get_param('min_sat_green', default=50)
+        self.max_sat_red = rospy.get_param('max_sat_red', default=255)
+        self.max_sat_green = rospy.get_param('max_sat_green', default=255)
+
+        self.min_val_red = rospy.get_param('min_val_red', default=50)
+        self.min_val_green = rospy.get_param('min_val_green', default=50)
+        self.max_val_red = rospy.get_param('max_val_red', default=255)
+        self.max_val_green = rospy.get_param('max_val_green', default=255)
 
         if self.reelparam==0 :
             #On récupère deux lignes verticales à gauche et à droite
@@ -117,42 +151,45 @@ Ce noeud publie sur deux topics:
 
             #On convertie leurs valeur bgr en valeur hsv
             leftscan=np.array(scan)[:,10,0:3]
-            rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
-            middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+            rightscan=np.array(scan)[limite_haute:limite_basse,scan.shape[1]-10,0:3]
+            middlescan=np.array(scan)[limite_haute:limite_basse,scan.shape[1]//2,0:3]
 
-
+        #rospy.loginfo(middlescan)
         #On convertie leurs valeur bgr en valeur hsv
         
-        self.lefthsv = bgr2hsv(leftscan,self.rgb)
-        self.righthsv = bgr2hsv(rightscan,self.rgb)
-        self.middlehsv = bgr2hsv(middlescan,self.rgb)
+        self.lefthsv = bgr2hsv(leftscan,rgb)
+        self.righthsv = bgr2hsv(rightscan,rgb)
+        self.middlehsv = bgr2hsv(middlescan,rgb)
+
+        #print(self.middlehsv[0],middlescan[0])
 
 
-        #rospy.loginfo(self.middlehsv)
+        
 
     def run(self):
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown() :
             left_is_green=rospy.get_param('left_is_green', default=True)
+            #rospy.loginfo(self.middlehsv)
 
             #On compte le nombre de pixel rouge selon leur valeur hsv
             count_red_left=0
             for p in self.lefthsv:
-                if p[0]<14 or p[0]>280:
-                    if p[1]>90 and p[2]>50:
+                if p[0]< self.max_hue_red or p[0]>self.min_hue_red:
+                    if p[1]>self.min_sat_red and p[2]>self.min_val_red:
                         count_red_left+=1
         
             count_red_right=0
             for p in self.righthsv:
-                if p[0]<14 or p[0]>330:
-                    if p[1]>90 and p[2]>50:
+                if p[0]< self.max_hue_red or p[0]>self.min_hue_red:
+                    if p[1]>self.min_sat_red and p[2]>self.min_val_red:
                         count_red_right+=1
 
             count_red_middle=0
             for p in self.middlehsv:
-                if p[0]<14 or p[0]>330:
-                    if p[1]>90 and p[2]>50:
+                if p[0]< self.max_hue_red or p[0]>self.min_hue_red:
+                    if p[1]>self.min_sat_red and p[2]>self.min_val_red:
                         count_red_middle+=1
 
         
@@ -160,20 +197,20 @@ Ce noeud publie sur deux topics:
             #On compte le nombre de pixel vert à l'aide de leur valeur hsv
             count_green_left=0
             for p in self.lefthsv:
-                if p[0]>90 and p[0]<160:
-                    if p[1]>50 and p[2]>50:
+                if p[0]< self.max_hue_green and p[0]>self.min_hue_green:
+                    if p[1]>self.min_sat_green and p[2]>self.min_val_green:
                         count_green_left+=1
         
             count_green_right=0
             for p in self.righthsv:
-                if p[0]>90 and p[0]<160:
-                    if p[1]>50 and p[2]>50:
+                if p[0]< self.max_hue_green and p[0]>self.min_hue_green:
+                    if p[1]>self.min_sat_green and p[2]>self.min_val_green:
                         count_green_right+=1
 
             count_green_middle=0
             for p in self.middlehsv:
-                if p[0]>90 and p[0]<160:
-                    if p[1]>50 and p[2]>50:
+                if p[0]< self.max_hue_green and p[0]>self.min_hue_green:
+                    if p[1]>self.min_sat_green and p[2]>self.min_val_green:
                         count_green_middle+=1
                 
 
@@ -184,38 +221,40 @@ Ce noeud publie sur deux topics:
             
             
             # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
-            #rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+            #rospy.loginfo(f"red_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
 
             #On passe d'une sensibilité à l'autre en fonction de self.sensi
 
             if self.sensi:
                 #On détermine la direction prise par le véhicule
                 if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
+                    #print("yes")
                     self.direction.data="wrong"
-                    self.dir.data=False
+
                 
                 elif (count_green_right > count_green_left) or (count_red_left > count_red_right):
                     self.direction.data="right"
-                    self.dir.data=True
+
 
                 else:
                     self.direction.data="???"
-                    self.dir.data=True
+
 
             
             else:
                 #On détermine la direction prise par le véhicule
                 if (count_red_right > 40 and count_green_left > 40):
+                    #print("yes")
                     self.direction.data="wrong"
-                    self.dir.data=False
+
                     
                 elif (count_green_right > 40 and count_red_left > 40):
                     self.direction.data="right"
-                    self.dir.data=True
+
 
                 else:
                     self.direction.data="???"
-                    self.dir.data=True
+
 
             #On indique la couleur en face du véhicule
 
@@ -228,12 +267,19 @@ Ce noeud publie sur deux topics:
             else:
                 self.wcolor.data="???"
 
-            if not(left_is_green):
+
+            if left_is_green:
                 if self.direction.data=="wrong":
+                    #print("yes2")
                     self.direction.data="right"
-                if self.direction.data=="right":
+                elif self.direction.data=="right":
                     self.direction.data="wrong"
-                self.dir.data=not(self.dir.data)
+
+            if self.direction.data=="wrong" :
+                self.dir.data = False
+            
+            else:
+                self.dir.data = True
 
 
             self.pubdirection.publish(self.direction)

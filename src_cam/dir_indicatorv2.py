@@ -56,11 +56,18 @@ Ce noeud publie sur deux topics:
 
         rospy.init_node('dir_indicator', anonymous = True)
 
-        #subscriber
+        
+        
+
+        #parameters
         sub_topic = rospy.get_param("image_datas", default="/ImageScan")
         sub_sensi_topic= rospy.get_param("sensi_topic", default="/Sensi")
-        reelparam = rospy.get_param("reel", default="1")
-        if reelparam == 1:
+        self.reelparam = rospy.get_param("reel", default=0)
+        self.rgb=rospy.get_param('rgb',default=0)
+        self.calibre_param=rospy.get_param("calibre", default=True)
+
+        #subscriber
+        if self.reelparam == 1:
             self.sub=rospy.Subscriber(sub_topic, SensorImage, self.callback)
         else:
             self.sub=rospy.Subscriber(sub_topic, Int16MultiArray, self.callback)
@@ -68,10 +75,8 @@ Ce noeud publie sur deux topics:
         #sub pour le topic de sensibilité de la direction
         self.sub_sensi=rospy.Subscriber(sub_sensi_topic, Bool, self.callback_sensi)
         
-        
-        
 
-        #publisher
+        #Publisher
         pubdir_topic = "/Direction"
         pubwcolor_topic = "/WallColor"
         self.pubdirection=rospy.Publisher(pubdir_topic, String, queue_size=1)
@@ -79,9 +84,16 @@ Ce noeud publie sur deux topics:
         self.direction=String()
         self.wcolor=String()
 
+        #Si le noeud est lancé pour le calibrage
+        #if self.calibre_param : 
+        pubscan_topic = "/Scan_image"
+        self.pubscan=rospy.Publisher(pubscan_topic, Int16MultiArray, queue_size=1)
+        self.result=Int16MultiArray()
+
         #Entrée de MAE
         self.dir=Bool()
         self.pubdir=rospy.Publisher("/Dir",Bool,queue_size=1)
+
 
         #valeurs pour redimensionner l'image récupéré
         self.w, self.h = w, h
@@ -94,24 +106,61 @@ Ce noeud publie sur deux topics:
 
         self.cv_bridge = CvBridge()
 
+
+
     def callback_sensi(self, msg):
         self.sensi=msg.data
         
     def callback(self, msg) : 
-         #Détection de la couleur rouge
-        h_min1 = 0
-        h_max1 = 26
-        s_min1 = 90
-        s_max1 = 255
-        v_min1 = 50
-        v_max1 = 255
-        #Détection de la couleur rouge
-        h_min2 = 90
-        h_max2 = 160
-        s_min2 = 50
+        limite_haute = rospy.get_param('lim_haut', default=0)
+        limite_basse = rospy.get_param('lim_bas', default=0)
+
+        #parametres détection de couleurs
+        max_hue_red = rospy.get_param('max_hue_red', default=0)
+        min_hue_red = rospy.get_param('min_hue_red', default=0)
+        max_hue_green = rospy.get_param('max_hue_red', default=0)
+        min_hue_green = rospy.get_param('min_hue_red', default=0)
+
+
+        min_sat_red = rospy.get_param('min_sat_red', default=0)
+        min_sat_green = rospy.get_param('min_sat_green', default=0)
+        max_sat_red = rospy.get_param('max_sat_red', default=0)
+        max_sat_green = rospy.get_param('max_sat_green', default=0)
+
+        min_val_red = rospy.get_param('min_val_red', default=0)
+        min_val_green = rospy.get_param('min_val_green', default=0)
+        max_val_red = rospy.get_param('max_val_red', default=0)
+        max_val_green = rospy.get_param('max_val_green', default=0)
+
+
+
+        s_min2 = min_sat_green
         s_max2 = 255
-        v_min2 = 50
+        v_min2 = min_val_green
         v_max2 = 255
+
+
+        #On considère le cas reel et le cas simu
+        if self.reelparam==0 :
+            #On récupère deux lignes verticales à gauche et à droite
+            scan = np.array(msg.data).reshape((self.h, self.w, 4))[:,:,0:3]
+            leftscan = scan[limite_haute:limite_basse,10,0:3]
+            rightscan = scan[limite_haute:limite_basse,self.w-10,0:3]
+            middlescan = scan[limite_haute:limite_basse,self.w//2,0:3]
+
+        else :
+            #On récupère deux lignes verticales à gauche et à droite
+            scan = np.array(self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough"))[:,:,0:3]
+            #print("yes")
+
+            #On convertie leurs valeur bgr en valeur hsv
+            leftscan=np.array(scan)[:,10,0:3]
+            rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
+            middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+
+        # #On fait un seuillage de l'image dans le cas où on veut calibrer
+        # if self.calibre_param:
+        input_image_8u = cv2.convertScaleAbs(scan, alpha=(255.0/65535.0))
 
         lower1 = np.array([h_min1, s_min1, v_min1])
         upper1 = np.array([h_max1, s_max1, v_max1])
@@ -119,32 +168,38 @@ Ce noeud publie sur deux topics:
         lower2 = np.array([h_min2, s_min2, v_min2])
         upper2 = np.array([h_max2, s_max2, v_max2])
 
+        hsv = cv2.cvtColor(input_image_8u, cv2.COLOR_BGR2HSV)
+
         mask1 = cv2.inRange(hsv, lower1, upper1)
         mask2 = cv2.inRange(hsv, lower2, upper2)
 
-        # scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
-        # print("yes")
-        #On récupère deux lignes verticales à gauche et à droite
-        scan = msg.data		
-        leftscan = np.array(scan).reshape((self.h, self.w, 4))[:,10,0:3]
-        rightscan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w-10,0:3]
-        middlescan = np.array(scan).reshape((self.h, self.w, 4))[:,self.w//2,0:3]
+        result1 = cv2.bitwise_and(input_image_8u, input_image_8u, mask=mask1)
+        result2 = cv2.bitwise_and(input_image_8u, input_image_8u, mask=mask2)
+        
+        self.result.data= np.array(cv2.bitwise_or(result1, result2)).ravel()
+        #print("yes")
 
-        # leftscan=np.array(scan)[:,10,0:3]
-        # rightscan=np.array(scan)[:,scan.shape[1]-10,0:3]
-        # middlescan=np.array(scan)[:,scan.shape[1]//2,0:3]
+        
+
+
 
         #On convertie leurs valeur bgr en valeur hsv
-        rgb=rospy.get_param('rgb',default=0)
-        self.lefthsv = bgr2hsv(leftscan,rgb)
-        self.righthsv = bgr2hsv(rightscan,rgb)
-        self.middlehsv = bgr2hsv(middlescan,rgb)
-        rospy.loginfo(self.middlehsv)
+        
+        self.lefthsv = bgr2hsv(leftscan,self.rgb)
+        self.righthsv = bgr2hsv(rightscan,self.rgb)
+        self.middlehsv = bgr2hsv(middlescan,self.rgb)
+
+
+        #rospy.loginfo(self.middlehsv)
 
     def run(self):
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown() :
+            left_is_green=rospy.get_param('left_is_green', default=True)
+
+
+
             #On compte le nombre de pixel rouge selon leur valeur hsv
             count_red_left=0
             for p in self.lefthsv:
@@ -193,7 +248,7 @@ Ce noeud publie sur deux topics:
             
             
             # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
-            rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+            #rospy.loginfo(f"yesred_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
 
             #On passe d'une sensibilité à l'autre en fonction de self.sensi
 
@@ -237,9 +292,21 @@ Ce noeud publie sur deux topics:
             else:
                 self.wcolor.data="???"
 
+            if not(left_is_green):
+                if self.direction.data=="wrong":
+                    self.direction.data="right"
+                if self.direction.data=="right":
+                    self.direction.data="wrong"
+                self.dir.data=not(self.dir.data)
+
+
             self.pubdirection.publish(self.direction)
             self.pubdir.publish(self.dir)
             self.pubwcolor.publish(self.wcolor)
+
+            #msg.data = numpy_array.ravel()
+            self.pubscan.publish(self.result)
+            #print(self.result.data)
 
             rate.sleep()
 

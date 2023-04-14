@@ -43,13 +43,14 @@ def angle_regulator_callback(msg_dir,msg_center,c):
 
 def speed_regulator_callback(msg_front_dist,c):
     if c.run:
+        MIN_SPEED=rospy.get_param("MIN_SPEED",default=0.05)
         front_dist=msg_front_dist.data
         
         k_s=rospy.get_param("ks",default=1)
 
         u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
-        c.speed=np.clip(u,0,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+        c.speed=np.clip(u,MIN_SPEED,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
 
 
 def onrun_callback(msg,c):
@@ -82,7 +83,7 @@ if __name__=='__main__':
         front_dist_sub=rospy.Subscriber(front_dist_topic,Float32,speed_regulator_callback,c)
 
         #define rate
-        HZ=10
+        HZ=20
         rate=rospy.Rate(HZ)
 
         #assign frequency to control
