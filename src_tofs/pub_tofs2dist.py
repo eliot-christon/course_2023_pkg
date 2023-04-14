@@ -12,11 +12,11 @@ import numpy as np
 
 class Distance() : 
 
-    def __init__(self, nb_tofs=4, queue_size=4) : 
+    def __init__(self, nb_tofs=2, queue_size=4) : 
         
         # Params
         self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
-        self.tofs_lidar_threshold = rospy.get_param("tofs_lidar_threshold", default=1)
+        self.tofs_lim_threshold = rospy.get_param("tofs_lim_threshold", default=1)
         self.MAX_DIST = rospy.get_param("tofs_default_max_dist",  default=1.5) # default max distance of the tofs
 
         self.nb_tofs = nb_tofs
@@ -32,7 +32,7 @@ class Distance() :
 
         # Params
         self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
-        self.tofs_lidar_threshold = rospy.get_param("tofs_lidar_threshold", default=1)
+        self.tofs_lim_threshold = rospy.get_param("tofs_lim_threshold", default=1)
 
         # Init ROS subscribers
         if(self.tof_topic == "/SensorsScan"):
@@ -65,7 +65,7 @@ class Distance() :
         self.median_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
         # Check if the distance is under a threshold
-        if min(self.dist[:2]) < self.tofs_lidar_threshold :
+        if min(self.dist[:2]) < self.tofs_lim_threshold :
             self.pub_lim.publish(Bool(data=True))
         else :
             self.pub_lim.publish(Bool(data=False))
