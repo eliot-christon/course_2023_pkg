@@ -38,8 +38,18 @@ def default_nav(front_data,quadran=[]):
 
     for i in range(steps):
         if front_data[i*step_size]>MIN_DIST:
-            avg+=angles[i*step_size]*front_data[i*step_size]
-            sum+=front_data[i*step_size]
+            avg+=angles[i*step_size]*(front_data[i*step_size])**3
+            sum+=front_data[i*step_size]**3
+    
+    """ best_dist_ind=np.argmax(front_data)
+    avg=angles[best_dist_ind]
+    sum=front_data[best_dist_ind]
+    for i in range(1,step_size):
+        if (best_dist_ind+i)>len(front_data) or (best_dist_ind-i)<0: break
+        avg+=angles[best_dist_ind+i]*front_data[best_dist_ind+i]
+        sum+=front_data[best_dist_ind+i]
+        avg+=angles[best_dist_ind-i]*front_data[best_dist_ind-i]
+        sum+=front_data[best_dist_ind-i] """
     
     if sum!=0:
         avg/=sum
