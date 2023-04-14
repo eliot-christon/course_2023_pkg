@@ -44,6 +44,8 @@ class Distance() :
             print("Error tof topic name")
             exit(1)
 
+# CALLBACKS ==============================================================================================================
+
     def callback_tofs_simu(self, msg) :
         """ Callback of the simulated tofs subscriber """
         # [front_left, front_right, rear_left, rear_right]
@@ -54,7 +56,9 @@ class Distance() :
         """ Callback of the tofs subscriber """
         self.dist = [d/(1000) if d/(1000)<self.MAX_DIST else self.MAX_DIST for d in msg.data] # conversion to meters
         self.global_publisher()
-        
+
+# PUBLISHER ==============================================================================================================
+
     def global_publisher(self) :
         """ Callback of the global subscriber """
         self.eliminate_zero_values()
@@ -65,6 +69,8 @@ class Distance() :
             self.pub_lim.publish(Bool(data=True))
         else :
             self.pub_lim.publish(Bool(data=False))
+
+# FILTERS ================================================================================================================
 
     def movingAverage_filter(self) :
         """ Filter the distance with a moving average"""
