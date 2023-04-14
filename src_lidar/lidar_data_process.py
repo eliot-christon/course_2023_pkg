@@ -7,7 +7,7 @@ import message_filters
 
 from std_msgs.msg import Float32MultiArray, Float32, Bool
 
-MIN_DIST=0.7
+
 SAFETY_DIST=rospy.get_param("SAETY_DIST",default=0.5)
 
 class Control:
@@ -25,7 +25,7 @@ class Control:
 
 #navigation par defaut
 def default_nav(front_data,quadran=[]):
-
+    MIN_DIST=rospy.get_param("MIN_DIST",default=0.7)
     step_size=rospy.get_param("step_size",default=10)#step interval for front_data
     steps=len(front_data)//step_size
     avg,sum=0,0
@@ -37,8 +37,9 @@ def default_nav(front_data,quadran=[]):
     else: angles=quadran
 
     for i in range(steps):
-        avg+=angles[i*step_size]*front_data[i*step_size]
-        sum+=front_data[i*step_size]
+        if front_data[i*step_size]>MIN_DIST:
+            avg+=angles[i*step_size]*front_data[i*step_size]
+            sum+=front_data[i*step_size]
     
     if sum!=0:
         avg/=sum
