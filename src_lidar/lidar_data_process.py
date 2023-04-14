@@ -67,7 +67,6 @@ def quadran_nav(front_data,N):
     #TESTER NOUVEL ALGO SUR ROBOT EN SIMU PAS TOP MAIS PEUT ETRE EN VRAI C EST PAS MAL
 
     sums=np.zeros(N)
-    denom=(steps//(N-1)) #avec N=3 on a pas assez de points pour 3eme indice
     for n in range(N):
         #ajouter penalite si certaines dit sont <safety_dist
         if n==0:
