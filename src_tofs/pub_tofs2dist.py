@@ -44,6 +44,8 @@ class Distance() :
             print("Error tof topic name")
             exit(1)
 
+# CALLBACKS ==============================================================================================================
+
     def callback_tofs_simu(self, msg) :
         """ Callback of the simulated tofs subscriber """
         # [front_left, front_right, rear_left, rear_right]
@@ -54,11 +56,13 @@ class Distance() :
         """ Callback of the tofs subscriber """
         self.dist = [d/(1000) if d/(1000)<self.MAX_DIST else self.MAX_DIST for d in msg.data] # conversion to meters
         self.global_publisher()
-        
+
+# PUBLISHER ==============================================================================================================
+
     def global_publisher(self) :
         """ Callback of the global subscriber """
         self.eliminate_zero_values()
-        self.median_filter()
+        self.ponderated_mean_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
         # Check if the distance is under a threshold
         if min(self.dist[:2]) < self.tofs_lidar_threshold :
@@ -66,11 +70,20 @@ class Distance() :
         else :
             self.pub_lim.publish(Bool(data=False))
 
+# FILTERS ================================================================================================================
+
     def movingAverage_filter(self) :
         """ Filter the distance with a moving average"""
         self.queue.pop(0)
         self.queue.append(self.dist)
         self.dist = [sum([d[i] for d in self.queue]) / len(self.queue) for i in range(self.nb_tofs)]
+    
+    def ponderated_mean_filter(self) :
+        """ Filter the distance with a ponderated mean"""
+        self.queue.pop(0)
+        self.queue.append(self.dist)
+        temp = np.array(self.queue).T
+        self.dist = [np.mean(temp[i], weights=[i+1 for i in range(len(self.queue))]) for i in range(self.nb_tofs)]
     
     def median_filter(self) :
         """ Filter the distance with a median filter"""
