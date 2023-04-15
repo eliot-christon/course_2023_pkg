@@ -46,6 +46,9 @@
 
     <!--seuil passage de lidar a tofs-->
     <param name="tofs_lim_threshold" value="0.2"/>
+    <param name="K_backwards" value="0.03"/>
+    <param name="BACKWARD_SPEED" value="-0.3"/>
+        
     
 
 </launch>

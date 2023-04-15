@@ -62,7 +62,7 @@ class Distance() :
         self.median_filter()
         self.pub_dist.publish(Float32MultiArray(data=self.dist))
         # Check if the distance is under a threshold
-        if max(self.dist[:2]) < self.tofs_lim_threshold :
+        if min(self.dist[:2]) < self.tofs_lim_threshold :
             self.pub_lim.publish(Bool(data=True))
         else :
             self.pub_lim.publish(Bool(data=False))

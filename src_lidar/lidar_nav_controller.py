@@ -67,6 +67,10 @@ if __name__=='__main__':
         c = Controller()
         #c.speed=0.65
 
+        #check haut niveau navigation
+        haut_niv=rospy.get_param("haut_niv",default=False)
+        print("Navigation haut_niv:",haut_niv)
+
         #subscribe to lidar_dir and lidar_center topics
         dir_topic=rospy.get_param("~dir_topic",default="/lidar_dir")
         center_topic=rospy.get_param("~center_topic",default="/lidar_center")
@@ -92,17 +96,16 @@ if __name__=='__main__':
 
         #publish on angular and speed command topic
         
-        angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
-        speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
+        if haut_niv==False:
+            angle_pub=rospy.Publisher("/AngleCommand",Float32,queue_size=1)
+            speed_pub=rospy.Publisher("/SpeedCommand",Float32,queue_size=1)
 
         command_pub=rospy.Publisher("/LidarSpeedAngleCommand",Float32MultiArray,queue_size=1)
 
         #subscribe MAE state
         rospy.Subscriber("/Nav_lid",Bool,onrun_callback,c)
 
-        #check haut niveau navigation
-        haut_niv=rospy.get_param("haut_niv",default=False)
-        print("Navigation haut_niv:",haut_niv)
+        
 
         while not rospy.is_shutdown():
             if haut_niv==False:
