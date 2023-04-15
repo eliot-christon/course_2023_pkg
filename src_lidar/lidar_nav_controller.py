@@ -10,8 +10,8 @@ import message_filters
 
 class Controller:
     def __init__(self):
-        self.speed=Float32()
-        self.ang=Float32()
+        self.speed=0.0#Float32()
+        self.ang=0.0#Float32()
         self.command=Float32MultiArray()
         self.last_err=0
         self.last_command=0
@@ -50,7 +50,8 @@ def speed_regulator_callback(msg_front_dist,c):
 
         u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
-        c.speed=np.clip(u,MIN_SPEED,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+        #c.speed=np.clip(u,MIN_SPEED,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+        c.speed = 0.3
 
 
 def onrun_callback(msg,c):
@@ -107,7 +108,6 @@ if __name__=='__main__':
             if haut_niv==False:
                 angle_pub.publish(c.ang)
                 speed_pub.publish(c.speed)
-
             c.command.data=[c.speed, c.ang]
 
             command_pub.publish(c.command)

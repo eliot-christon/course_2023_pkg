@@ -7,11 +7,13 @@
     <arg name="left_is_green" default="True"/>
     <arg name="haut_niv" default="True"/>
 
-    <param name="tof_topic" value="/SensorsScan"/>
+
+
+    <param name="tof_topic" value="/TofsScan"/> <!--/SensorsScan pour la simu, /TofsScan pour le reel-->
     
     
     <!-- Including launch files -->
-    <include file="$(find course_2023_pkg)/launch/lidar_navigation.launch">
+    <include file="$(find course_2023_pkg)/launch/lidar_navigation_reel.launch">
         <arg name="haut_niv" value="$(arg haut_niv)"/>
 
     </include>
@@ -21,17 +23,17 @@
         
     <!-- </include> -->
 
-    <include file="$(find course_2023_pkg)/launch/dir_indicator.launch" >
+    <include file="$(find course_2023_pkg)/launch/dir_indicator_reel.launch" >
         <arg name="left_is_green" value="$(arg left_is_green)"/>
         
     </include>
 
-    <include file="$(find course_2023_pkg)/launch/demi_tour_simu_mae.launch" />
+    <include file="$(find course_2023_pkg)/launch/demi_tour_reel_mae.launch" />
 
     <!-- Run nodes-->
     <node pkg="course_2023_pkg" type="marche_arriere.py" name="marche_arriere" output="screen" required="True"/>
 
-    <node pkg="course_2023_pkg" type="pub_tofs2dist.py" name="tof2dist" output="screen" required="True"/>
+    <node pkg="course_2023_pkg"  type="pub_tofs2dist.py" name="tof2dist" output="screen" required="True"/>
         
 
 
@@ -43,7 +45,7 @@
 
 
     <!--seuil passage de lidar a tofs-->
-    <param name="tofs_lidar_threshold" value="1.0"/>
+    <param name="tofs_lim_threshold" value="0.2"/>
     
 
 </launch>

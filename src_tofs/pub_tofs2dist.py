@@ -30,9 +30,6 @@ class Distance() :
         self.pub_dist = rospy.Publisher("/TofsDistance", Float32MultiArray, queue_size = 1)
         self.pub_lim = rospy.Publisher("/Dist_lim", Bool, queue_size = 1)
 
-        # Params
-        self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
-        self.tofs_lim_threshold = rospy.get_param("tofs_lim_threshold", default=1)
 
         # Init ROS subscribers
         if(self.tof_topic == "/SensorsScan"):

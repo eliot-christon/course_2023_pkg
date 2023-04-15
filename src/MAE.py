@@ -153,6 +153,8 @@ class MAE:
             self.s_MAE()
             #On publie les sorties
             self.pub()
+            print(f"E:{self.EP} ow={self.ow} dist_lim={self.dist_lim} fp={self.fp} dir={self.dir} self.fin_d_tour={self.fin_d_tour}")
+
             rate.sleep()
         
 

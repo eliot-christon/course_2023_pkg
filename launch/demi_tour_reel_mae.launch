@@ -11,7 +11,7 @@
 </node>
 
 <param name="max_speed" value="0.7"/> <!-- max speed of the robot -->
-<param name="tof_topic" value="/SensorsScan"/> <!-- tofs topic of the simulation -->
+<param name="tof_topic" value="/TofsScan"/> <!-- tofs topic of the simulation -->
 
 
 </launch>
