@@ -2,7 +2,6 @@
 <launch>
 	<arg name="left_is_green" default="True"/>
 
-	<arg name="left_is_green" default="True"/>
 
 	<param name="reel" value="1"/>
 	
