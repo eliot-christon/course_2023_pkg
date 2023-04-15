@@ -7,7 +7,7 @@ Projet PFE : Voiture autonome
 
 import rospy
 
-from std_msgs.msg import Float32MultiArray, Float32, Int8, Bool
+from std_msgs.msg import Float32MultiArray, Float32, Int8, Bool, String
 
 class MAE:
     def __init__(self, EP=0, ONLY_LIDAR=False, ONLY_TOFS=False):
@@ -17,12 +17,15 @@ class MAE:
         self.EF=EP
 
         #entrées
+        self.ow=False
         self.dist_lim=False
+        self.fp=True
+        self.direction="right"
         self.fin_d_tour=False
-        self.dir=True
+        
 
         #Sorties
-        self.nav_tof=False
+        self.marche_arr=False
         self.nav_lid=True
         self.d_tour=False
         self.sensi=False
@@ -31,28 +34,44 @@ class MAE:
         rospy.init_node('MAE', anonymous=True)
 
         # publisher sortie MAE
-        self.pub_nav_tof = rospy.Publisher("/Nav_tof", Bool, queue_size = 1)
+
         self.pub_nav_lid = rospy.Publisher("/Nav_lid", Bool, queue_size = 1)
         self.pub_d_tour = rospy.Publisher("/D_tour", Bool, queue_size = 1)
         self.pub_sensi= rospy.Publisher("/Sensi", Bool, queue_size = 1)
+        self.pub_marche_arr = rospy.Publisher("/Nav_tof", Bool, queue_size = 1)
 
         self.pub_state = rospy.Publisher("/State", Int8, queue_size = 1)
 
         # subscribers entrées MAE
+        self.sub_ow = rospy.Subscriber("/Obstacle_warning", Bool, self.callback_ow)
         self.sub_dist_lim = rospy.Subscriber("/Dist_lim", Bool, self.callback_dist_lim)
+        self.sub_fp = rospy.Subscriber("/Freepath", Bool, self.callback_fp)
+        self.sub_dir = rospy.Subscriber("/Direction", String, self.callback_dir)
         self.sub_fin_d_tour = rospy.Subscriber("/Fin_d_tour", Bool, self.callback_fin_d_tour)
-        self.sub_dir = rospy.Subscriber("/Dir", Bool, self.callback_direction)
+        
+
+
+        
+
 
         
     #Methodes qui mettent à jour les entrées
+    def callback_ow(self, msg) :
+        self.sub_ow=msg.data
+
     def callback_dist_lim(self, msg) :
         self.dist_lim=msg.data
 
-    def callback_fin_d_tour(self, msg) :
+    def callback_fp(self, msg) :
         self.fin_d_tour=msg.data
 
-    def callback_direction(self, msg) :
+    def callback_dir(self, msg) :
         self.dir=msg.data
+
+    def callback_fin_d_tour(self, msg):
+        self.dir=msg.data
+
+
 
 
     #calcul de l'état future
@@ -60,9 +79,10 @@ class MAE:
 
         if self.EP == 0:
 
-            if self.dist_lim and self.dir:
+            if self.ow:
  
                 self.EF=1
+
             elif not(self.dir):
 
                 self.EF=2
@@ -84,6 +104,9 @@ class MAE:
                 self.EF=1
             else:
                 self.EF=2
+
+
+
 
 
     #Calcul des sorties de la MAE

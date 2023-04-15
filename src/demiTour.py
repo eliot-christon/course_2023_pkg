@@ -7,10 +7,10 @@ from std_msgs.msg import Float32, Float32MultiArray, String, Bool
 
 class DemiTour:
     def __init__(self):
-        self.run = True
+        self.run = False
         self.right, self.left = False, False
         self.rear_obstacle = False
-        self.count_unknown, self.count_maneuver = 0, 0
+        self.count_unknown = 0
 
         rospy.init_node("demi_tour")
 
@@ -18,10 +18,15 @@ class DemiTour:
 
         self.pub = rospy.Publisher("/d_tourSpeedAngleCommand", Float32MultiArray, queue_size=1)
         self.pub_fin_dt = rospy.Publisher("/Fin_d_tour", Bool, queue_size=1)
-
+        rospy.Subscriber("/D_tour", Bool, self.callback_dtour)
         rospy.Subscriber("/front_data", Float32MultiArray, self.callback_lidar)
         rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_tofs)
         rospy.Subscriber("/Direction", String, self.callback_dir)
+
+    def callback_dtour(self,msg):
+        self.run=msg.data
+        if not(self.run):
+            self.reset()
 
     # On récupère la direction dans laquelle on doit faire le demi-tour
     def callback_lidar(self, lidar):
@@ -57,11 +62,7 @@ class DemiTour:
         self.pub.publish(Float32MultiArray(data=[0, 0]))
 
     def callback_dir(self, dir):
-        if dir.data == "wrong":
-            self.run = True
-        elif dir.data == "right":
-            self.reset()
-        elif dir.data == "???":
+        if dir.data == "???" and self.rear_obstacle:
             self.count_unknown += 1
         if self.count_unknown >= 40:
             self.reset()
@@ -73,10 +74,14 @@ class DemiTour:
                     starting_direction = -1
                 elif self.right:
                     starting_direction = 1
+                else:
+                    starting_direction = 0
+
                 if self.right or self.left:
-                    self.pub.publish(Float32MultiArray(data=[self.max_speed, starting_direction]))
+                    self.pub.publish(Float32MultiArray(data=[-self.max_speed, starting_direction]))
                 elif self.rear_obstacle:
-                    self.pub.publish(Float32MultiArray(data=[-self.max_speed, -starting_direction]))
+                    self.pub.publish(Float32MultiArray(data=[self.max_speed, -starting_direction]))
+                self.pub_fin_dt.publish(False)
             else:
                 self.pub_fin_dt.publish(True)
             
