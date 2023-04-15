@@ -29,7 +29,6 @@ class MarcheArriere :
         rospy.init_node('marche_arriere', anonymous=True)
 
         # Init ROS PUBLISHERS
-        self.pub_rear_obstacle = rospy.Publisher("/RearObstacle", Bool, queue_size = 1)
         self.pub_nav = rospy.Publisher("/MarcheArriereSpeedAngleCommand", Float32MultiArray, queue_size = 1)
 
         # Init ROS SUBSCRIBERS
