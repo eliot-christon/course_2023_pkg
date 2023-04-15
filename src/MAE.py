@@ -79,9 +79,8 @@ class MAE:
 
         if self.EP == 0:
 
-            if self.ow:
- 
-                self.EF=1
+            if self.ow and not(self.fp):
+                self.EF=3
 
             elif self.dir=="wrong":
                 self.EF=2
@@ -91,7 +90,7 @@ class MAE:
 
         if self.EP == 1:
             if (not(self.fp) and self.dist_lim) or self.fp:
-                self.EF=0
+                self.EF=3
             else:
                 self.EF = 1
 
@@ -103,6 +102,14 @@ class MAE:
                 self.EF=0
             else:
                 self.EF=2
+
+        if self.EP == 3:
+            if not(self.fp) and not (self.dist_lim):
+                self.EF=1
+            elif self.fp and not(self.ow):
+                self.EF=0
+            else:
+                self.EF=3
 
 
 
@@ -125,6 +132,8 @@ class MAE:
         if self.EP == 2:
             self.d_tour = True
             self.sensi = True
+
+        
 
     def pub(self):
         self.pub_marche_arr.publish(self.marche_arr)
