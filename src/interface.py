@@ -17,7 +17,7 @@ class Navigation() :
         # variables
         self.speed = 0.0
         self.angle = 0.0
-        self.nav_tofs = {"speed" : 0.0, "angle" : 0.0}
+        self.marche_arr = {"speed" : 0.0, "angle" : 0.0}
         self.nav_lidar = {"speed" : 0.0, "angle" : 0.0}
         self.d_tour = {"speed" : 0.0, "angle" : 0.0}
         self.tofs = {"fl" : 0.0, "fr" : 0.0, "bl" : 0.0, "br" : 0.0}
@@ -30,12 +30,13 @@ class Navigation() :
         # Init ROS publishers
         self.pub_speed = rospy.Publisher("/SpeedCommand", Float32, queue_size = 1)
         self.pub_angle = rospy.Publisher("/AngleCommand", Float32, queue_size = 1)
-        self.pub_dist_lim = rospy.Publisher("/Dist_lim", Bool, queue_size = 1)
-        self.pub_fin_d_tour = rospy.Publisher("/Fin_d_tour", Bool, queue_size = 1)
+        #self.pub_dist_lim = rospy.Publisher("/Dist_lim", Bool, queue_size = 1)
+        #self.pub_fin_d_tour = rospy.Publisher("/Fin_d_tour", Bool, queue_size = 1)
 
         # Init ROS subscribers
         #self.sub_tfs_dist = rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_tofs_dist)
-        self.sub_nav_tofs = rospy.Subscriber("/TofsSpeedAngleCommand", Float32MultiArray, self.callback_tofs)
+        #self.sub_nav_tofs = rospy.Subscriber("/TofsSpeedAngleCommand", Float32MultiArray, self.callback_tofs)
+        self.sub_marche_arr = rospy.Subscriber("/MarcheArriereSpeedAngleCommand", Float32MultiArray, self.callback_march_arr)
         self.sub_nav_lidar = rospy.Subscriber("/LidarSpeedAngleCommand", Float32MultiArray, self.callback_lidar)
         self.sub_d_tour = rospy.Subscriber("/d_tourSpeedAngleCommand", Float32MultiArray, self.callback_d_tour)
         self.sub_state = rospy.Subscriber("/State", Int8, self.callback_state)
@@ -62,15 +63,20 @@ class Navigation() :
     #     else:
     #         self.pub_dist_lim.publish(False)
 
+    def callback_march_arr(self,msg):
+
+        self.marche_arr["speed"] = msg.data[0]
+        self.marche_arr["angle"] = msg.data[1]
+
     def callback_lidar(self, msg) :
         """ Callback for the lidar commands"""
         self.nav_lidar["speed"] = msg.data[0]
         self.nav_lidar["angle"] = msg.data[1]
 
-    def callback_tofs(self, msg) :
-        """ Callback for the tofs commands"""
-        self.nav_tofs["speed"] = msg.data[0]
-        self.nav_tofs["angle"] = msg.data[1]
+    # def callback_tofs(self, msg) :
+    #     """ Callback for the tofs commands"""
+    #     self.nav_tofs["speed"] = msg.data[0]
+    #     self.nav_tofs["angle"] = msg.data[1]
 
     def callback_d_tour(self, msg) :
         """ Callback for the d_tour commands"""
@@ -110,10 +116,10 @@ class Navigation() :
                         nav="lidar"
                     self.set_speed_angle(self.nav_lidar["speed"], self.nav_lidar["angle"])
                 elif self.EP == 1:
-                    if nav!="tofs":
+                    if nav!="marche_arriere":
                         rospy.loginfo("NAV TOFS")
-                        nav="tofs"
-                    self.set_speed_angle(self.nav_tofs["speed"], self.nav_tofs["angle"])
+                        nav="marche_arriere"
+                    self.set_speed_angle(self.marche_arr["speed"], self.marche_arr["angle"])
                 elif self.EP == 2:
                     if nav!="demi_tour":
                         rospy.loginfo("DEMI-TOUR")

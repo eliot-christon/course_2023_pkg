@@ -6,6 +6,9 @@
     <!-- Set arguments -->
     <arg name="left_is_green" default="True"/>
     <arg name="haut_niv" default="True"/>
+
+    <param name="tof_topic" value="/SensorsScan"/>
+    
     
     <!-- Including launch files -->
     <include file="$(find course_2023_pkg)/launch/lidar_navigation.launch">
@@ -13,10 +16,10 @@
 
     </include>
     
-    <include file="$(find course_2023_pkg)/launch/nav_tofs.launch" >
-        <arg name="left_is_green" value="$(arg left_is_green)"/>
+    <!-- <include file="$(find course_2023_pkg)/launch/nav_tofs.launch" >
+        <arg name="left_is_green" value="$(arg left_is_green)"/> -->
         
-    </include>
+    <!-- </include> -->
 
     <include file="$(find course_2023_pkg)/launch/dir_indicator.launch" >
         <arg name="left_is_green" value="$(arg left_is_green)"/>
@@ -26,6 +29,12 @@
     <include file="$(find course_2023_pkg)/launch/demi_tour_simu_mae.launch" />
 
     <!-- Run nodes-->
+    <node pkg="course_2023_pkg" type="marche_arriere.py" name="marche_arriere" output="screen" required="True"/>
+
+    <node pkg="course_2023_pkg" type="pub_tofs2dist.py" name="tof2dist" output="screen" required="True"/>
+        
+
+
     <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
 
     <node pkg="course_2023_pkg" type="MAE.py" name="MAE" output="screen" required="True"/>

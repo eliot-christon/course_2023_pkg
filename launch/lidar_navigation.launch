@@ -20,7 +20,7 @@
     <param name="side_data_topic" value="/side_data"/>
     <param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
     <param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
-    <param name="FREE_SPACE_THRESH" value="0.6"/>
+    <param name="FREE_SPACE_THRESH" value="1.0"/>
     
 
 </node>
@@ -32,9 +32,10 @@
 
 <param name="MAX_SPEED" value="1"/>
 <param name="MAX_ANGLE" value="1"/>
-<param name="SAFETY_DIST" value="0.85"/>
 <param name="CLIP_DIST" value="3"/>
-<param name="MIN_DIST" value="0.7"/>
+<param name="MIN_DIST" value="1"/>
+<param name="SAFETY_DIST" value="0.5"/>
+
 
 
 

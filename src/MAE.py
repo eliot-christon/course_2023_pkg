@@ -20,7 +20,7 @@ class MAE:
         self.ow=False
         self.dist_lim=False
         self.fp=True
-        self.direction="right"
+        self.dir="right"
         self.fin_d_tour=False
         
 
@@ -38,7 +38,7 @@ class MAE:
         self.pub_nav_lid = rospy.Publisher("/Nav_lid", Bool, queue_size = 1)
         self.pub_d_tour = rospy.Publisher("/D_tour", Bool, queue_size = 1)
         self.pub_sensi= rospy.Publisher("/Sensi", Bool, queue_size = 1)
-        self.pub_marche_arr = rospy.Publisher("/Nav_tof", Bool, queue_size = 1)
+        self.pub_marche_arr = rospy.Publisher("//Marche_arriere", Bool, queue_size = 1)
 
         self.pub_state = rospy.Publisher("/State", Int8, queue_size = 1)
 
@@ -57,19 +57,19 @@ class MAE:
         
     #Methodes qui mettent à jour les entrées
     def callback_ow(self, msg) :
-        self.sub_ow=msg.data
+        self.ow=msg.data
 
     def callback_dist_lim(self, msg) :
         self.dist_lim=msg.data
 
     def callback_fp(self, msg) :
-        self.fin_d_tour=msg.data
+        self.fp=msg.data
 
     def callback_dir(self, msg) :
         self.dir=msg.data
 
     def callback_fin_d_tour(self, msg):
-        self.dir=msg.data
+        self.fin_d_tour=msg.data
 
 
 
@@ -83,25 +83,24 @@ class MAE:
  
                 self.EF=1
 
-            elif not(self.dir):
-
+            elif self.dir=="wrong":
                 self.EF=2
+
             else:
                 self.EF=0
 
         if self.EP == 1:
-            if not(self.dist_lim) and self.dir:
+            if (not(self.fp) and self.dist_lim) or self.fp:
                 self.EF=0
-                
-            elif not(self.dir):
-                self.EF=2
             else:
-                self.EF == 1
+                self.EF = 1
 
         if self.EP == 2:
             # if self.fin_d_tour or self.dir:
-            if self.dir:
-                self.EF=1
+            if (self.dir=="right" or self.fin_d_tour) and self.fp:
+                self.EF=0
+            elif (self.dir=="right" or self.fin_d_tour) and not(self.fp):
+                self.EF=0
             else:
                 self.EF=2
 
@@ -112,7 +111,7 @@ class MAE:
     #Calcul des sorties de la MAE
     def s_MAE(self):
 
-        self.nav_tof=False
+        self.marche_arr=False
         self.nav_lid=False
         self.d_tour=False
         self.sensi=False
@@ -121,14 +120,14 @@ class MAE:
             self.nav_lid = True
 
         if self.EP == 1:
-            self.nav_tof = True
+            self.marche_arr = True
 
         if self.EP == 2:
             self.d_tour = True
             self.sensi = True
 
     def pub(self):
-        self.pub_nav_tof.publish(self.nav_tof)
+        self.pub_marche_arr.publish(self.marche_arr)
         self.pub_nav_lid.publish(self.nav_lid)
         self.pub_d_tour.publish(self.d_tour)
         self.pub_sensi.publish(self.sensi)
