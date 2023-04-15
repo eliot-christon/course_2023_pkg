@@ -111,7 +111,7 @@ def quadran_nav(front_data,N):
 
 def analyze_front(front_data,c):
     #calcule la distance moyenne a l'avant et chercho obstacle pour mode evitement ou default
-    SAFETY_DIST=rospy.get_param("SAETY_DIST",default=0.5)
+    SAFETY_DIST=rospy.get_param("SAFETY_DIST",default=0.5)
 
     step_size=rospy.get_param("step_size",default=10)
 
@@ -164,7 +164,7 @@ def data_process_callback(msg_f,msg_s,c):
         FREE_SPACE_THRESH=rospy.get_param("~FREE_SPACE_THRESH",default=0.5)
         front_dist=analyze_front(front_data,c)
         if front_dist>FREE_SPACE_THRESH: c.free_path=True
-        
+        elif c.free_path==True and front_dist<FREE_SPACE_THRESH:c.free_path=False
         
         #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
         
@@ -228,7 +228,7 @@ if __name__=='__main__':
         obstacle_ahead_pub=rospy.Publisher("/Obstacle_warning",Bool,queue_size=1)
 
         #publish free space
-        free_path_pub=rospy.Publisher("/free_path",Bool,queue_size=1)
+        free_path_pub=rospy.Publisher("/Freepath",Bool,queue_size=1)
 
         while not rospy.is_shutdown():
 

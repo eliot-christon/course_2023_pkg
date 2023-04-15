@@ -42,6 +42,7 @@ import cv2
 
 def bgr2hsv (pix, rgb=0):
     """fonction qui convertit les valeurs d'une colonne de pixel bgr en leur valeur hsv"""
+    #print("yes")
     p=pix.copy()
     p=p/255
 
@@ -97,7 +98,7 @@ Ce noeud publie sur deux topics:
         self.max_hue_red = rospy.get_param('max_hue_red', default=14)
         self.min_hue_red = rospy.get_param('min_hue_red', default=280)
         self.max_hue_green = rospy.get_param('max_hue_green', default=160)
-        self.min_hue_green = rospy.get_param('min_hue_green', default=90)
+        self.min_hue_green = rospy.get_param('min_hue_green', default=70)
 
 
         self.min_sat_red = rospy.get_param('min_sat_red', default=90)
@@ -154,7 +155,7 @@ Ce noeud publie sur deux topics:
         self.max_hue_red = rospy.get_param('max_hue_red', default=14)
         self.min_hue_red = rospy.get_param('min_hue_red', default=280)
         self.max_hue_green = rospy.get_param('max_hue_green', default=160)
-        self.min_hue_green = rospy.get_param('min_hue_green', default=90)
+        self.min_hue_green = rospy.get_param('min_hue_green', default=70)
 
 
         self.min_sat_red = rospy.get_param('min_sat_red', default=90)
@@ -170,9 +171,11 @@ Ce noeud publie sur deux topics:
         if self.reelparam==0 :
             #On récupère deux lignes verticales à gauche et à droite
             scan = msg.data		
-            self.left = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
-            self.right = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
-            self.middle = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
+            image= np.array(scan).reshape((self.h, self.w, 4))
+            self.left =image[limite_haute:limite_basse,0:10,0:3]
+            #print(self.left[0][0],bgr2hsv (self.left[0][0], 0))
+            self.right = image[limite_haute:limite_basse,image.shape[1]-10:image.shape[1],0:3]
+            self.middle = image[limite_haute:limite_basse,(image.shape[1]//2-5):(image.shape[1]//2+5),0:3]
 
         else :
             #On récupère deux lignes verticales à gauche et à droite
@@ -188,9 +191,9 @@ Ce noeud publie sur deux topics:
             self.right=image[limite_haute:limite_basse,scan.shape[1]-10:scan.shape[1],0:3]
             self.middle=image[limite_haute:limite_basse,(scan.shape[1]//2-5):(scan.shape[1]//2+5),0:3]
 
-            #print(scan.shape[0])
+        #print(scan.shape[0])
 
-        #rospy.loginfo(middlescan)
+        #print("###########",self.middle)
         
 
 
@@ -210,8 +213,12 @@ Ce noeud publie sur deux topics:
             for i in self.left:
                 for p in i:
                     h,s,v=bgr2hsv (p, rgb)
+                    #print(h,p)
+                    #print(h < self.max_hue_green and h > self.min_hue_green,self.min_hue_green)
                     if h < self.max_hue_green and h > self.min_hue_green:
+                        #print("yes")
                         if s>self.min_sat_green and v>self.min_val_green:
+                            
                             count_green_left+=1
         
             count_green_right=0
@@ -264,7 +271,7 @@ Ce noeud publie sur deux topics:
             
             
             # if (count_green_right > 30 and count_green_left > 30) or (count_red_right > 30 and count_red_left > 30) or (count_red_right > 30 and count_green_left > 30) or (count_green_right > 30 and count_red_left > 30):
-            rospy.loginfo(f"red_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
+            #rospy.loginfo(f"red_l={count_red_left} red_r{count_red_right} green_l{count_green_left} green_r{count_green_right}")
 
             #On passe d'une sensibilité à l'autre en fonction de self.sensi
 
