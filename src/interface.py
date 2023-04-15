@@ -125,6 +125,13 @@ class Navigation() :
                         rospy.loginfo("DEMI-TOUR")
                         nav="demi_tour"
                     self.set_speed_angle(self.d_tour["speed"], self.d_tour["angle"])
+                
+                elif self.EP==3:
+                    if nav!="stop":
+                        rospy.loginfo("STOP")
+                        nav="stop"
+                        self.set_speed_angle(0.0, 0.0)
+                    
             else:
                 self.set_speed_angle(0, 0)
 

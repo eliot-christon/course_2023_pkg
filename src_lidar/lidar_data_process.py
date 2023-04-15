@@ -112,7 +112,7 @@ def quadran_nav(front_data,N):
 def analyze_front(front_data,c):
     #calcule la distance moyenne a l'avant et chercho obstacle pour mode evitement ou default
     SAFETY_DIST=rospy.get_param("SAFETY_DIST",default=0.3)
-    FREE_SPACE_THRESH=rospy.get_param("~FREE_SPACE_THRESH",default=0.5)
+    FREE_SPACE_THRESH=SAFETY_DIST+0.20
     step_size=rospy.get_param("step_size",default=10)
 
     a0,a1=rospy.get_param("~angle0",default=120),rospy.get_param("~angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
@@ -127,17 +127,25 @@ def analyze_front(front_data,c):
     front_dist=0
     r=range(ind0,ind1,1)
     for i in r:
-        if front_data[i]<SAFETY_DIST and front_data[i]>0: c.obstacle_ahead=True #front_data[i]>0 pour eviter bug en reel
+        if front_data[i]<SAFETY_DIST and front_data[i]>0: 
+            c.obstacle_ahead=True #front_data[i]>0 pour eviter bug en reel
+            c.free_space=False
         
         front_dist+=front_data[i]
     
     front_dist/=len(r) #on moyenne sur le nomnre de points utilises
     
     #!!!!RECUPERER INDICE OBSTACLE -> LOCALISATION -> S'ELOIGNER ->EVITER DE CHOSIR UN CADRAN QUI A PLUS DE SITANCE ALORS QUE L'OBSTACLE S'Y TROUVE
-    if np.all(np.array(front_data[ind0:ind1])>SAFETY_DIST) and c.obstacle_ahead==True:
+    if np.all(np.array(front_data[ind0:ind1])>FREE_SPACE_THRESH) and c.obstacle_ahead==True:
         c.obstacle_ahead=False
-    
+        c.free_space=True
+
+    #si une seule valeur de front < FREE_SPACE_THRESH alors on pas libre
+    mask = (np.aray(front_data[ind0:ind1]) > 0) & (np.aray(front_data[ind0:ind1]) < FREE_SPACE_THRESH)
+    if (mask < FREE_SPACE_THRESH).any() and c.free_space==True:
+        c.free_path=False
     #print(front_dist,c.obstacle_ahead)
+    
     return front_dist
 
 
@@ -161,10 +169,12 @@ def data_process_callback(msg_f,msg_s,c):
         #devier-> ajouter offfset a avg qui fera qu'en faisant moy on ira vers gauche ou droite
         #METTRE EN PLACE UN FLAG RECUPERE DANS nv_control QUI AJUSTE VITESSE ET COMMANDE DE BRAQUAGE
         
-        FREE_SPACE_THRESH=rospy.get_param("~FREE_SPACE_THRESH",default=0.5)
+        
         front_dist=analyze_front(front_data,c)
-        if front_dist>FREE_SPACE_THRESH: c.free_path=True
-        elif c.free_path==True and front_dist<FREE_SPACE_THRESH and c.obstacle_ahead==True : c.free_path=False
+        
+        #FREE_SPACE_THRESH=rospy.get_param("~FREE_SPACE_THRESH",default=0.5)
+        #if front_dist>FREE_SPACE_THRESH: c.free_path=True
+        #elif c.free_path==True and front_dist<FREE_SPACE_THRESH and c.obstacle_ahead==True : c.free_path=False
         
         #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
         

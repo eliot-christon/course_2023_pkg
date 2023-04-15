@@ -100,9 +100,8 @@ def lidar_preprocess_callback(msg,c): #callback for /LidarScan and /scan
             #chercher la bonne valeur a prendre
             #on a inf pour certaines sections du scan -> on va interpoler lineairement (approx) pour completer ces points
             
-            scan=interpolate(scan,i)
-            iter+=1
-            print(iter)
+            scan=interpolate(scan,i) #pas beosin normalement
+            
             c.front_dist.data[i-intv[0]]=(np.clip(scan[i],0,CLIP_DIST))
 
     #side data pour rester au milieu
@@ -113,9 +112,7 @@ def lidar_preprocess_callback(msg,c): #callback for /LidarScan and /scan
         else:
             scan=interpolate(scan,i)
             c.side_dist.data[ind]=(np.clip(scan[i],0,CLIP_DIST))
-
-    
-    #print(len(c.front_dist.data))       
+  
             
 
 #recupere le flag de MAE pour connaitre etat
