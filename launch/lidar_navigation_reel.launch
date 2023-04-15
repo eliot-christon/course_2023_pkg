@@ -24,6 +24,7 @@
 
 <!-- Run one lidar_nav_controller -->
 <node pkg="course_2023_pkg" name="nav_controller" type="lidar_nav_controller.py" required="true">
+    <param name="speed" value="0.3"/>
     
 </node>
 
