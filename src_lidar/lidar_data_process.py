@@ -18,6 +18,7 @@ class Control:
         self.front_dist=Float32()
         self.offset=0.  #en faire parametre
         self.obstacle_ahead=False
+        self.free_path=True
         self.print=False #pour afficher msg de manoeuvre 1 fois par manoeuvre
         self.run=True
 
@@ -151,8 +152,8 @@ def data_process_callback(msg_f,msg_s,c):
     #
     #step_size=rospy.get_param("step_size",default=10)#step interval for front_data 
 
-    #si lidar nav par MAE
     front_data=msg_f.data #tableau contient dist autour du robot entre [a0,a1]
+
 
     if len(front_data)!=0:
         #si objet au milieu <-> front_data[diag_gauche]>front_data[n//2]<front_data[diag_droite]
@@ -160,8 +161,9 @@ def data_process_callback(msg_f,msg_s,c):
         #devier-> ajouter offfset a avg qui fera qu'en faisant moy on ira vers gauche ou droite
         #METTRE EN PLACE UN FLAG RECUPERE DANS nv_control QUI AJUSTE VITESSE ET COMMANDE DE BRAQUAGE
         
-        
+        FREE_SPACE_THRESH=rospy.get_param("~FREE_SPACE_THRESH",default=0.5)
         front_dist=analyze_front(front_data,c)
+        if front_dist>FREE_SPACE_THRESH: c.free_path=True
         
         
         #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
@@ -225,12 +227,16 @@ if __name__=='__main__':
         #publish obstacle ahead
         obstacle_ahead_pub=rospy.Publisher("/obstacle_warning",Bool,queue_size=1)
 
+        #publish free space
+        free_path_pub=rospy.Publisher("/free_path",Bool,queue_size=1)
+
         while not rospy.is_shutdown():
 
             dir_pub.publish(c.dir)
             center_pub.publish(c.center)
             front_dist_pub.publish(c.front_dist)
-            obstacle_ahead_pub.publish(c.obstacle_ahead)
+            obstacle_ahead_pub.publish(c.obstacle_ahead) #flag pour MAE 
+            free_path_pub.publish(c.free_path) #flag pour MAE
 
             rate.sleep()
         
