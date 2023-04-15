@@ -112,7 +112,7 @@ def quadran_nav(front_data,N):
 def analyze_front(front_data,c):
     #calcule la distance moyenne a l'avant et chercho obstacle pour mode evitement ou default
     SAFETY_DIST=rospy.get_param("SAFETY_DIST",default=0.3)
-    FREE_SPACE_THRESH=SAFETY_DIST+0.20
+    FREE_SPACE_THRESH=SAFETY_DIST+0.15
     step_size=rospy.get_param("step_size",default=10)
 
     a0,a1=rospy.get_param("~angle0",default=120),rospy.get_param("~angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
@@ -129,7 +129,7 @@ def analyze_front(front_data,c):
     for i in r:
         if front_data[i]<SAFETY_DIST and front_data[i]>0: 
             c.obstacle_ahead=True #front_data[i]>0 pour eviter bug en reel
-            c.free_space=False
+            c.free_path=False
         
         front_dist+=front_data[i]
     
@@ -138,14 +138,14 @@ def analyze_front(front_data,c):
     #!!!!RECUPERER INDICE OBSTACLE -> LOCALISATION -> S'ELOIGNER ->EVITER DE CHOSIR UN CADRAN QUI A PLUS DE SITANCE ALORS QUE L'OBSTACLE S'Y TROUVE
     if np.all(np.array(front_data[ind0:ind1])>FREE_SPACE_THRESH) and c.obstacle_ahead==True:
         c.obstacle_ahead=False
-        c.free_space=True
+        c.free_path=True
 
     #si une seule valeur de front < FREE_SPACE_THRESH alors on pas libre
-    mask = (np.aray(front_data[ind0:ind1]) > 0) & (np.aray(front_data[ind0:ind1]) < FREE_SPACE_THRESH)
-    if (mask < FREE_SPACE_THRESH).any() and c.free_space==True:
-        c.free_path=False
+    """ mask = (np.array(front_data[ind0:ind1]) > 0) & (np.array(front_data[ind0:ind1]) < FREE_SPACE_THRESH)
+    if (mask < FREE_SPACE_THRESH).any() and c.free_path==True:
+        c.free_path=False """
     #print(front_dist,c.obstacle_ahead)
-    
+
     return front_dist
 
 

@@ -14,7 +14,7 @@ class DemiTour:
 
         rospy.init_node("demi_tour")
 
-        self.max_speed = rospy.get_param("max_speed", default=0.5)
+        self.max_speed = rospy.get_param("max_speed", default=0.25)
 
         self.pub = rospy.Publisher("/d_tourSpeedAngleCommand", Float32MultiArray, queue_size=1)
         self.pub_fin_dt = rospy.Publisher("/Fin_d_tour", Bool, queue_size=1)

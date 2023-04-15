@@ -112,7 +112,7 @@ if __name__=='__main__':
                 angle_pub.publish(c.ang)
                 speed_pub.publish(c.speed)
             c.command.data=[c.speed, c.ang]
-
+            
             command_pub.publish(c.command)
 
             rate.sleep()

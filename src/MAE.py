@@ -82,8 +82,8 @@ class MAE:
             if self.ow and not(self.fp):
                 self.EF=3
 
-            elif self.dir=="wrong":
-                self.EF=2
+            #elif self.dir=="wrong":
+             #   self.EF=2
 
             else:
                 self.EF=0
