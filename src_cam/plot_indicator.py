@@ -140,19 +140,22 @@ class ImagePlot :
 
         for i in range(len(img)):
             for j in range(len(img[0])):
-                h,s,v=bgr2hsv (img[i][j],rgb)
+                h,s,v=bgr2hsv (image[i][j],rgb)
 
-                if i == limite_haute and j== len(img[0])//2:
-                    print(img[i][j],h,s,v)
+                # if i == limite_haute and j== len(img[0])//2:
+                #     print(img[i][j],h,s,v)
+
+                # if i == 0 and j== len(img[0])//2:
+                #     print("haut",img[i][j],h,s,v)
 
                 if h < self.max_hue_red or h > self.min_hue_red:
                     if s>self.min_sat_red and v>self.min_val_red:
                         img[i,j,:]=255
 
                 # print(self.max_hue_green,self.min_hue_green, h)
-                # if h < self.max_hue_green and h > self.min_hue_green:
-                #     if s>self.min_sat_green and v>self.min_val_green:
-                #         img[i,j,:]=255
+                if h < self.max_hue_green and h > self.min_hue_green:
+                    if s>self.min_sat_green and v>self.min_val_green:
+                        img[i,j,:]=255
 
     
 

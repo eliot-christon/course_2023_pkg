@@ -40,8 +40,9 @@ import cv2
         
 #     return hsv
 
-def bgr2hsv (p, rgb=0):
+def bgr2hsv (pix, rgb=0):
     """fonction qui convertit les valeurs d'une colonne de pixel bgr en leur valeur hsv"""
+    p=pix.copy()
     p=p/255
 
     if rgb == 1 :
@@ -92,6 +93,7 @@ Ce noeud publie sur deux topics:
         self.reelparam = rospy.get_param("reel", default=0)
 
 
+
         self.max_hue_red = rospy.get_param('max_hue_red', default=14)
         self.min_hue_red = rospy.get_param('min_hue_red', default=280)
         self.max_hue_green = rospy.get_param('max_hue_green', default=160)
@@ -132,9 +134,9 @@ Ce noeud publie sur deux topics:
 
         #valeurs pour redimensionner l'image récupéré
         self.w, self.h = w, h
-        self.lefthsv = np.zeros((self.h,3))
-        self.righthsv = np.zeros((self.h,3))
-        self.middlehsv = np.zeros((self.h,3))
+        self.left = np.zeros((self.h,10,3))
+        self.right = np.zeros((self.h,10,3))
+        self.middle = np.zeros((self.h,10,3))
 
         #sensibilité
         self.sensi=False
@@ -147,7 +149,7 @@ Ce noeud publie sur deux topics:
     def callback(self, msg) : 
         limite_haute=rospy.get_param('lim_haut', default=0)
         limite_basse=rospy.get_param('lim_bas', default=0)
-        rgb=rospy.get_param('rgb',default=1)
+        
 
         self.max_hue_red = rospy.get_param('max_hue_red', default=14)
         self.min_hue_red = rospy.get_param('min_hue_red', default=280)
@@ -168,9 +170,9 @@ Ce noeud publie sur deux topics:
         if self.reelparam==0 :
             #On récupère deux lignes verticales à gauche et à droite
             scan = msg.data		
-            leftscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
-            rightscan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
-            middlescan = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
+            self.left = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,10,0:3]
+            self.right = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w-10,0:3]
+            self.middle = np.array(scan).reshape((self.h, self.w, 4))[limite_haute:limite_basse,self.w//2,0:3]
 
         else :
             #On récupère deux lignes verticales à gauche et à droite
@@ -178,9 +180,15 @@ Ce noeud publie sur deux topics:
             #print("yes")
 
             #On convertie leurs valeur bgr en valeur hsv
-            leftscan=np.array(scan)[:,10,0:3]
-            rightscan=np.array(scan)[limite_haute:limite_basse,scan.shape[1]-10,0:3]
-            middlescan=np.array(scan)[limite_haute:limite_basse,scan.shape[1]//2,0:3]
+            # self.left=np.array(scan)[limite_haute:limite_basse,10,0:3]
+            # self.right=np.array(scan)[limite_haute:limite_basse,scan.shape[1]-10,0:3]
+            # self.middle=np.array(scan)[limite_haute:limite_basse,scan.shape[1]//2,0:3]
+            image = scan[:,:,::-1]
+            self.left=image[limite_haute:limite_basse,0:10,0:3]
+            self.right=image[limite_haute:limite_basse,scan.shape[1]-10:scan.shape[1],0:3]
+            self.middle=image[limite_haute:limite_basse,(scan.shape[1]//2-5):(scan.shape[1]//2+5),0:3]
+
+            #print(scan.shape[0])
 
         #rospy.loginfo(middlescan)
         
@@ -190,50 +198,63 @@ Ce noeud publie sur deux topics:
 
     def run(self):
         rate = rospy.Rate(20)
+        
 
         while not rospy.is_shutdown() :
+            rgb=rospy.get_param('rgb',default=1)
             left_is_green=rospy.get_param('left_is_green', default=True)
             #rospy.loginfo(self.middlehsv)
 
-            #On compte le nombre de pixel rouge selon leur valeur hsv
-            count_red_left=0
-            for p in self.lefthsv:
-                if p[0]< self.max_hue_red or p[0]>self.min_hue_red:
-                    if p[1]>self.min_sat_red and p[2]>self.min_val_red:
-                        count_red_left+=1
-        
-            count_red_right=0
-            for p in self.righthsv:
-                if p[0]< self.max_hue_red or p[0]>self.min_hue_red:
-                    if p[1]>self.min_sat_red and p[2]>self.min_val_red:
-                        count_red_right+=1
-
-            count_red_middle=0
-            for p in self.middlehsv:
-                if p[0]< self.max_hue_red or p[0]>self.min_hue_red:
-                    if p[1]>self.min_sat_red and p[2]>self.min_val_red:
-                        count_red_middle+=1
-
-        
-        
             #On compte le nombre de pixel vert à l'aide de leur valeur hsv
             count_green_left=0
-            for p in self.lefthsv:
-                if h < self.max_hue_green and h > self.min_hue_green:
-                    if s>self.min_sat_green and v>self.min_val_green:
-                        count_green_left+=1
+            for i in self.left:
+                for p in i:
+                    h,s,v=bgr2hsv (p, rgb)
+                    if h < self.max_hue_green and h > self.min_hue_green:
+                        if s>self.min_sat_green and v>self.min_val_green:
+                            count_green_left+=1
         
             count_green_right=0
-            for p in self.righthsv:
-                if p[0]< self.max_hue_green and p[0]>self.min_hue_green:
-                    if p[1]>self.min_sat_green and p[2]>self.min_val_green:
-                        count_green_right+=1
+            for i in self.right:
+                for p in i:
+                    h,s,v=bgr2hsv (p, rgb)
+                    if h < self.max_hue_green and h > self.min_hue_green:
+                        if s>self.min_sat_green and v>self.min_val_green:
+                            count_green_right+=1
 
             count_green_middle=0
-            for p in self.middlehsv:
-                if p[0]< self.max_hue_green and p[0]>self.min_hue_green:
-                    if p[1]>self.min_sat_green and p[2]>self.min_val_green:
-                        count_green_middle+=1
+            for i in self.middle:
+                for p in i:
+                    h,s,v=bgr2hsv (p, rgb)
+                    if h < self.max_hue_green and h > self.min_hue_green:
+                        if s>self.min_sat_green and v>self.min_val_green:
+                            count_green_middle+=1
+
+
+            #On compte le nombre de pixel rouge selon leur valeur hsv
+            count_red_left=0
+            for i in self.left:
+                for p in i:
+                    h,s,v=bgr2hsv (p, rgb)
+                    if h < self.max_hue_red or h > self.min_hue_red:
+                        if s>self.min_sat_red and v>self.min_val_red:
+                            count_red_left+=1
+        
+            count_red_right=0
+            for i in self.right:
+                for p in i:
+                    h,s,v=bgr2hsv (p, rgb)
+                    if h < self.max_hue_red or h > self.min_hue_red:
+                        if s>self.min_sat_red and v>self.min_val_red:
+                            count_red_right+=1
+
+            count_red_middle=0
+            for i in self.middle:
+                for p in i:
+                    h,s,v=bgr2hsv (p, rgb)
+                    if h < self.max_hue_red or h > self.min_hue_red:
+                        if s>self.min_sat_red and v>self.min_val_red:
+                            count_red_middle+=1
                 
 
             #Publication par default

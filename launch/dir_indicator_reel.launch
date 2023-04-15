@@ -17,8 +17,8 @@
 
 	<param name="max_hue_red" value="14"/>
 	<param name="min_hue_red" value="280"/>
-	<param name="max_hue_green" value="130"/>
-	<param name="min_hue_green" value="50"/>
+	<param name="max_hue_green" value="190"/>
+	<param name="min_hue_green" value="140"/>
 	
 	<param name="min_sat_red" value="40"/>
 	<param name="min_sat_green" value="40"/>
@@ -32,7 +32,7 @@
 	
 
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True" output="screen"/>
+	<node pkg="course_2023_pkg" type="dir_indicatorv3.py" name="dir_indicator" required="True" output="screen"/>
 
 
 
