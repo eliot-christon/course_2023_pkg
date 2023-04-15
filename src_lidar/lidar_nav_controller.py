@@ -50,8 +50,8 @@ def speed_regulator_callback(msg_front_dist,c):
 
         u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
-        c.speed=np.clip(u,MIN_SPEED,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
-
+        #c.speed=np.clip(u,MIN_SPEED,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+        c.speed=0.35
 
 def onrun_callback(msg,c):
     c.run=msg.data 
