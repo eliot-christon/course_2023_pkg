@@ -16,6 +16,8 @@
 
     <param name="angle0" value="110"/> <!--angles en degres, convertis en radians par la suite-->
     <param name="angle1" value="250"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="FREE_SPACE_THRESH" value="0.6"/>
+
 </node>
 
 <!-- Run one lidar_nav_controller -->

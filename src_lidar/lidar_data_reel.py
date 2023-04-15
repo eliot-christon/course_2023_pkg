@@ -8,6 +8,7 @@ import message_filters
 from std_msgs.msg import Float32MultiArray, Bool
 from sensor_msgs.msg import LaserScan
 
+
 CLIP_DIST=rospy.get_param("CLIP_DIST",default=3)
 
 class Control():
@@ -62,7 +63,7 @@ def interpolate(data, ind):
     return data #interpolated data with no holes
 
 
-def lidar_preprocess_callback(msg,c):
+def lidar_preprocess_callback(msg,c): #callback for /LidarScan and /scan
     
     scan=[]
     #on recupere bonne data 
