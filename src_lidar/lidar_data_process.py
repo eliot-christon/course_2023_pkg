@@ -223,7 +223,7 @@ if __name__=='__main__':
         front_dist_pub=rospy.Publisher("/front_dist",Float32,queue_size=1)
 
         #publish obstacle ahead
-        obstacle_ahead_pub=rospy.Publisher("/obstacle_warning",Bool,queue_size=1)
+        obstacle_ahead_pub=rospy.Publisher("/Obstacle_warning",Bool,queue_size=1)
 
         while not rospy.is_shutdown():
 
