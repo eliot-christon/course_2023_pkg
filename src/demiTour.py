@@ -5,101 +5,83 @@ import rospy
 import numpy as np
 from std_msgs.msg import Float32, Float32MultiArray, String, Bool
 
-# Permet de déterminer le sens de départ du demi-tour
-def callback_lidar(lidar):
-    global right, left
+class DemiTour:
+    def __init__(self):
+        self.run = True
+        self.right, self.left = False, False
+        self.rear_obstacle = False
+        self.count_unknown, self.count_maneuver = 0, 0
 
-    # On calcul la moyenne des valeurs du lidar à gauche entre 22.5° et 157.5°  et à droite entre 202.5° et 337.5° pour la simulation
-    # On prend évidemment pas en compte les "inf" qui signifient que le lidar est trop proche ou trop loin
-    # pour la simu il faut prendre lidar.data[50:351] pour la gauche et lidar.data[450:751] pour la droite
-    left_lidar = np.ma.masked_invalid(lidar.data[50:351]).mean()
-    right_lidar = np.ma.masked_invalid(lidar.data[450:751]).mean()
-    
-    # On effectue le demi-tour dans la direction où il y a le plus d'espace
-    if right_lidar < left_lidar:
-        left = True
-    elif right_lidar >= left_lidar:
-        right = True
+        rospy.init_node("demi_tour")
 
-# position des tofs [front left, front right, rear left, rear right]
-def callback_tofs(tofs):
-    global front_obstacle, rear_obstacle
-    # simu publie à 10Hz donc sensi relativement haute
-    # à modifier avec le robot réel !
-    #print(tofs.data)
-    front_sensi = 0.7
-    rear_sensi = 0.5
-    if(0<tofs.data[0]<front_sensi or 0<tofs.data[1]<front_sensi):
-        rear_obstacle = False
-        front_obstacle = True
-    if(0<tofs.data[2]<rear_sensi or 0<tofs.data[3]<rear_sensi):
-        front_obstacle = False
-        rear_obstacle = True
+        self.max_speed = rospy.get_param("max_speed", default=0.5)
 
-# Permet de changer le flag de direction de demi-tour si l'on se trouve dans le mauvais sens
-def callback_dir(direction):
-    global run
+        self.pub = rospy.Publisher("/d_tourSpeedAngleCommand", Float32MultiArray, queue_size=1)
+        self.pub_fin_dt = rospy.Publisher("/Fin_d_tour", Bool, queue_size=1)
 
-    if direction.data:
-        run = True
-    else:
-        run = False
+        rospy.Subscriber("/front_data", Float32MultiArray, self.callback_lidar)
+        rospy.Subscriber("/TofsDistance", Float32MultiArray, self.callback_tofs)
+        rospy.Subscriber("/Direction", String, self.callback_dir)
+
+    # On récupère la direction dans laquelle on doit faire le demi-tour
+    def callback_lidar(self, lidar):
+        # On calcul la moyenne des valeurs du lidar à gauche entre 22.5° et 157.5°  et à droite entre 202.5° et 337.5° pour la simulation
+        # On prend évidemment pas en compte les "inf" qui signifient que le lidar est trop proche ou trop loin
+        # pour la simu il faut prendre lidar.data[50:351] pour la gauche et lidar.data[450:751] pour la droite
+        a0,a1=rospy.get_param("~angle0",default=45),rospy.get_param("~angle1",default=315)
+        angles=np.linspace(a0,a1,len(lidar.data))
+        if len(lidar.data)!=0:
+            a135=np.where(angles>=135)[0][0]
+            a225=np.where(angles>=225)[0][0]
+
+            left_lidar = np.array(lidar.data[:a135]).mean()
+            right_lidar = np.array(lidar.data[a225:]).mean()
+            
+            # On effectue le demi-tour dans la direction où il y a le plus d'espace
+            if right_lidar < left_lidar:
+                self.left = True
+            elif right_lidar >= left_lidar:
+                self.right = True
+
+    # position des tofs [front left, front right, rear left, rear right]
+    def callback_tofs(self, tofs):
+        rear_sensi = 0.5
+        if(0<tofs.data[0]<rear_sensi or 0<tofs.data[1]<rear_sensi):
+            self.rear_obstacle = True
+
+    def reset(self):
+        self.run = False
+        self.right, self.left = False, False
+        self.rear_obstacle = False
+        self.count_unknown, self.count_maneuver = 0, 0
+        self.pub.publish(Float32MultiArray(data=[0, 0]))
+
+    def callback_dir(self, dir):
+        if dir.data == "wrong":
+            self.run = True
+        elif dir.data == "right":
+            self.reset()
+        elif dir.data == "???":
+            self.count_unknown += 1
+        if self.count_unknown >= 40:
+            self.reset()
+
+    def run_node(self):
+        while not rospy.is_shutdown():
+            if self.run:
+                if self.left:
+                    starting_direction = -1
+                elif self.right:
+                    starting_direction = 1
+                if self.right or self.left:
+                    self.pub.publish(Float32MultiArray(data=[self.max_speed, starting_direction]))
+                elif self.rear_obstacle:
+                    self.pub.publish(Float32MultiArray(data=[-self.max_speed, -starting_direction]))
+            else:
+                self.pub_fin_dt.publish(True)
+            
 
 if __name__ == '__main__':
-
-    run = False
-    right, left = False, False
-    wall_close = False
-    front_obstacle, rear_obstacle = False, False
-
-    rospy.init_node("vroum")
-
-    pub = rospy.Publisher("/d_tourSpeedAngleCommand", Float32MultiArray, queue_size=10)
-    rospy.Subscriber("/LidarScan", Float32MultiArray, callback_lidar)
-    rospy.Subscriber("/SensorsScan", Float32MultiArray, callback_tofs)
-    rospy.Subscriber("/Direction", String, callback_dir)
-    rate = rospy.Rate(5)
-    #time.sleep(5)
-
-    while not (left or right or rospy.is_shutdown()):
-        pass
-
-    while not rospy.is_shutdown():
-        try:    
-            
-            # On vérifie run à chaque fois car run peut changer à tout moment
-            if left:
-                starting_direction = -1
-            else:
-                starting_direction = 1
-
-            ### Temporaire car normalement système de navigation prend le relais mais pour les test non
-            # if not run:
-            #     command=Float32MultiArray()
-
-            #     pub.publish(command)
-
-            while run and not rospy.is_shutdown():
-                command=Float32MultiArray()
-
-                if not (rear_obstacle or front_obstacle):
-                    velocity= -1
-                    angular= starting_direction
-                elif rear_obstacle:
-                    velocity = 1
-                    angular = -starting_direction
-                elif front_obstacle:
-                    velocity= -1
-                    angular = starting_direction
-
-                command.data=[velocity,angular]
-                pub.publish(command)
-
-            rate.sleep()
-        except rospy.ROSInterruptException:
-            break
-        except KeyboardInterrupt:
-            print("shuting down...")
-            break
-        except NameError:
-            break
+    demi_tour = DemiTour()
+    demi_tour.run_node()
+    rospy.spin()

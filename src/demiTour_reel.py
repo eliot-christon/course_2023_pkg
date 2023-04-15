@@ -30,18 +30,8 @@ def callback_lidar(lidar):
 # position des tofs [front left, front right, rear left, rear right]
 def callback_tofs(tofs):
     global front_obstacle, rear_obstacle
-    # simu publie à 10Hz donc sensi relativement haute
-    # à modifier avec le robot réel !
-    #sensi simu
-    front_sensi = 0.5
+
     rear_sensi = 0.5
-    #print(tofs.data)
-    #sensi reel
-    #front_sensi = 90
-    #rear_sensi = 90
-    if(0<tofs.data[0]<front_sensi or 0<tofs.data[1]<front_sensi):
-        rear_obstacle = False
-        front_obstacle = True
     if(0<tofs.data[2]<rear_sensi or 0<tofs.data[3]<rear_sensi):
         front_obstacle = False
         rear_obstacle = True

@@ -18,14 +18,16 @@ from std_msgs.msg import Float32MultiArray, Int16MultiArray
 class Plot : 
 
     def __init__(self) :
+        nb_tofs = 2
         print("init")
         self.fig, self.ax = plt.subplots(figsize=(6, 6))
-        self.nums = ["fl", "fr", "bl", "br"]
-        self.raw_data, self.processed_data = [0, 0, 0, 0], [0, 0, 0, 0]
+        self.nums = ["bl", "br"]
+        self.raw_data, self.processed_data = [0]*nb_tofs, [0]*nb_tofs
 
-    def initPlot(self)  :
+    def initPlot(self) :
         print("init plot")
         self.ax.set_xlabel("tof num") ; self.ax.set_ylabel("distance (m)")
+        self.ax.set_ylim([0,1.6])
         self.ax.set_title("Tofs plot")
 
         self.ax.grid(color="gray")
@@ -57,7 +59,7 @@ class Plot :
 
 def listener(p) :
     print("listener")
-    topic_raw_data = rospy.get_param("tof_topic", default="/SensorsScan")
+    topic_raw_data = rospy.get_param("tof_topic", default="/TofsScan")
     topic_processed_data = rospy.get_param("tof_processed_topic", default="/TofsDistance")
     if topic_raw_data == "/TofsScan" :
         rospy.Subscriber(topic_raw_data, Int16MultiArray, p.callback_raw)
