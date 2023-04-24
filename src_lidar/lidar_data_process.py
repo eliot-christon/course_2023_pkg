@@ -65,7 +65,7 @@ def default_nav(front_data,quadran=[]):
 #COMME CA SI IL EVITE OBSTACLE EN PARTANT A GAUCHE ET ENSUITE IL VEUT ALLER 
 #A DROITE LA COMMANDE SERA PAS AUSSI BRUSQUE 
 def quadran_nav(front_data,N):
-    rospy.loginfo("MANOEUVRE D'EVITEMENT")
+    #rospy.loginfo("MANOEUVRE D'EVITEMENT")
     step_size=rospy.get_param("step_size",default=10)#step interval for front_data
     steps=len(front_data)//step_size
 

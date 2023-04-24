@@ -2,23 +2,39 @@
 <launch>
 	<arg name="left_is_green" default="True"/>
 
-
-	<param name="rgb" value="0"/>
-	<param name="reel" value="0"/>
-	
-	<param name="lim_haut" value="10"/>
-	<param name="lim_bas" value="200"/>
-	
+	<param name='reel' value="0"/>
 	<param name="left_is_green" value="$(arg left_is_green)"/>
 
-	
+	<param name='image_width' value="640"/>
+	<param name='image_height' value="480"/>
 
+	<param name='max_hue_red' value='0'/>
+	<param name='min_hue_red' value='270'/>
+	<param name='max_hue_green' value='190'/>
+	<param name='min_hue_green' value='90'/>
+	<param name='min_sat_red' value='50'/>
+	<param name='min_sat_green' value='50'/>
+	<param name='max_sat_red' value='255'/>
+	<param name='max_sat_green' value='255'/>
+	<param name='min_val_red' value='40'/>
+	<param name='min_val_green' value='20'/>
+	<param name='max_val_red' value='255'/>
+	<param name='max_val_green' value='255'/>
+	<param name='lim_haut' value='0'/>
+	<param name='lim_bas' value='100'/>
+	<param name='thick' value='10'/>
+	<param name='rgb' value='0'/>
+
+
+
+
+	
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="dir_indicatorv2.py" name="dir_indicator" required="True" output="screen">
+	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True" output="screen">
 		
 	</node>
 
-	<node pkg="course_2023_pkg" type="plot_indicator.py" name="plot_indicator" required="True" output="screen" >
+	<node pkg="course_2023_pkg" type="plot_indicator.py" name="plot_indicator" required="True" output="screen">
 		
 	</node>
 

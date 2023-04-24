@@ -12,7 +12,7 @@ import numpy as np
 
 class Distance() : 
 
-    def __init__(self, nb_tofs=2, queue_size=4) : 
+    def __init__(self, nb_tofs=4, queue_size=4) : 
         
         # Params
         self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")

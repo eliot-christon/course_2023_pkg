@@ -4,7 +4,7 @@
 
 
     <!-- Set arguments -->
-    <arg name="left_is_green" default="True"/>
+    <arg name="left_is_green" default="False"/>
     <arg name="haut_niv" default="True"/>
     
     <!-- Including launch files -->
@@ -28,9 +28,9 @@
     <!-- Run nodes-->
     <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
 
-    <node pkg="course_2023_pkg" type="MAE.py" name="MAE" output="screen" required="True"/>
+    <node pkg="course_2023_pkg" type="MAE_simu_nav_tofs.py" name="MAE" output="screen" required="True"/>
         
-    <node pkg="course_2023_pkg" type="interface.py" name="interface" output="screen" required="True"/>
+    <node pkg="course_2023_pkg" type="interface_nav_tofs.py" name="interface" output="screen" required="True"/>
 
 
     <!--seuil passage de lidar a tofs-->
