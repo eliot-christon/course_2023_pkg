@@ -28,7 +28,7 @@
     <!-- Run nodes-->
     <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
 
-    <node pkg="course_2023_pkg" type="MAE_simu_nav_tofs.py" name="MAE" output="screen" required="True"/>
+    <node pkg="course_2023_pkg" type="MAE_nav_tofs.py" name="MAE" output="screen" required="True"/>
         
     <node pkg="course_2023_pkg" type="interface_nav_tofs.py" name="interface" output="screen" required="True"/>
 

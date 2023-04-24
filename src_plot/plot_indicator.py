@@ -111,7 +111,7 @@ class ImagePlot :
         elif req.parameter_name == "min_val_red":
             self.min_val_red = int(req.new_value)
 
-    #Paramètres de la couleur rouge
+    #Paramètres de la couleur verte
         elif req.parameter_name == "max_hue_green":
             self.max_hue_green = int(req.new_value)
 

@@ -14,7 +14,7 @@ import cv2
 def bgr2hsv (pix, rgb=0):
     """fonction qui convertit les valeurs d'un pixel bgr en leur valeur hsv"""
     #Dans ce code on ne convertie pas l'emsemble de l'image de bgr/rgb afin de limiter le nombre de calcul, 
-    # on indique juste lorqu'on recuppère les valeurs hsv si le pixel d'orinie est en bgr ou rgb 
+    # on indique juste lorqu'on recupère les valeurs hsv si le pixel d'origine est en bgr ou rgb 
     p=pix.copy()
     p=p/255
 
@@ -157,7 +157,7 @@ class Dir_indicator :
         #On redimensionne l'image pour avoir moins de pixels à traiter
         img = cv2.resize(image.astype('float32'), (160, 128), interpolation=cv2.INTER_LINEAR).astype('int')
 
-        #Dans ce code on ne convertie pas l'emsemble de l'image de bgr/rgb afin de limiter le nombre de calcul 
+        #Dans ce code on ne convertie pas l'ensemble de l'image de bgr/rgb afin de limiter le nombre de calcul 
 
         self.left =img[self.limite_haute:self.limite_basse,0:self.thick,0:3]
         self.right = img[self.limite_haute:self.limite_basse,img.shape[1]-self.thick:img.shape[1],0:3]
@@ -216,7 +216,6 @@ class Dir_indicator :
                         if s>self.min_sat_red and v>self.min_val_red:
                             count_red_middle+=1
 
-            #print(count_green_left,count_red_left,count_green_right,count_red_right)
             #Publication par default
             self.wcolor.data="???"
             self.direction.data="???"
