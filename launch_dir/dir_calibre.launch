@@ -2,12 +2,17 @@
 <launch>
 	<arg name="left_is_green" default="True"/>
 
+	<!-- Parametre qui détermine si on manipule un robot reel -->
 	<param name='reel' value="0"/>
+	<!-- Parametre qui détermine le sens de circulation -->
 	<param name="left_is_green" value="$(arg left_is_green)"/>
 
+	<!-- Paramètre qui détermine la définition de l'image en ENTREE, cela ne correspond pas à l'image qui sera traitée
+	La définition de l'image traitée sera toujours 160*128 par redimentionnement -->
 	<param name='image_width' value="640"/>
 	<param name='image_height' value="480"/>
 
+	<!-- Paramètre à copier de la réponse donnée par la commande "rosservice call /get_color_parameter" suite à la calibration -->
 	<param name='max_hue_red' value='0'/>
 	<param name='min_hue_red' value='270'/>
 	<param name='max_hue_green' value='190'/>
@@ -26,18 +31,7 @@
 	<param name='rgb' value='0'/>
 
 
-
-
-	
 	<!-- Run nodes -->
-	<node pkg="course_2023_pkg" type="dir_indicator.py" name="dir_indicator" required="True" output="screen">
-		
-	</node>
-
-	<node pkg="course_2023_pkg" type="plot_indicator.py" name="plot_indicator" required="True" output="screen">
-		
-	</node>
-
-
+	<node pkg="course_2023_pkg" type="plot_indicator.py" name="plot_indicator" required="True" output="screen"/>
 
 </launch>
