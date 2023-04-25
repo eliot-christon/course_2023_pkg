@@ -94,7 +94,7 @@ class Dir_indicator :
         self.left_is_green=rospy.get_param('left_is_green', default=True)
 
 
-            #======Subscriber======
+            #======Subscribers======
 
         #Paramètre qui détermine le nom du topic pour les données d'images
         sub_topic = rospy.get_param("image_datas", default="/ImageScan")    
@@ -112,7 +112,7 @@ class Dir_indicator :
         self.sub_sensi=rospy.Subscriber(sub_sensi_topic, Bool, self.callback_sensi)
         
 
-            #======Publisher======
+            #======Publishers======
 
         pubdir_topic = "/Direction"
         pubwcolor_topic = "/WallColor"

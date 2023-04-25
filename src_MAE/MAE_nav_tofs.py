@@ -10,49 +10,59 @@ import rospy
 from std_msgs.msg import Float32MultiArray, Float32, Int8, Bool, String
 
 class MAE:
+    """Ce noeud fait fonctionner une machine à état à 3 états:
+        -Etat 0: Navigation lidar
+        -Etat 1: Navigation Tofs
+        -Etat 2: Demi-tour
+        
+    La MAE prend en entrée:
+        /Dist_lim
+        /Direction
+        /Fin_d_tour
+        
+    Les sorties de la MAE sont:
+        /Nav_lid
+        /Nav_tofs
+        /D_tour
+        /Sensi
+        /State
+        
+    Les entrées de la MAE vont déterminer l'état de la voiture et les sorties sont des commandes pour les autres noeuds"""
+
     def __init__(self, EP=0, ONLY_LIDAR=False, ONLY_TOFS=False):
 
-        #états
-        self.EP=EP
-        self.EF=EP
+        # Init ROS node
+        rospy.init_node('MAE', anonymous=True)
 
+            #======Attributs======
+        #Etat présent
+        self.EP=EP
+        #Etat futur
+        self.EF=EP
         #entrées
-        self.ow=False
         self.dist_lim=False
-        self.fp=True
         self.dir="right"
         self.fin_d_tour=False
-        
-
         #Sorties
         self.marche_arr=False
         self.nav_lid=True
         self.d_tour=False
         self.sensi=False
 
-        # Init ROS node
-        rospy.init_node('MAE', anonymous=True)
-
-        # publisher sortie MAE
-
+            #======Publishers======
         self.pub_nav_lid = rospy.Publisher("/Nav_lid", Bool, queue_size = 1)
         self.pub_nav_tofs = rospy.Publisher("/Nav_tofs", Bool, queue_size = 1)
         self.pub_d_tour = rospy.Publisher("/D_tour", Bool, queue_size = 1)
         self.pub_sensi= rospy.Publisher("/Sensi", Bool, queue_size = 1)
         self.pub_state = rospy.Publisher("/State", Int8, queue_size = 1)
 
-        # subscribers entrées MAE
+            #======Subscribers======
         self.sub_dist_lim = rospy.Subscriber("/Dist_lim", Bool, self.callback_dist_lim)
         self.sub_dir = rospy.Subscriber("/Direction", String, self.callback_dir)
         self.sub_fin_d_tour = rospy.Subscriber("/Fin_d_tour", Bool, self.callback_fin_d_tour)
         
+# CALLBACKS ==============================================================================================================
 
-
-        
-
-
-        
-    #Methodes qui mettent à jour les entrées
     def callback_dist_lim(self, msg) :
         self.dist_lim=msg.data
 
@@ -62,41 +72,47 @@ class MAE:
     def callback_fin_d_tour(self, msg):
         self.fin_d_tour=msg.data 
 
+# CALCUL ETAT FUTUR ======================================================================================================
 
-
-
-    #calcul de l'état future
     def f_state(self):
 
         if self.EP == 0:
-
+            #Transition d'état demi_tour si mauvaise direction
             if self.dir=="wrong":
                self.EF=2
 
+            #Transition d'état Nav_tofs si proche d'un obstacle
             elif self.dist_lim:
                 self.EF=1
 
+            #Sinon on reste dans le même état
             else:
                 self.EF=0
 
         if self.EP == 1:
-
+            #Transition d'état demi_tour si mauvaise direction
             if self.dir=="wrong":
                 self.EF=2
 
+            #Transition d'état Nav_lidar si loin d'obstacles
             elif not(self.dist_lim):
                 self.EF=0
 
+            #Sinon on reste dans le même état
             else:
                 self.EF = 1
 
         if self.EP == 2:
+            #Transition d'état Nav_tofs si bonne direction, on passe d'abord par l'état Nav_tofs avant de repasser à la navigation lidar 
             if (self.dir=="right" or self.fin_d_tour):
                 self.EF=1
+            
+            #Sinon on reste dans le même état
             else:
                 self.EF=2 
 
-    #Calcul des sorties de la MAE
+# CALCUL DES SORTIES ======================================================================================================
+
     def s_MAE(self):
 
         self.nav_tofs=False
@@ -105,22 +121,28 @@ class MAE:
         self.sensi=False 
         
         if self.EP == 0:
+            #On active la navigation lidar
             self.nav_lid = True
 
         if self.EP == 1:
+            #On active la navigation Tofs
             self.nav_tofs = True
 
         if self.EP == 2:
+            #On active le demi_tour
             self.d_tour = True
+            #On active une plus grande sensibilité pour l'indicateur de direction
             self.sensi = True
  
+ # PUBLICATION DES SORTIES ======================================================================================================
+
     def pub(self):
         self.pub_nav_tofs.publish(self.nav_tofs)
         self.pub_nav_lid.publish(self.nav_lid)
         self.pub_d_tour.publish(self.d_tour)
         self.pub_sensi.publish(self.sensi) 
 
-    
+# Algo ==============================================================================================================
 
     def run(self) :
         """ Main loop of the navigation"""
@@ -143,12 +165,10 @@ class MAE:
             self.pub()
             rate.sleep()
         
-
 if __name__ == "__main__" :
     
         nav = MAE()
         nav.run()
-
         rospy.spin()
 
 
