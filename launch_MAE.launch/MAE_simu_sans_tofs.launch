@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+
+
+
+    <!-- Set arguments -->
+    <arg name="left_is_green" default="True"/>
+    <arg name="haut_niv" default="True"/>
+
+    <!-- Including launch files -->
+    <include file="$(find course_2023_pkg)/launch_nav/lidar_navigation.launch">
+        <arg name="haut_niv" value="$(arg haut_niv)"/>
+    </include>
+
+    <!-- Run nodes-->
+    <node pkg="course_2023_pkg" type="marche_arriere.py" name="marche_arriere" output="screen" required="True"/>
+        
+    <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
+
+    <node pkg="course_2023_pkg" type="MAE_sans_tofs.py" name="MAE" output="screen" required="True"/>
+        
+    <node pkg="course_2023_pkg" type="interface_sans_tofs.py" name="interface" output="screen" required="True"/>
+
+
+    <!--seuil passage de lidar a tofs-->
+    <param name="tofs_lim_threshold" value="0.2"/>
+    <param name="K_backwards" value="0.03"/>
+    <param name="BACKWARD_SPEED" value="-0.3"/>
+        
+    
+
+</launch>
+
