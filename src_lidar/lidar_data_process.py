@@ -47,8 +47,8 @@ def default_nav(front_data,quadran=[]):
 
     for i in range(steps):
         #if front_data[i*step_size]>MIN_DIST:
-        avg+=angles[i*step_size]*(front_data[i*step_size])**2
-        sum+=front_data[i*step_size]**2
+        avg+=angles[i*step_size]*(front_data[i*step_size])**3
+        sum+=front_data[i*step_size]**3
     if sum!=0:
         avg/=sum
     else : avg=np.pi
@@ -67,7 +67,7 @@ def default_nav(front_data,quadran=[]):
         avg_m/=sum_m
     else : avg_m=np.pi
     avg=(avg+avg_m)/2 """
-    
+
     direction=avg-np.pi
 
     return direction
