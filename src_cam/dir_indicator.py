@@ -40,7 +40,7 @@ def bgr2hsv (pix, rgb=0):
     v=255*v
     s=255*s
         
-    return h,s,v
+    return int(h),int(s),int(v)
 
 
 class Dir_indicator : 

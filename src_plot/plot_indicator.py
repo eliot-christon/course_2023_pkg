@@ -42,15 +42,19 @@ def rgb2hsv(p):
     v=255*v
     s=255*s
         
-    return h,s,v
+    return int(h),int(s),int(v)
 
-class ImagePlot :
+class Plot_indicator :
+    """Ce noeud a pour but d'afficher ce que détecte l'indicateur de direction et d'être utilisé pour le calibrage de la détection de couleurs"""
 
     def __init__(self, w, h) :
         self.fig, self.ax = plt.subplots(figsize=(7, 4))
         self.w, self.h = w, h
         self.image = np.zeros((128, 160,3))
+        self.imagehsv = np.zeros((128, 160,3))
         self.ln = plt.imshow(self.image)
+
+
 
             #======Service======
 
@@ -143,6 +147,7 @@ class ImagePlot :
         return True, f"Parameter {req.parameter_name} updated successfully."
     
     def get_parameters(self, req):
+        """Cette methode permet de récupérer les valeurs des paramètres, ils sont affiché dans le terminal du noeud et non dans le terminal où on appel le service"""
         print(
         f"<param name='max_hue_red' value='{self.max_hue_red}'/>\n"
         f"<param name='min_hue_red' value='{self.min_hue_red}'/>\n"
@@ -166,6 +171,16 @@ class ImagePlot :
         f"<param name='rgb' value='{self.rgb}'/>\n"
         )
         return True
+    
+    def format_coord(self,x, y):
+        x, y = int(x), int(y)
+        if 0 <= x < self.imagehsv.shape[1] and 0 <= y < self.imagehsv.shape[0]:
+            h, s, v = self.imagehsv[y, x]
+            return f"x={x}, y={y}, H={h}, S={s}, V={v}"
+        else:
+            return f"x={x}, y={y}"
+
+
 
 
     def initPlot(self)  :
@@ -186,9 +201,13 @@ class ImagePlot :
 
         if self.rgb == 0:
 
-            self.image=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)[:,:,0:3].astype('int') 
+            self.image=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)[:,:,0:3].astype('uint8') 
         else:
             self.image=img[:,:,0:3]
+
+        self.imagehsv = cv2.cvtColor(self.image.astype('float32'), cv2.COLOR_RGB2HSV)[:,:,0:3]
+        self.imagehsv[:,:,1] = (self.imagehsv[:,:,1] * 255)
+        self.imagehsv=self.imagehsv.astype('uint8')
 
     def updatePlot(self, frame) :
         img=self.image.copy()
@@ -214,6 +233,9 @@ class ImagePlot :
         img[self.limite_haute:self.limite_basse,self.thick,:]=255
         img[self.limite_haute:self.limite_basse,img.shape[1]-self.thick,:]=255
 
+        #Cette ligne permet d'afficher les valeur hsv en passant le curseur sur l'image qui sera affiché
+        self.ax.format_coord = self.format_coord
+
         self.ln.set_data(img)
         return self.ln
 
@@ -226,11 +248,13 @@ def listener(p) :
         rospy.Subscriber(topic, Int16MultiArray, p.callback)
     plt.show(block=True)
 
+
+
 if __name__ == "__main__" :
     rospy.init_node('camera_plot', anonymous = True)
     w = rospy.get_param("image_width", default=640)
     h = rospy.get_param("image_height", default=480)
-    p = ImagePlot(w, h)
+    p = Plot_indicator(w, h)
 
     ani = FuncAnimation(p.fig, p.updatePlot, init_func = p.initPlot)
     try : listener(p)
