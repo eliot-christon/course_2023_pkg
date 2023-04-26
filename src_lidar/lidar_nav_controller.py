@@ -18,7 +18,6 @@ class Controller:
         self.last_command=0
         self.F=10 #valeur par defaut, mise a jour dans main p.rapp a freq de pub
         self.run=True
-        self.offset=-np.pi/15
 
 def angle_regulator_callback(msg_dir,c):
     if c.run:
@@ -32,7 +31,7 @@ def angle_regulator_callback(msg_dir,c):
         a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
 
         #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
-        u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F)) + c.offset#+ k_c*d_center  #k_d*d_dir +k_c*d_center 
+        u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F))#+ k_c*d_center  #k_d*d_dir +k_c*d_center 
         c.last_command=u
         c.last_err=d_dir
 
@@ -45,15 +44,15 @@ def angle_regulator_callback(msg_dir,c):
 
 def speed_regulator_callback(msg_front_dist,c):
     if c.run:
-        MIN_SPEED=rospy.get_param("MIN_SPEED",default=0.05)
+        MIN_SPEED=rospy.get_param("MIN_SPEED",default=0.0)
         front_dist=msg_front_dist.data
         
         k_s=rospy.get_param("ks",default=1)
 
         u=k_s*front_dist #PEUT ETRE METTRE DIST MINIMALE->EN DESSOUS U=0 : ON S'ARRETE
 
-        #c.speed=np.clip(u,MIN_SPEED,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
-        c.speed = rospy.get_param("~speed" ,default=0.3)
+        c.speed=np.clip(u,MIN_SPEED,rospy.get_param("MAX_SPEED",default=1))#np.tanh(u)*rospy.get_param("MAX_SPEED",default=1)
+        #c.speed = rospy.get_param("~speed" ,default=0.3)
 
 
 def onrun_callback(msg,c):

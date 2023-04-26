@@ -49,21 +49,25 @@ def default_nav(front_data,quadran=[]):
         #if front_data[i*step_size]>MIN_DIST:
         avg+=angles[i*step_size]*(front_data[i*step_size])**2
         sum+=front_data[i*step_size]**2
-    
-    """best_dist_ind=np.argmax(front_data)
-    avg=angles[best_dist_ind]
-    sum=front_data[best_dist_ind]
-    for i in range(1,5*step_size):
-        if ((best_dist_ind+i)>=len(front_data) or (best_dist_ind-i)<0): break
-        avg+=angles[best_dist_ind+i]*front_data[best_dist_ind+i]
-        sum+=front_data[best_dist_ind+i]
-        avg+=angles[best_dist_ind-i]*front_data[best_dist_ind-i]
-        sum+=front_data[best_dist_ind-i] """
-    
     if sum!=0:
         avg/=sum
     else : avg=np.pi
-
+    
+    """ best_dist_ind=np.argmax(front_data)
+    avg_m=angles[best_dist_ind]
+    sum_m=front_data[best_dist_ind]
+    for i in range(1,2*step_size):
+        if ((best_dist_ind+i)>=len(front_data) or (best_dist_ind-i)<0): break
+        avg_m+=angles[best_dist_ind+i]*front_data[best_dist_ind+i]
+        sum_m+=front_data[best_dist_ind+i]
+        avg_m+=angles[best_dist_ind-i]*front_data[best_dist_ind-i]
+        sum_m+=front_data[best_dist_ind-i]
+    
+    if sum_m!=0:
+        avg_m/=sum_m
+    else : avg_m=np.pi
+    avg=(avg+avg_m)/2 """
+    
     direction=avg-np.pi
 
     return direction

@@ -9,8 +9,8 @@
     <param name="front_topic" value="/front_data"/>
     <param name="side_topic" value="/side_data"/>
     <param name="lidar_topic" value="/LidarScan"/>
-    <param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
-    <param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle0" value="110"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="250"/> <!--angles en degres, convertis en radians par la suite-->
 
 </node>
 
@@ -18,8 +18,8 @@
 <node pkg="course_2023_pkg" name="data_process" type="lidar_data_process.py" output="screen" required="true">
     <param name="front_data_topic" value="/front_data"/>
     <param name="side_data_topic" value="/side_data"/>
-    <param name="angle0" value="130"/> <!--angles en degres, convertis en radians par la suite-->
-    <param name="angle1" value="230"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle0" value="110"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="250"/> <!--angles en degres, convertis en radians par la suite-->
     <param name="FREE_SPACE_THRESH" value="1.0"/>
     
 
@@ -27,14 +27,16 @@
 
 <!-- Run one lidar_nav_controller -->
 <node pkg="course_2023_pkg" name="nav_controller" type="lidar_nav_controller.py" output="screen" required="true">
+    <param name="speed" value="1"/>
+    
     
 </node>
 
 <param name="MAX_SPEED" value="1"/>
 <param name="MAX_ANGLE" value="1"/>
-<param name="CLIP_DIST" value="3"/>
-<param name="MIN_DIST" value="1"/>
-<param name="SAFETY_DIST" value="0.5"/>
+<param name="CLIP_DIST" value="7"/>
+<param name="MIN_DIST" value="0.5"/>
+<param name="SAFETY_DIST" value="0.3"/>
 
 
 
@@ -44,9 +46,9 @@
 <param name="kc" value="-0.85"/>
 <param name="ks" value="1"/>
 <!-- param lead controler-->
-<param name="kd" value="6.5"/>
-<param name="tau" value="1.0e-6"/>
-<param name="a" value="10"/>
+<param name="kd" value="3.0"/>
+<param name="tau" value="1.5e-7"/>
+<param name="a" value="5"/>
 
 
 <param name="step_size" value="5"/>
