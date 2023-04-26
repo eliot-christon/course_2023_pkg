@@ -33,8 +33,8 @@
     <!-- Run nodes-->
     <node pkg="course_2023_pkg" type="marche_arriere.py" name="marche_arriere" output="screen" required="True"/>
 
-    <node pkg="course_2023_pkg"  type="pub_tofs2dist.py" name="tof2dist" output="screen" required="True"/>
-        
+    <!-- <node pkg="course_2023_pkg"  type="pub_tofs2dist.py" name="tof2dist" output="screen" required="True"/>
+         -->
 
 
     <node pkg="course_2023_pkg" type="start_stop_control.py" name="start_stop_control" output="screen" required="True"/>
@@ -46,7 +46,7 @@
 
     <!--seuil passage de lidar a tofs-->
     <param name="tofs_lim_threshold" value="0.2"/>
-    <param name="K_backwards" value="0.03"/>
+    <param name="K_backwards" value="0.5"/>
     <param name="BACKWARD_SPEED" value="-0.3"/>
         
     

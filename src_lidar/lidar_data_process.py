@@ -6,7 +6,7 @@ import numpy as np
 import message_filters
 
 from std_msgs.msg import Float32MultiArray, Float32, Bool
-
+from time import time
 
 
 class Control:
@@ -16,11 +16,20 @@ class Control:
         self.dir=Float32()
         self.center=Float32()
         self.front_dist=Float32()
+        self.front_data=[]
         self.offset=0.  #en faire parametre
         self.obstacle_ahead=False
         self.free_path=True
         self.print=False #pour afficher msg de manoeuvre 1 fois par manoeuvre
         self.run=True
+        self.flag=False
+        self.SAFETY_DIST=rospy.get_param("SAFETY_DIST",default=0.3)
+        self.FREE_SPACE_THRESH=self.SAFETY_DIST+0.15
+        self.CLIP_DIST=rospy.get_param("CLIP_DIST",default=3)
+
+        self.a0,self.a1=rospy.get_param("~angle0",default=120),rospy.get_param("~angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
+        self.i0,self.i1=rospy.get_param("i0",default=165),rospy.get_param("i1",default=195) 
+        self.delta_front=0
 
 
 #navigation par defaut
@@ -65,9 +74,9 @@ def default_nav(front_data,quadran=[]):
 #COMME CA SI IL EVITE OBSTACLE EN PARTANT A GAUCHE ET ENSUITE IL VEUT ALLER 
 #A DROITE LA COMMANDE SERA PAS AUSSI BRUSQUE 
 def quadran_nav(front_data,N):
-    rospy.loginfo("MANOEUVRE D'EVITEMENT")
+    #rospy.loginfo("MANOEUVRE D'EVITEMENT")
     step_size=rospy.get_param("step_size",default=10)#step interval for front_data
-    steps=len(front_data)//step_size
+    
 
     quadran_size=len(front_data)//N #taille d'un cadran 
 
@@ -111,23 +120,17 @@ def quadran_nav(front_data,N):
 
 def analyze_front(front_data,c):
     #calcule la distance moyenne a l'avant et chercho obstacle pour mode evitement ou default
-    SAFETY_DIST=rospy.get_param("SAFETY_DIST",default=0.3)
-    FREE_SPACE_THRESH=SAFETY_DIST+0.15
-    step_size=rospy.get_param("step_size",default=10)
-
-    a0,a1=rospy.get_param("~angle0",default=120),rospy.get_param("~angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
-    i0,i1=rospy.get_param("i0",default=165),rospy.get_param("i1",default=195) 
-
     
-    angles=np.linspace(a0,a1,len(front_data))
+    
+    angles=np.linspace(c.a0,c.a1,len(front_data))
 
-    ind0=np.where(angles>=i0)[0][0]
-    ind1=np.where(angles>=i1)[0][0]
+    ind0=np.where(angles>=c.i0)[0][0]
+    ind1=np.where(angles>=c.i1)[0][0]
 
     front_dist=0
     r=range(ind0,ind1,1)
     for i in r:
-        if front_data[i]<SAFETY_DIST and front_data[i]>0: 
+        if (front_data[i]<c.SAFETY_DIST and front_data[i]>0) or np.all(np.array(front_data)==c.CLIP_DIST): 
             c.obstacle_ahead=True #front_data[i]>0 pour eviter bug en reel
             c.free_path=False
         
@@ -136,7 +139,7 @@ def analyze_front(front_data,c):
     front_dist/=len(r) #on moyenne sur le nomnre de points utilises
     
     #!!!!RECUPERER INDICE OBSTACLE -> LOCALISATION -> S'ELOIGNER ->EVITER DE CHOSIR UN CADRAN QUI A PLUS DE SITANCE ALORS QUE L'OBSTACLE S'Y TROUVE
-    if np.all(np.array(front_data[ind0:ind1])>FREE_SPACE_THRESH) and c.obstacle_ahead==True:
+    if np.all(np.array(front_data[ind0:ind1])>c.FREE_SPACE_THRESH) and c.obstacle_ahead==True:
         c.obstacle_ahead=False
         c.free_path=True
 
@@ -145,11 +148,12 @@ def analyze_front(front_data,c):
     if (mask < FREE_SPACE_THRESH).any() and c.free_path==True:
         c.free_path=False """
     #print(front_dist,c.obstacle_ahead)
+    #c.delta_front=front_data[len(front_data)//2]
 
     return front_dist
 
 
-def data_process_callback(msg_f,msg_s,c):
+def data_process_callback(msg_f,c):
     #PARCOURIR LE TABLEAU DANS msg.data ET DETERMINER LA DIRECTION INSTANTANNEE A PRENDRE 
     #ET LA VITESSE QU'ON PEUT AVOIR
 
@@ -160,38 +164,15 @@ def data_process_callback(msg_f,msg_s,c):
     #
     #step_size=rospy.get_param("step_size",default=10)#step interval for front_data 
 
-    front_data=msg_f.data #tableau contient dist autour du robot entre [a0,a1]
+    c.front_data=msg_f.data #tableau contient dist autour du robot entre [a0,a1]
+    c.flag=True
+
+    
 
 
-    if len(front_data)!=0:
-        #si objet au milieu <-> front_data[diag_gauche]>front_data[n//2]<front_data[diag_droite]
-        #probleme est qu'en faisant moyenne la direction a prendre est quand meme le milieu du a la symetrie
-        #devier-> ajouter offfset a avg qui fera qu'en faisant moy on ira vers gauche ou droite
-        #METTRE EN PLACE UN FLAG RECUPERE DANS nv_control QUI AJUSTE VITESSE ET COMMANDE DE BRAQUAGE
-        
-        
-        front_dist=analyze_front(front_data,c)
-        
-        #FREE_SPACE_THRESH=rospy.get_param("~FREE_SPACE_THRESH",default=0.5)
-        #if front_dist>FREE_SPACE_THRESH: c.free_path=True
-        #elif c.free_path==True and front_dist<FREE_SPACE_THRESH and c.obstacle_ahead==True : c.free_path=False
-        
-        #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
-        
-        c.front_dist=front_dist
-
-        
-        N=rospy.get_param("N_cadrans",default=3) 
-        
-        direction=quadran_nav(front_data,N) if c.obstacle_ahead==True else default_nav(front_data)#avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
-
-        #equivalent to orientation error
-        c.dir=direction-c.offset #-offset car defini t.q. offset>0 => gauche
-
-
-    side_data=msg_s.data
+    #side_data=msg_s.data
     #equivalent to centering error
-    c.center=side_data[0]-side_data[1] +c.offset if len(side_data)!=0 else 0  #left-right + offset
+    #c.center=side_data[0]-side_data[1] +c.offset if len(side_data)!=0 else 0  #left-right + offset
         
     
 def onrun_callback(msg,c):
@@ -212,11 +193,11 @@ if __name__=='__main__':
         front_data_topic=rospy.get_param("~front_data_topic", default="/front_data")
         side_data_topic=rospy.get_param("~side_data_topic", default="/side_data")
 
-        front_sub=message_filters.Subscriber(front_data_topic,Float32MultiArray, queue_size=1)
-        side_sub=message_filters.Subscriber(side_data_topic,Float32MultiArray,queue_size=1)
+        front_sub=rospy.Subscriber(front_data_topic,Float32MultiArray, data_process_callback,c,queue_size=1)
+        #side_sub=message_filters.Subscriber(side_data_topic,Float32MultiArray,queue_size=1)
 
-        ts = message_filters.ApproximateTimeSynchronizer([front_sub, side_sub], queue_size=1, slop=0.1, allow_headerless=True)
-        ts.registerCallback(data_process_callback,c)
+        #ts = message_filters.ApproximateTimeSynchronizer([front_sub, side_sub], queue_size=1, slop=0.1, allow_headerless=True)
+        #ts.registerCallback(data_process_callback,c)
   
         #subscribe MAE state
         rospy.Subscriber("/Nav_lid",Bool,onrun_callback,c)
@@ -242,8 +223,37 @@ if __name__=='__main__':
 
         while not rospy.is_shutdown():
 
+            if c.flag==True:
+                c.flag=False
+                front_data=c.front_data
+                if len(front_data)!=0:
+                    #si objet au milieu <-> front_data[diag_gauche]>front_data[n//2]<front_data[diag_droite]
+                    #probleme est qu'en faisant moyenne la direction a prendre est quand meme le milieu du a la symetrie
+                    #devier-> ajouter offfset a avg qui fera qu'en faisant moy on ira vers gauche ou droite
+                    #METTRE EN PLACE UN FLAG RECUPERE DANS nv_control QUI AJUSTE VITESSE ET COMMANDE DE BRAQUAGE
+                    
+                    
+                    front_dist=analyze_front(front_data,c)
+                    
+                    #FREE_SPACE_THRESH=rospy.get_param("~FREE_SPACE_THRESH",default=0.5)
+                    #if front_dist>FREE_SPACE_THRESH: c.free_path=True
+                    #elif c.free_path==True and front_dist<FREE_SPACE_THRESH and c.obstacle_ahead==True : c.free_path=False
+                    
+                    #if front_dist>SAFETY_DIST and c.obstacle_ahead==True: c.obstacle_ahead=False
+                    
+                    c.front_dist=front_dist
+
+                    
+                    N=rospy.get_param("N_cadrans",default=3) 
+                    
+                    direction=quadran_nav(front_data,N) if c.obstacle_ahead==True else default_nav(front_data)#avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
+
+                    #equivalent to orientation error
+                    c.dir=direction-c.offset #-offset car defini t.q. offset>0 => gauche
+
+
             dir_pub.publish(c.dir)
-            center_pub.publish(c.center)
+            #center_pub.publish(c.center)
             front_dist_pub.publish(c.front_dist)
             obstacle_ahead_pub.publish(c.obstacle_ahead) #flag pour MAE 
             free_path_pub.publish(c.free_path) #flag pour MAE

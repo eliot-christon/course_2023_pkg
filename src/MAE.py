@@ -38,16 +38,16 @@ class MAE:
         self.pub_nav_lid = rospy.Publisher("/Nav_lid", Bool, queue_size = 1)
         self.pub_d_tour = rospy.Publisher("/D_tour", Bool, queue_size = 1)
         self.pub_sensi= rospy.Publisher("/Sensi", Bool, queue_size = 1)
-        self.pub_marche_arr = rospy.Publisher("//Marche_arriere", Bool, queue_size = 1)
+        self.pub_marche_arr = rospy.Publisher("/Marche_arriere", Bool, queue_size = 1)
 
         self.pub_state = rospy.Publisher("/State", Int8, queue_size = 1)
 
         # subscribers entrées MAE
         self.sub_ow = rospy.Subscriber("/Obstacle_warning", Bool, self.callback_ow)
-        self.sub_dist_lim = rospy.Subscriber("/Dist_lim", Bool, self.callback_dist_lim)
+        #self.sub_dist_lim = rospy.Subscriber("/Dist_lim", Bool, self.callback_dist_lim)
         self.sub_fp = rospy.Subscriber("/Freepath", Bool, self.callback_fp)
-        self.sub_dir = rospy.Subscriber("/Direction", String, self.callback_dir)
-        self.sub_fin_d_tour = rospy.Subscriber("/Fin_d_tour", Bool, self.callback_fin_d_tour)
+        # self.sub_dir = rospy.Subscriber("/Direction", String, self.callback_dir)
+        # self.sub_fin_d_tour = rospy.Subscriber("/Fin_d_tour", Bool, self.callback_fin_d_tour)
         
 
 
@@ -80,7 +80,7 @@ class MAE:
         if self.EP == 0:
 
             if self.ow and not(self.fp):
-                self.EF=3
+                self.EF=1
 
             #elif self.dir=="wrong":
              #   self.EF=2
@@ -90,26 +90,26 @@ class MAE:
 
         if self.EP == 1:
             if (not(self.fp) and self.dist_lim) or self.fp:
-                self.EF=3
+                self.EF=0
             else:
                 self.EF = 1
 
-        if self.EP == 2:
-            # if self.fin_d_tour or self.dir:
-            if (self.dir=="right" or self.fin_d_tour) and self.fp:
-                self.EF=0
-            elif (self.dir=="right" or self.fin_d_tour) and not(self.fp):
-                self.EF=0
-            else:
-                self.EF=2
+        # if self.EP == 2:
+        #     # if self.fin_d_tour or self.dir:
+        #     if (self.dir=="right" or self.fin_d_tour) and self.fp:
+        #         self.EF=0
+        #     elif (self.dir=="right" or self.fin_d_tour) and not(self.fp):
+        #         self.EF=0
+        #     else:
+        #         self.EF=2
 
-        if self.EP == 3:
-            if not(self.fp) and not (self.dist_lim):
-                self.EF=1
-            elif self.fp and not(self.ow):
-                self.EF=0
-            else:
-                self.EF=3
+        # if self.EP == 3:
+        #     if not(self.fp) and not (self.dist_lim):
+        #         self.EF=1
+        #     elif self.fp and not(self.ow):
+        #         self.EF=0
+        #     else:
+        #         self.EF=3
 
 
 
@@ -129,9 +129,9 @@ class MAE:
         if self.EP == 1:
             self.marche_arr = True
 
-        if self.EP == 2:
-            self.d_tour = True
-            self.sensi = True
+        # if self.EP == 2:
+        #     self.d_tour = True
+        #     self.sensi = True
 
 
         

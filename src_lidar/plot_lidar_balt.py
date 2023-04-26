@@ -40,7 +40,7 @@ class Plot :
 			if self.angles is None : self.angles = np.linspace(np.deg2rad(a0), np.deg2rad(a1),len(scan))#(np.deg2rad(120), np.deg2rad(240), len(scan)) #pour front data
 			
 			self.x_data = [] ; self.y_data = []
-			for i in range(len(scan)) :
+			for i in range(len(scan)-1) :
 				#On converti la distance renvoyee par data en coord x,y dans le referentiel du robot
 				self.x_data.append(scan[i] * np.cos(self.angles[i]))
 				self.y_data.append(scan[i] * np.sin(self.angles[i]))
@@ -55,7 +55,7 @@ class Plot :
 			if self.angles is None : self.angles = np.linspace(np.deg2rad(a0), np.deg2rad(a1),len(scan))#(np.deg2rad(120), np.deg2rad(240), len(scan)) #pour front data
 			
 			self.x_data = [] ; self.y_data = []
-			for i in range(len(scan)) :
+			for i in range(len(scan)-1) :
 				#On converti la distance renvoyee par data en coord x,y dans le referentiel du robot
 				self.x_data.append(scan[i] * np.cos(self.angles[i]))
 				self.y_data.append(scan[i] * np.sin(self.angles[i]))

@@ -4,6 +4,7 @@
 import rospy
 import numpy as np
 
+
 from std_msgs.msg import Float32, Float32MultiArray, Bool
 import message_filters 
 
@@ -17,10 +18,11 @@ class Controller:
         self.last_command=0
         self.F=10 #valeur par defaut, mise a jour dans main p.rapp a freq de pub
         self.run=True
+        self.offset=-np.pi/15
 
-def angle_regulator_callback(msg_dir,msg_center,c):
+def angle_regulator_callback(msg_dir,c):
     if c.run:
-        d_center=msg_center.data #centering err : left-right -> d_c>0 : go left, d_c<0 : go right
+        #d_center=msg_center.data #centering err : left-right -> d_c>0 : go left, d_c<0 : go right
         d_dir=msg_dir.data #orientation err : desired_orientation-current_orientation -> d_dir>0 : go right, d_dir<0 : go left 
 
         #controler gains
@@ -30,7 +32,7 @@ def angle_regulator_callback(msg_dir,msg_center,c):
         a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
 
         #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
-        u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F)) #+ k_c*d_center  #k_d*d_dir +k_c*d_center 
+        u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F)) + c.offset#+ k_c*d_center  #k_d*d_dir +k_c*d_center 
         c.last_command=u
         c.last_err=d_dir
 
@@ -69,19 +71,19 @@ if __name__=='__main__':
 
         #check haut niveau navigation
         haut_niv=rospy.get_param("haut_niv",default=False)
-        print("Navigation haut_niv:",haut_niv)
+        #print("Navigation haut_niv:",haut_niv)
 
         #subscribe to lidar_dir and lidar_center topics
         dir_topic=rospy.get_param("~dir_topic",default="/lidar_dir")
         center_topic=rospy.get_param("~center_topic",default="/lidar_center")
 
-        dir_sub=message_filters.Subscriber(dir_topic,Float32, queue_size=1)
-        center_sub=message_filters.Subscriber(center_topic,Float32, queue_size=1)
+        dir_sub=rospy.Subscriber(dir_topic,Float32,angle_regulator_callback,c, queue_size=1)
+        #center_sub=message_filters.Subscriber(center_topic,Float32, queue_size=1)
 
-        ts=message_filters.ApproximateTimeSynchronizer([dir_sub, center_sub], queue_size=1,slop=0.1, allow_headerless=True)
+        #ts=message_filters.ApproximateTimeSynchronizer([dir_sub, center_sub], queue_size=1,slop=0.1, allow_headerless=True)
 
         #callback
-        ts.registerCallback(angle_regulator_callback,c)
+        #ts.registerCallback(angle_regulator_callback,c)
 
         #subscribe to front_dist topic
         front_dist_topic="/front_dist"
@@ -112,7 +114,7 @@ if __name__=='__main__':
                 angle_pub.publish(c.ang)
                 speed_pub.publish(c.speed)
             c.command.data=[c.speed, c.ang]
-            
+
             command_pub.publish(c.command)
 
             rate.sleep()

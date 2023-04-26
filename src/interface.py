@@ -38,7 +38,7 @@ class Navigation() :
         #self.sub_nav_tofs = rospy.Subscriber("/TofsSpeedAngleCommand", Float32MultiArray, self.callback_tofs)
         self.sub_marche_arr = rospy.Subscriber("/MarcheArriereSpeedAngleCommand", Float32MultiArray, self.callback_march_arr)
         self.sub_nav_lidar = rospy.Subscriber("/LidarSpeedAngleCommand", Float32MultiArray, self.callback_lidar)
-        self.sub_d_tour = rospy.Subscriber("/d_tourSpeedAngleCommand", Float32MultiArray, self.callback_d_tour)
+        #self.sub_d_tour = rospy.Subscriber("/d_tourSpeedAngleCommand", Float32MultiArray, self.callback_d_tour)
         self.sub_state = rospy.Subscriber("/State", Int8, self.callback_state)
 
         
@@ -78,10 +78,10 @@ class Navigation() :
     #     self.nav_tofs["speed"] = msg.data[0]
     #     self.nav_tofs["angle"] = msg.data[1]
 
-    def callback_d_tour(self, msg) :
-        """ Callback for the d_tour commands"""
-        self.d_tour["speed"] = msg.data[0]
-        self.d_tour["angle"] = msg.data[1]
+    # def callback_d_tour(self, msg) :
+    #     """ Callback for the d_tour commands"""
+    #     self.d_tour["speed"] = msg.data[0]
+    #     self.d_tour["angle"] = msg.data[1]
 
     def callback_state(self, msg) :
          """ Callback for the robot state"""
@@ -120,17 +120,18 @@ class Navigation() :
                         rospy.loginfo("NAV TOFS")
                         nav="marche_arriere"
                     self.set_speed_angle(self.marche_arr["speed"], self.marche_arr["angle"])
-                elif self.EP == 2:
-                    if nav!="demi_tour":
-                        rospy.loginfo("DEMI-TOUR")
-                        nav="demi_tour"
-                    self.set_speed_angle(self.d_tour["speed"], self.d_tour["angle"])
+
+                # elif self.EP == 2:
+                #     if nav!="demi_tour":
+                #         rospy.loginfo("DEMI-TOUR")
+                #         nav="demi_tour"
+                #     self.set_speed_angle(self.d_tour["speed"], self.d_tour["angle"])
                 
-                elif self.EP==3:
-                    if nav!="stop":
-                        rospy.loginfo("STOP")
-                        nav="stop"
-                        self.set_speed_angle(0.0, 0.0)
+                # elif self.EP==3:
+                #     if nav!="stop":
+                #         rospy.loginfo("STOP")
+                #         nav="stop"
+                #         self.set_speed_angle(0.0, 0.0)
                     
             else:
                 self.set_speed_angle(0, 0)

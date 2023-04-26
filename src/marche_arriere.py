@@ -61,7 +61,7 @@ class MarcheArriere :
         # main loop
         while not rospy.is_shutdown() : 
             # actualize the parameters
-            self.actualize_params()
+            #self.actualize_params()
 
             # check if the navigation is activated
             if not self.compute :
