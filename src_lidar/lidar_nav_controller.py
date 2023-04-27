@@ -18,6 +18,11 @@ class Controller:
         self.last_command=0
         self.F=10 #valeur par defaut, mise a jour dans main p.rapp a freq de pub
         self.run=True
+        #controler gains
+        self.k_c=rospy.get_param("kc",default=-0.85)
+        self.k_d=rospy.get_param("kd",default=8)
+        self.tau=rospy.get_param("tau",default=1e-6) #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
+        self.a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
 
 def angle_regulator_callback(msg_dir,c):
     if c.run:
@@ -25,10 +30,10 @@ def angle_regulator_callback(msg_dir,c):
         d_dir=msg_dir.data #orientation err : desired_orientation-current_orientation -> d_dir>0 : go right, d_dir<0 : go left 
 
         #controler gains
-        k_c=rospy.get_param("kc",default=-0.85)
-        k_d=rospy.get_param("kd",default=8)
-        tau=rospy.get_param("tau",default=1e-6) #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
-        a=rospy.get_param("a",default=10) #en lien avec la freq a laquelle on veut gain de phase
+        k_c=c.k_c
+        k_d=c.k_d
+        tau=c.tau #valeur a determiner pour lead-controller->en lien avec vitesse de reaction <T/2=0.05
+        a=c.a #en lien avec la freq a laquelle on veut gain de phase
 
         #le gain pour dir doit etre plus grand que celui du centrage pour garantir evitement d'obstacle avant de se centrer
         u=1/(1-2*tau*c.F)*(k_d*(d_dir*(1-2*a*tau*c.F)+c.last_err*(1+2*a*tau*c.F))-c.last_command*(1+2*tau*c.F))#+ k_c*d_center  #k_d*d_dir +k_c*d_center 
@@ -89,7 +94,7 @@ if __name__=='__main__':
         front_dist_sub=rospy.Subscriber(front_dist_topic,Float32,speed_regulator_callback,c)
 
         #define rate
-        HZ=10
+        HZ=2
         rate=rospy.Rate(HZ)
 
         #assign frequency to control

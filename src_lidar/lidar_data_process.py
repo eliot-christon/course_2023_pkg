@@ -46,9 +46,9 @@ def default_nav(front_data,quadran=[]):
     else: angles=quadran
 
     for i in range(steps):
-        #if front_data[i*step_size]>MIN_DIST:
-        avg+=angles[i*step_size]*(front_data[i*step_size])**3
-        sum+=front_data[i*step_size]**3
+        if front_data[i*step_size]>MIN_DIST:
+            avg+=angles[i*step_size]*(front_data[i*step_size])**2
+            sum+=front_data[i*step_size]**2
     if sum!=0:
         avg/=sum
     else : avg=np.pi
@@ -78,7 +78,7 @@ def default_nav(front_data,quadran=[]):
 #COMME CA SI IL EVITE OBSTACLE EN PARTANT A GAUCHE ET ENSUITE IL VEUT ALLER 
 #A DROITE LA COMMANDE SERA PAS AUSSI BRUSQUE 
 def quadran_nav(front_data,N):
-    #rospy.loginfo("MANOEUVRE D'EVITEMENT")
+    rospy.loginfo("MANOEUVRE D'EVITEMENT")
     step_size=rospy.get_param("step_size",default=10)#step interval for front_data
     
 
@@ -100,7 +100,7 @@ def quadran_nav(front_data,N):
         else: 
             sums[n]=sum(front_data[n*quadran_size:(n+1)*quadran_size:step_size])
     
-    sums[n//2]=0 #on veut pas regarder ua centre
+    #sums[n//2]=0 #on veut pas regarder ua centre
     
     #if steps//(N-1)<N : avgs[N-1],sums[N-1]= angles[(N-1)*step_size]*front_data[(N-1)*step_size],front_data[(N-1)*step_size]
     #ca marche mieux en simu sans la 3eme composante
@@ -134,7 +134,7 @@ def analyze_front(front_data,c):
     front_dist=0
     r=range(ind0,ind1,1)
     for i in r:
-        if (front_data[i]<c.SAFETY_DIST and front_data[i]>0) or np.all(np.array(front_data)==c.CLIP_DIST): 
+        if (front_data[i]<c.SAFETY_DIST and front_data[i]>0): 
             c.obstacle_ahead=True #front_data[i]>0 pour eviter bug en reel
             c.free_path=False
         
@@ -250,7 +250,7 @@ if __name__=='__main__':
                     
                     N=rospy.get_param("N_cadrans",default=3) 
                     
-                    direction=quadran_nav(front_data,N) if c.obstacle_ahead==True else default_nav(front_data)#avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
+                    direction=quadran_nav(front_data,N) #if c.obstacle_ahead==True else default_nav(front_data)#avg-np.pi #>0 : droite, <0 : gauche => donne la direction a prendre
 
                     #equivalent to orientation error
                     c.dir=direction-c.offset #-offset car defini t.q. offset>0 => gauche
