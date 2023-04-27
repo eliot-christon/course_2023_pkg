@@ -9,8 +9,8 @@
     <param name="front_topic" value="/front_data"/>
     <param name="side_topic" value="/side_data"/>
     <param name="lidar_topic" value="/LidarScan"/>
-    <param name="angle0" value="110"/> <!--angles en degres, convertis en radians par la suite-->
-    <param name="angle1" value="250"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle0" value="115"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="245"/> <!--angles en degres, convertis en radians par la suite-->
 
 </node>
 
@@ -18,8 +18,8 @@
 <node pkg="course_2023_pkg" name="data_process" type="lidar_data_process.py" output="screen" required="true">
     <param name="front_data_topic" value="/front_data"/>
     <param name="side_data_topic" value="/side_data"/>
-    <param name="angle0" value="110"/> <!--angles en degres, convertis en radians par la suite-->
-    <param name="angle1" value="250"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle0" value="115"/> <!--angles en degres, convertis en radians par la suite-->
+    <param name="angle1" value="245"/> <!--angles en degres, convertis en radians par la suite-->
     <param name="FREE_SPACE_THRESH" value="1.0"/>
     
 
@@ -53,9 +53,9 @@
 <param name="kc" value="-0.85"/>
 <param name="ks" value="0.5"/>
 <!-- param lead controler-->
-<param name="kd" value="3.5"/>
+<param name="kd" value="3."/>
 <param name="tau" value="1.5e-7"/>
-<param name="a" value="3.5"/>
+<param name="a" value="10"/>
 
 
 <param name="step_size" value="5"/>
@@ -65,7 +65,7 @@
 <param name="i0" value="165"/> 
 <param name="i1" value="195"/> 
 
-<param name="N_cadrans" value='10'/>
+<param name="N_cadrans" value='8'/>
 
 
 <param name="haut_niv" value="$(arg haut_niv)"/>

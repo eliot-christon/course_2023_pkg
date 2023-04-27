@@ -94,7 +94,7 @@ if __name__=='__main__':
         front_dist_sub=rospy.Subscriber(front_dist_topic,Float32,speed_regulator_callback,c)
 
         #define rate
-        HZ=2
+        HZ=10
         rate=rospy.Rate(HZ)
 
         #assign frequency to control
