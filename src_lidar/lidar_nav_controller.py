@@ -43,13 +43,13 @@ def angle_regulator_callback(msg_dir,c):
         #saturator
         command=np.tanh(u)
 
-        
-        c.ang=command*rospy.get_param("MAX_ANGLE",default=1)
+    
+        c.ang=command
 
 
 def speed_regulator_callback(msg_front_dist,c):
     if c.run:
-        MIN_SPEED=rospy.get_param("MIN_SPEED",default=0.0)
+        MIN_SPEED=0.0
         front_dist=msg_front_dist.data
         
         k_s=rospy.get_param("ks",default=1)

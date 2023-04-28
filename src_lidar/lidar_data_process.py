@@ -24,7 +24,7 @@ class Control:
         self.run=True
         self.flag=False
         self.SAFETY_DIST=rospy.get_param("SAFETY_DIST",default=0.3)
-        self.FREE_SPACE_THRESH=self.SAFETY_DIST+0.15
+        self.FREE_SPACE_THRESH=self.SAFETY_DIST+0.2
         self.CLIP_DIST=rospy.get_param("CLIP_DIST",default=3)
 
         self.a0,self.a1=rospy.get_param("~angle0",default=120),rospy.get_param("~angle1",default=240) #ON PEUT MODIFIER CES ANGLES EN FONCTION DU QUADRAN OU SE TROUVE OBSTACLE
@@ -65,7 +65,6 @@ def default_nav(front_data,quadran=[]):
 #COMME CA SI IL EVITE OBSTACLE EN PARTANT A GAUCHE ET ENSUITE IL VEUT ALLER 
 #A DROITE LA COMMANDE SERA PAS AUSSI BRUSQUE 
 def quadran_nav(front_data,N):
-    rospy.loginfo("MANOEUVRE D'EVITEMENT")
     step_size=rospy.get_param("step_size",default=10)#step interval for front_data
     
 

@@ -20,7 +20,7 @@
     <param name="side_data_topic" value="/side_data"/>
     <param name="angle0" value="115"/> <!--angles en degres, convertis en radians par la suite-->
     <param name="angle1" value="245"/> <!--angles en degres, convertis en radians par la suite-->
-    <param name="FREE_SPACE_THRESH" value="1.0"/>
+    <param name="FREE_SPACE_THRESH" value="0.75"/>
     
 
 </node>
@@ -41,9 +41,9 @@
 
 <param name="MAX_SPEED" value="1"/>
 <param name="MAX_ANGLE" value="1"/>
-<param name="CLIP_DIST" value="7"/>
+<param name="CLIP_DIST" value="3"/>
 <param name="MIN_DIST" value="0.75"/>
-<param name="SAFETY_DIST" value="0.55"/>
+<param name="SAFETY_DIST" value="0.35"/>
 
 
 
@@ -51,10 +51,10 @@
 <param name="lidar_nav_only" value="False"/>
 
 <param name="kc" value="-0.85"/>
-<param name="ks" value="0.5"/>
+<param name="ks" value="0.7"/>
 <!-- param lead controler-->
-<param name="kd" value="3."/>
-<param name="tau" value="1.5e-7"/>
+<param name="kd" value="2.2"/>
+<param name="tau" value="2.e-7"/>
 <param name="a" value="10"/>
 
 
@@ -62,10 +62,10 @@
 
 
 <!--angles utilises pour calcul de front_dist-->
-<param name="i0" value="165"/> 
-<param name="i1" value="195"/> 
+<param name="i0" value="170"/> 
+<param name="i1" value="190"/> 
 
-<param name="N_cadrans" value='8'/>
+<param name="N_cadrans" value='10'/>
 
 
 <param name="haut_niv" value="$(arg haut_niv)"/>
