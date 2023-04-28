@@ -50,8 +50,8 @@ class Plot_indicator :
     def __init__(self, w, h) :
         self.fig, self.ax = plt.subplots(figsize=(7, 4))
         self.w, self.h = w, h
-        self.image = np.zeros((128, 160,3))
-        self.imagehsv = np.zeros((128, 160,3))
+        self.image = np.zeros((60, 75,3))
+        self.imagehsv = np.zeros((60, 75,3))
         self.ln = plt.imshow(self.image)
 
 
@@ -197,7 +197,7 @@ class Plot_indicator :
             scan = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
             image = np.array(scan)
 
-        img = cv2.resize(image.astype('float32'), (160, 128), interpolation=cv2.INTER_LINEAR)
+        img = cv2.resize(image.astype('float32'), (75, 60), interpolation=cv2.INTER_LINEAR)
 
         if self.rgb == 0:
 
@@ -225,13 +225,52 @@ class Plot_indicator :
                         img[i,j]=[0,255,0]
 
         #On dessine les cadres utilisé pour repérer les couleurs
-        img[self.limite_haute,0:self.thick,:]=255
-        img[self.limite_haute,img.shape[1]-self.thick:img.shape[1],:]=255
-        img[self.limite_basse,0:self.thick,:]=255
-        img[self.limite_basse,img.shape[1]-self.thick:img.shape[1],:]=255
 
-        img[self.limite_haute:self.limite_basse,self.thick,:]=255
-        img[self.limite_haute:self.limite_basse,img.shape[1]-self.thick,:]=255
+        if self.limite_haute == 0 and self.limite_basse == 60:
+
+            img[self.limite_haute:self.limite_basse,self.thick,:]=255
+            img[self.limite_haute:self.limite_basse,img.shape[1]-self.thick-1,:]=255
+
+            img[self.limite_haute:self.limite_basse,int(img.shape[1]//2-(self.thick/2))-1,:]=255
+            img[self.limite_haute:self.limite_basse,int(img.shape[1]//2+(self.thick/2)),:]=255
+
+
+        elif self.limite_haute == 0:
+            img[self.limite_basse+1,0:self.thick+1,:]=255
+            img[self.limite_basse+1,img.shape[1]-self.thick-1:img.shape[1],:]=255
+
+            img[self.limite_haute:self.limite_basse+1,self.thick,:]=255
+            img[self.limite_haute:self.limite_basse+1,img.shape[1]-self.thick-1,:]=255
+
+            img[self.limite_haute:self.limite_basse+1,int(img.shape[1]//2-(self.thick/2))-1,:]=255
+            img[self.limite_haute:self.limite_basse+1,int(img.shape[1]//2+(self.thick/2)),:]=255
+            img[self.limite_basse+1,int(img.shape[1]//2-(self.thick/2))-1:int(img.shape[1]//2+(self.thick/2))+1,:]=255
+
+        elif self.limite_basse == 60:
+            img[self.limite_haute-1,0:self.thick+1,:]=255
+            img[self.limite_haute-1,img.shape[1]-self.thick-1:img.shape[1],:]=255
+
+            img[self.limite_haute-1:self.limite_basse,self.thick,:]=255
+            img[self.limite_haute-1:self.limite_basse,img.shape[1]-self.thick-1,:]=255
+
+            img[self.limite_haute-1:self.limite_basse,int(img.shape[1]//2-(self.thick/2))-1,:]=255
+            img[self.limite_haute-1:self.limite_basse,int(img.shape[1]//2+(self.thick/2)),:]=255
+            img[self.limite_haute-1,int(img.shape[1]//2-(self.thick/2))-1:int(img.shape[1]//2+(self.thick/2))+1,:]=255
+
+        else:
+            img[self.limite_haute-1,0:self.thick+1,:]=255
+            img[self.limite_haute-1,img.shape[1]-self.thick-1:img.shape[1],:]=255
+            img[self.limite_basse+1,0:self.thick+1,:]=255
+            img[self.limite_basse+1,img.shape[1]-self.thick-1:img.shape[1],:]=255
+
+            img[self.limite_haute-1:self.limite_basse+1,self.thick,:]=255
+            img[self.limite_haute-1:self.limite_basse+1,img.shape[1]-self.thick-1,:]=255
+
+            img[self.limite_haute-1:self.limite_basse+1,int(img.shape[1]//2-(self.thick/2))-1,:]=255
+            img[self.limite_haute-1:self.limite_basse+1,int(img.shape[1]//2+(self.thick/2)),:]=255
+            img[self.limite_haute-1,int(img.shape[1]//2-(self.thick/2))-1:int(img.shape[1]//2+(self.thick/2))+1,:]=255
+            img[self.limite_basse+1,int(img.shape[1]//2-(self.thick/2))-1:int(img.shape[1]//2+(self.thick/2))+1,:]=255
+
 
         #Cette ligne permet d'afficher les valeur hsv en passant le curseur sur l'image qui sera affiché
         self.ax.format_coord = self.format_coord

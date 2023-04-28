@@ -9,6 +9,7 @@ from std_msgs.msg import Int16MultiArray, String, Bool
 from sensor_msgs.msg import Image as SensorImage
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
+import time
 
 
 def bgr2hsv (pix, rgb=0):
@@ -66,9 +67,9 @@ class Dir_indicator :
 
         #Paramètres de valeurs de teinte
         self.max_hue_red = rospy.get_param('max_hue_red', default=20)
-        self.min_hue_red = rospy.get_param('min_hue_red', default=280)
-        self.max_hue_green = rospy.get_param('max_hue_green', default=190)
-        self.min_hue_green = rospy.get_param('min_hue_green', default=90)
+        self.min_hue_red = rospy.get_param('min_hue_red', default=300)
+        self.max_hue_green = rospy.get_param('max_hue_green', default=150)
+        self.min_hue_green = rospy.get_param('min_hue_green', default=70)
 
         #Paramètres de valeurs de saturation
         self.min_sat_red = rospy.get_param('min_sat_red', default=60)
@@ -145,7 +146,9 @@ class Dir_indicator :
         
     def callback(self, msg) : 
         """Récupération des données d'images"""
-        #On récupère trois rectangles à gauche, à droite et au centre de l'image défini par limite_haute, limite_basse et thick
+
+
+        #start_time = time.time()
 
         if self.reelparam==0 :
             scan = msg.data		
@@ -155,21 +158,29 @@ class Dir_indicator :
             image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")[:,:,0:3]
 
         #On redimensionne l'image pour avoir moins de pixels à traiter
-        img = cv2.resize(image.astype('float32'), (160, 128), interpolation=cv2.INTER_LINEAR).astype('int')
+        img = cv2.resize(image.astype('float32'), (75, 60), interpolation=cv2.INTER_LINEAR).astype('int')
 
         #Dans ce code on ne convertie pas l'ensemble de l'image de bgr/rgb afin de limiter le nombre de calcul 
 
+        #On récupère trois rectangles à gauche, à droite et au centre de l'image défini par limite_haute, limite_basse et thick
         self.left =img[self.limite_haute:self.limite_basse,0:self.thick,0:3]
         self.right = img[self.limite_haute:self.limite_basse,img.shape[1]-self.thick:img.shape[1],0:3]
-        self.middle = img[self.limite_haute:self.limite_basse,(img.shape[1]//2-(self.thick//2)):(img.shape[1]//2+(self.thick//2)),0:3]
+        self.middle = img[self.limite_haute:self.limite_basse,int(img.shape[1]//2-(self.thick/2)):int(img.shape[1]//2+(self.thick/2)),0:3]
+
+        # end_time = time.time()  
+        # print("Temps d'exécution du callback: {} secondes".format(end_time - start_time))
+        #Temps d'execution à partir d'un bag : 2.3e-4 s  , négligeable devant une boucle du run
+
 
 # Algo ==============================================================================================================
     def run(self):
         """Fonction qui effectue les opération sur les données d'image et qui en déduit la disrection et la couleur du mur face au robot"""
+        
 
         rate = rospy.Rate(10)
 
         while not rospy.is_shutdown() :
+            #loop_start_time = time.time() 
 
             count_green_left=0
             count_red_left=0
@@ -223,10 +234,10 @@ class Dir_indicator :
             #On passe d'une sensibilité à l'autre en fonction de self.sensi
             if self.sensi:
                 #On détermine la direction prise par le véhicule
-                if ((count_green_right < count_green_left) or (count_red_left < count_red_right)) :
+                if ((count_green_right < 0.75*count_green_left) or (count_red_left < 0.75*count_red_right)) :
                     self.direction.data="wrong"
 
-                elif (count_green_right > count_green_left) or (count_red_left > count_red_right):
+                elif (0.75*count_green_right > count_green_left) or (0.75*count_red_left > count_red_right):
                     self.direction.data="right"
 
                 else:
@@ -234,20 +245,20 @@ class Dir_indicator :
 
             else:
                 #On détermine la direction prise par le véhicule
-                if (count_red_right > 40 and count_green_left > 40):
+                if (count_red_right > 5 and count_green_left > 5):
                     self.direction.data="wrong"
 
-                elif (count_green_right > 40 and count_red_left > 40):
+                elif (count_green_right > 5 and count_red_left > 5):
                     self.direction.data="right"
 
                 else:
                     self.direction.data="???"
 
             #On détermine la couleur en face du véhicule
-            if (count_green_middle > count_red_middle) and count_green_middle > 40:
+            if (count_green_middle > count_red_middle) and count_green_middle > 5:
                 self.wcolor.data="green"
             
-            elif (count_red_middle > count_green_middle) and count_red_middle > 40:
+            elif (count_red_middle > count_green_middle) and count_red_middle > 5:
                 self.wcolor.data="red"
 
             else:
@@ -268,7 +279,15 @@ class Dir_indicator :
             self.pubdirection.publish(self.direction)
             self.pubwcolor.publish(self.wcolor)
 
+            #print(count_green_left,count_red_left,count_green_middle,count_red_middle,count_green_right,count_red_right)
+
+            # loop_end_time = time.time() 
+            # print("Temps d'exécution d'une boucle du run: {} secondes".format(loop_end_time - loop_start_time))
+
+            #Temps de calcul de la loop : 5 ms ce qui est mieux que l'an dernier
+
             rate.sleep()
+
 
 if __name__ == '__main__':
     w = rospy.get_param("image_width", default=640)
