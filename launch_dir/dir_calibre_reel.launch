@@ -8,27 +8,30 @@
 	<param name="left_is_green" value="$(arg left_is_green)"/>
 
 	<!-- Paramètre qui détermine la définition de l'image en ENTREE, cela ne correspond pas à l'image qui sera traitée
-	La définition de l'image traitée sera toujours 160*128 par redimentionnement -->
+	La définition de l'image traitée sera toujours 75*60 par redimentionnement -->
 	<param name='image_width' value="160"/>
 	<param name='image_height' value="128"/>
 
 	<!-- Paramètre à copier de la réponse donnée par la commande "rosservice call /get_color_parameter" suite à la calibration -->
 	<param name='max_hue_red' value='20'/>
 	<param name='min_hue_red' value='280'/>
-	<param name='max_hue_green' value='190'/>
+	<param name='max_hue_green' value='130'/>
 	<param name='min_hue_green' value='90'/>
 	<param name='min_sat_red' value='60'/>
-	<param name='min_sat_green' value='60'/>
+	<param name='min_sat_green' value='80'/>
 	<param name='max_sat_red' value='255'/>
 	<param name='max_sat_green' value='255'/>
 	<param name='min_val_red' value='20'/>
 	<param name='min_val_green' value='20'/>
 	<param name='max_val_red' value='255'/>
 	<param name='max_val_green' value='255'/>
-	<param name='lim_haut' value='52'/>
-	<param name='lim_bas' value='100'/>
-	<param name='thick' value='10'/>
+	<param name='lim_haut' value='22'/>
+	<param name='lim_bas' value='50'/>
+	<param name='thick' value='1'/>
 	<param name='rgb' value='0'/>
+
+
+
 
 
 	<!-- Run nodes -->
