@@ -12,10 +12,10 @@ import numpy as np
 
 class Distance() : 
 
-    def __init__(self, nb_tofs=4, queue_size=4) : 
+    def __init__(self, nb_tofs=4, queue_size=4) :
         
         # Params
-        self.tof_topic = rospy.get_param("tof_topic", default="/TofsScan")
+        self.tof_topic = rospy.get_param("tof_topic", default="/SensorsScan")
         self.tofs_lim_threshold = rospy.get_param("tofs_lim_threshold", default=1)
         self.MAX_DIST = rospy.get_param("tofs_default_max_dist",  default=1.5) # default max distance of the tofs
 

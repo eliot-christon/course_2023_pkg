@@ -18,10 +18,10 @@ from std_msgs.msg import Float32MultiArray, Int16MultiArray
 class Plot : 
 
     def __init__(self) :
-        nb_tofs = 2
+        nb_tofs = 4
         print("init")
         self.fig, self.ax = plt.subplots(figsize=(6, 6))
-        self.nums = ["bl", "br"]
+        self.nums = ["fl", "fr", "bl", "br"]
         self.raw_data, self.processed_data = [0]*nb_tofs, [0]*nb_tofs
 
     def initPlot(self) :
@@ -40,14 +40,16 @@ class Plot :
         self._p1 = self.ax.bar(self.nums, self.raw_data, alpha=0.5, label='raw_data', color = 'r', align='center', width=0.25)
         self._p2 = self.ax.bar(self.nums, self.processed_data, alpha=0.5, label='processed_data', color = 'b', align='edge', width=0.25)
 
-    def callback_raw(self, msg) :
+    def callback_raw_real(self, msg) :
         self.raw_data = [d/1000 for d in msg.data]
+    
+    def callback_raw_sim(self, msg) :
+        self.raw_data = msg.data
     
     def callback_processed(self, msg) :
         self.processed_data = msg.data
 
     def updatePlot(self, frame) :
-        print("update plot")
         try : 
             self._p1.remove()
             self._p2.remove()
@@ -59,13 +61,13 @@ class Plot :
 
 def listener(p) :
     print("listener")
-    topic_raw_data = rospy.get_param("tof_topic", default="/TofsScan")
+    topic_raw_data = rospy.get_param("tof_topic", default="/SensorsScan")
     topic_processed_data = rospy.get_param("tof_processed_topic", default="/TofsDistance")
     if topic_raw_data == "/TofsScan" :
-        rospy.Subscriber(topic_raw_data, Int16MultiArray, p.callback_raw)
+        rospy.Subscriber(topic_raw_data, Int16MultiArray, p.callback_raw_real)
         print("Real robot")
     else :
-        rospy.Subscriber(topic_raw_data, Float32MultiArray, p.callback_raw)
+        rospy.Subscriber(topic_raw_data, Float32MultiArray, p.callback_raw_sim)
         print("Simulated robot")
     rospy.Subscriber(topic_processed_data, Float32MultiArray, p.callback_processed)
     plt.show(block = True)
