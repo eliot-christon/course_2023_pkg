@@ -100,7 +100,7 @@ class Plot_indicator :
     
 
     def update_parameter_handler(self, req):
-        """Fonction permettant de mettre à jour les paramètre pour la détection des couleurs"""
+        """Fonction permettant de mettre à jour les paramètres pour la détection des couleurs"""
 
     #Paramètres de la couleur rouge
         if req.parameter_name == "max_hue_red":
@@ -147,7 +147,7 @@ class Plot_indicator :
         return True, f"Parameter {req.parameter_name} updated successfully."
     
     def get_parameters(self, req):
-        """Cette methode permet de récupérer les valeurs des paramètres, ils sont affiché dans le terminal du noeud et non dans le terminal où on appel le service"""
+        """Cette méthode permet de récupérer les valeurs des paramètres, ils sont affichés dans le terminal du noeud et non dans le terminal où on appelle le service"""
         print(
         f"<param name='max_hue_red' value='{self.max_hue_red}'/>\n"
         f"<param name='min_hue_red' value='{self.min_hue_red}'/>\n"
@@ -200,8 +200,8 @@ class Plot_indicator :
 
         self.image = img[:, :, 0:3].astype('uint8')
 
-        #La fonction rgb2hsv consomme plus de ressources que la fonction de opencv mais les valeurs donnée sont toujours correcte 
-        # alors que les valeurs donnée par opencv sont parfois incohérente => à voir comment corriger ça et quand même utiliser opencv 
+        #La fonction rgb2hsv consomme plus de ressources que la fonction de opencv mais les valeurs données sont toujours correctes 
+        # alors que les valeurs données par opencv sont parfois incohérentes => à voir comment corriger ça et quand même utiliser opencv 
         self.imagehsv = np.array([[rgb2hsv(p) for p in row] for row in self.image])
 
         #self.imagehsv = cv2.cvtColor(self.image.astype('uint8'), cv2.COLOR_RGB2HSV)[:,:,0:3]
@@ -224,7 +224,7 @@ class Plot_indicator :
                     if s>self.min_sat_green and v>self.min_val_green:
                         img[i,j]=[0,255,0]
 
-        #On dessine les cadres utilisé pour repérer les couleurs
+        #On dessine les cadres utilisés pour repérer les couleurs
 
         if self.limite_haute == 0 and self.limite_basse == 60:
 
@@ -272,7 +272,7 @@ class Plot_indicator :
             img[self.limite_basse+1,int(img.shape[1]//2-(self.thick/2))-1:int(img.shape[1]//2+(self.thick/2))+1,:]=255
 
 
-        #Cette ligne permet d'afficher les valeur hsv en passant le curseur sur l'image qui sera affiché
+        #Cette ligne permet d'afficher les valeurs hsv en passant le curseur sur l'image qui sera affichée
         self.ax.format_coord = self.format_coord
 
         self.ln.set_data(img)

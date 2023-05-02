@@ -33,9 +33,8 @@
     <node pkg="course_2023_pkg" type="interface_nav_tofs.py" name="interface" output="screen" required="True"/>
 
 
-    <!--seuil passage de lidar a tofs-->
+    <!--seuil passage de lidar à tofs-->
     <param name="tofs_lidar_threshold" value="1.0"/>
     
 
 </launch>
-

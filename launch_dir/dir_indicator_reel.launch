@@ -2,17 +2,17 @@
 <launch>
 	<arg name="left_is_green" default="True"/>
 
-	<!-- Parametre qui détermine si on manipule un robot reel -->
+	<!-- Paramètre qui détermine si on manipule un robot reél -->
 	<param name="reel" value="1"/>
-	<!-- Parametre qui détermine le sens de circulation -->
+	<!-- Paramètre qui détermine le sens de circulation -->
 	<param name="left_is_green" value="$(arg left_is_green)"/>
 
-	<!-- Paramètre qui détermine la définition de l'image en ENTREE, cela ne correspond pas à l'image qui sera traitée
+	<!-- Paramètres qui déterminent la définition de l'image en ENTREE, cela ne correspond pas à l'image qui sera traitée
 	La définition de l'image traitée sera toujours 75*60 par redimentionnement -->
 	<param name='image_width' value="160"/>
 	<param name='image_height' value="128"/>
 	
-	<!-- Paramètre à copier de la réponse donnée par la commande "rosservice call /get_color_parameter" suite à la calibration -->
+	<!-- Paramètres à copier de la réponse donnée par la commande "rosservice call /get_color_parameter" suite à la calibration -->
 	<param name='max_hue_red' value='20'/>
 	<param name='min_hue_red' value='280'/>
 	<param name='max_hue_green' value='190'/>

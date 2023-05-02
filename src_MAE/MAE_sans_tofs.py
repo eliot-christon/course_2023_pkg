@@ -120,13 +120,13 @@ class MAE:
 
         # main loop
         while not rospy.is_shutdown() :
-            #On calcul l'état futur
+            #On calcule l'état futur
             self.f_state()
             #On actualise l'état présent
             self.EP=self.EF
             #On publie la l'état
             self.pub_state.publish(self.EP)
-            #On calcul les sorties
+            #On calcule les sorties
             self.s_MAE()
             #On publie les sorties
             self.pub()
@@ -138,5 +138,4 @@ if __name__ == "__main__" :
         nav = MAE()
         nav.run()
         rospy.spin()
-
 

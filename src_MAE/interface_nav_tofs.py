@@ -28,17 +28,17 @@ class Navigation() :
         /SpeedCommand
         /AngleCommand
         
-    Les entrées sont les commandes envoyé des différents noeuds de navigation et les sorties sont des commandes pour le robots choisi parmis les différentes navigations en fonction de l'état"""
+    Les entrées sont les commandes envoyées des différents noeuds de navigation et les sorties sont des commandes pour le robot choisies parmi les différentes navigations en fonction de l'état"""
 
     def __init__(self) :
         # Init ROS node
         rospy.init_node('navigation_haut_niveau', anonymous=True)
 
             #======Attributs======
-        #Commandes par default
+        #Commandes par défaut
         self.speed = 0.0
         self.angle = 0.0
-        #Initialisations des attributs qui vont prendre les valeurs de commandes des différentes navigation
+        #Initialisation des attributs qui vont prendre les valeurs de commandes des différentes navigation
         self.nav_tofs = {"speed" : 0.0, "angle" : 0.0}
         self.nav_lidar = {"speed" : 0.0, "angle" : 0.0}
         self.d_tour = {"speed" : 0.0, "angle" : 0.0}
@@ -103,7 +103,7 @@ class Navigation() :
 
         # main loop
         while not rospy.is_shutdown() :
-            #En fonction de l'état on choisi quel commande de vitesse utiliser
+            #En fonction de l'état on choisit quelles commande de vitesse utiliser
             if self.start==True:
                 if self.EP == 0:
                     if nav!="lidar":

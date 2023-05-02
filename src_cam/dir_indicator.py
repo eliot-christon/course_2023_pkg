@@ -14,7 +14,7 @@ import time
 
 def bgr2hsv (pix, rgb=0):
     """fonction qui convertit les valeurs d'un pixel bgr en leur valeur hsv"""
-    #Dans ce code on ne convertie pas l'emsemble de l'image de bgr/rgb afin de limiter le nombre de calcul, 
+    #Dans ce code on ne convertit pas l'emsemble de l'image de bgr/rgb afin de limiter le nombre de calcul, 
     # on indique juste lorqu'on recupère les valeurs hsv si le pixel d'origine est en bgr ou rgb 
     p=pix.copy()
     p=p/255
@@ -83,7 +83,7 @@ class Dir_indicator :
         self.max_val_red = rospy.get_param('max_val_red', default=255)
         self.max_val_green = rospy.get_param('max_val_green', default=255)
 
-        #Paramètres qui détermine les cadres pour la vision du vehicule
+        #Paramètres qui déterminent les cadres pour la vision du vehicule
         self.limite_haute=rospy.get_param('lim_haut', default=52)
         self.limite_basse=rospy.get_param('lim_bas', default=100)
         self.thick=rospy.get_param('thick', default=10)
@@ -160,21 +160,21 @@ class Dir_indicator :
         #On redimensionne l'image pour avoir moins de pixels à traiter
         img = cv2.resize(image.astype('float32'), (75, 60), interpolation=cv2.INTER_LINEAR).astype('int')
 
-        #Dans ce code on ne convertie pas l'ensemble de l'image de bgr/rgb afin de limiter le nombre de calcul 
+        #Dans ce code on ne convertit pas l'ensemble de l'image de bgr/rgb afin de limiter le nombre de calcul 
 
-        #On récupère trois rectangles à gauche, à droite et au centre de l'image défini par limite_haute, limite_basse et thick
+        #On récupère trois rectangles à gauche, à droite et au centre de l'image définis par limite_haute, limite_basse et thick
         self.left =img[self.limite_haute:self.limite_basse,0:self.thick,0:3]
         self.right = img[self.limite_haute:self.limite_basse,img.shape[1]-self.thick:img.shape[1],0:3]
         self.middle = img[self.limite_haute:self.limite_basse,int(img.shape[1]//2-(self.thick/2)):int(img.shape[1]//2+(self.thick/2)),0:3]
 
         # end_time = time.time()  
         # print("Temps d'exécution du callback: {} secondes".format(end_time - start_time))
-        #Temps d'execution à partir d'un bag : 2.3e-4 s  , négligeable devant une boucle du run
+        #Temps d'exécution à partir d'un bag : 2.3e-4 s  , négligeable devant une boucle du run
 
 
 # Algo ==============================================================================================================
     def run(self):
-        """Fonction qui effectue les opération sur les données d'image et qui en déduit la disrection et la couleur du mur face au robot"""
+        """Fonction qui effectue les opérations sur les données d'image et qui en déduit la direction et la couleur du mur face au robot"""
         
 
         rate = rospy.Rate(10)
@@ -227,7 +227,7 @@ class Dir_indicator :
                         if s>self.min_sat_red and v>self.min_val_red:
                             count_red_middle+=1
 
-            #Publication par default
+            #Publication par défaut
             self.wcolor.data="???"
             self.direction.data="???"
 

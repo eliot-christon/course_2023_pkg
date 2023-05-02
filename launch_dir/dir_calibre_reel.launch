@@ -2,12 +2,12 @@
 <launch>
 	<arg name="left_is_green" default="True"/>
 
-	<!-- Parametre qui détermine si on manipule un robot reel -->
+	<!-- Paramètre qui détermine si on manipule un robot réel -->
 	<param name='reel' value="1"/>
-	<!-- Parametre qui détermine le sens de circulation -->
+	<!-- Paramètre qui détermine le sens de circulation -->
 	<param name="left_is_green" value="$(arg left_is_green)"/>
 
-	<!-- Paramètres qui détermine la définition de l'image en ENTREE, cela ne correspond pas à l'image qui sera traitée
+	<!-- Paramètres qui déterminent la définition de l'image en ENTREE, cela ne correspond pas à l'image qui sera traitée
 	La définition de l'image traitée sera toujours 75*60 par redimentionnement -->
 	<param name='image_width' value="160"/>
 	<param name='image_height' value="128"/>

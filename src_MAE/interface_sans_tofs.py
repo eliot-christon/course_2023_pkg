@@ -12,7 +12,7 @@ from std_msgs.msg import Float32MultiArray, Float32, Bool, Int8
 
 class Navigation() : 
     """Ce noeud a pour but de faire la transition entre les différents noeuds de navigation et les commandes données au robot,
-        les commandes données au robot vont dépendre de l'état donnée par la MAE:
+        les commandes données au robot vont dépendre de l'état donné par la MAE:
         -Etat 0: Navigation lidar
         -Etat 1: Marche_arrière
         
@@ -25,7 +25,7 @@ class Navigation() :
         /SpeedCommand
         /AngleCommand
         
-    Les entrées sont les commandes envoyé des différents noeuds de navigation et les sorties sont des commandes pour le robots choisi parmis les différentes navigations en fonction de l'état"""
+    Les entrées sont les commandes envoyées des différents noeuds de navigation et les sorties sont des commandes pour le robot choisies parmi les différentes navigations en fonction de l'état"""
 
 
     def __init__(self) :
@@ -36,7 +36,7 @@ class Navigation() :
         #Commandes par default
         self.speed = 0.0
         self.angle = 0.0
-        #Initialisations des attributs qui vont prendre les valeurs de commandes des différentes navigation
+        #Initialisation des attributs qui vont prendre les valeurs de commandes des différentes navigations
         self.marche_arr = {"speed" : 0.0, "angle" : 0.0}
         self.nav_lidar = {"speed" : 0.0, "angle" : 0.0}
         #Etat présent
@@ -94,7 +94,7 @@ class Navigation() :
 
         # main loop
         while not rospy.is_shutdown() :
-            #En fonction de l'état on choisi quel commande de vitesse utiliser
+            #En fonction de l'état on choisit quelle commande de vitesse utiliser
             if self.start==True:
                 if self.EP == 0:
                     if nav!="lidar":
