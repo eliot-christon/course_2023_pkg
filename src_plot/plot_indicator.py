@@ -156,13 +156,9 @@ class Plot_indicator :
         
         f"<param name='min_sat_red' value='{self.min_sat_red}'/>\n"
         f"<param name='min_sat_green' value='{self.min_sat_green}'/>\n"
-        f"<param name='max_sat_red' value='{self.max_sat_red}'/>\n"
-        f"<param name='max_sat_green' value='{self.max_sat_green}'/>\n"
         
         f"<param name='min_val_red' value='{self.min_val_red}'/>\n"
         f"<param name='min_val_green' value='{self.min_val_green}'/>\n"
-        f"<param name='max_val_red' value='{self.max_val_red}'/>\n"
-        f"<param name='max_val_green' value='{self.max_val_green}'/>\n"
 
         f"<param name='lim_haut' value='{self.limite_haute}'/>\n"
         f"<param name='lim_bas' value='{self.limite_basse}'/>\n"
@@ -200,14 +196,18 @@ class Plot_indicator :
         img = cv2.resize(image.astype('float32'), (75, 60), interpolation=cv2.INTER_LINEAR)
 
         if self.rgb == 0:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-            self.image=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)[:,:,0:3].astype('uint8') 
-        else:
-            self.image=img[:,:,0:3]
+        self.image = img[:, :, 0:3].astype('uint8')
 
-        self.imagehsv = cv2.cvtColor(self.image.astype('float32'), cv2.COLOR_RGB2HSV)[:,:,0:3]
-        self.imagehsv[:,:,1] = (self.imagehsv[:,:,1] * 255)
-        self.imagehsv=self.imagehsv.astype('uint8')
+        #La fonction rgb2hsv consomme plus de ressources que la fonction de opencv mais les valeurs donnée sont toujours correcte 
+        # alors que les valeurs donnée par opencv sont parfois incohérente => à voir comment corriger ça et quand même utiliser opencv 
+        self.imagehsv = np.array([[rgb2hsv(p) for p in row] for row in self.image])
+
+        #self.imagehsv = cv2.cvtColor(self.image.astype('uint8'), cv2.COLOR_RGB2HSV)[:,:,0:3]
+        #self.imagehsv[:,:,1] = (self.imagehsv[:,:,1] * 255)
+        #self.imagehsv[:,:,0] = (self.imagehsv[:,:,0] * 3.6)
+        #self.imagehsv=self.imagehsv.astype('uint8')
 
     def updatePlot(self, frame) :
         img=self.image.copy()

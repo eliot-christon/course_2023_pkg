@@ -4,7 +4,7 @@
 
 
     <!-- Set arguments -->
-    <arg name="left_is_green" default="False"/>
+    <arg name="left_is_green" default="True"/>
     <arg name="haut_niv" default="True"/>
     
     <!-- Including launch files -->
