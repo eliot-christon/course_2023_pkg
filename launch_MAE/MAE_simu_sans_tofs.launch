@@ -22,7 +22,7 @@
     <node pkg="course_2023_pkg" type="interface_sans_tofs.py" name="interface" output="screen" required="True"/>
 
 
-    <!--seuil passage de lidar a tofs-->
+    <!--seuil passage de lidar à tofs-->
     <param name="tofs_lim_threshold" value="0.2"/>
     <param name="K_backwards" value="0.03"/>
     <param name="BACKWARD_SPEED" value="-0.3"/>
@@ -30,4 +30,3 @@
     
 
 </launch>
-
